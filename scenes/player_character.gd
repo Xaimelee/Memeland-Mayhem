@@ -15,7 +15,9 @@ var can_fire: bool = true
 var fire_timer: Timer
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
-@onready var weapon_muzzle: Marker2D = $WeaponMuzzle
+@onready var arm_sprite: Sprite2D = $AnimatedSprite2D/ArmSprite2D
+@onready var weapon_sprite: Sprite2D = $AnimatedSprite2D/ArmSprite2D/WeaponsSprite2D
+@onready var weapon_muzzle: Marker2D = $AnimatedSprite2D/ArmSprite2D/WeaponsSprite2D/WeaponMuzzle
 @onready var camera: Camera2D = $Camera2D
 
 func _ready() -> void:
@@ -44,8 +46,32 @@ func _physics_process(delta: float) -> void:
 	# Apply movement
 	move_and_slide()
 	
+	# Flip towards mouse
+	if get_global_mouse_position().x < position.x:
+		sprite.flip_h = true
+		arm_sprite.flip_v = true
+		arm_sprite.position.x = -5
+		arm_sprite.position.y = 3
+		weapon_sprite.flip_v = true
+		weapon_sprite.position.y = 1
+		weapon_muzzle.position.y = 2
+	else:
+		sprite.flip_h = false
+		arm_sprite.flip_v = false
+		arm_sprite.position.x = 5
+		arm_sprite.position.y = 2
+		weapon_sprite.flip_v = false
+		weapon_sprite.position.y = 0
+		weapon_muzzle.position.y = -2
+	
+	# Running backwards
+	if (input_direction.x == 1) == sprite.flip_h:
+		sprite.speed_scale = -1
+	else:
+		sprite.speed_scale = 1
+	
 	# Handle rotation towards mouse
-	#look_at(get_global_mouse_position())
+	arm_sprite.look_at(get_global_mouse_position())
 	
 	# Handle shooting
 	if Input.is_action_pressed("shoot") and can_fire:
@@ -56,7 +82,7 @@ func shoot() -> void:
 	fire_timer.start()
 	
 	# Get direction to mouse
-	var direction = (get_global_mouse_position() - global_position).normalized()
+	var direction = (get_global_mouse_position() - global_position + Vector2(0, 16)).normalized()
 	
 	# Emit signal for bullet creation
 	weapon_fired.emit(bullet_scene, weapon_muzzle.global_position, direction)

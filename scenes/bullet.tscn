@@ -6,6 +6,7 @@
 [sub_resource type="CircleShape2D" id="CircleShape2D_mkf8s"]
 
 [node name="Bullet" type="Area2D"]
+z_index = 1
 script = ExtResource("1_mkf8s")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]

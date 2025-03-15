@@ -1,8 +1,10 @@
-[gd_scene load_steps=18 format=3 uid="uid://dxk1jvimm72ti"]
+[gd_scene load_steps=20 format=3 uid="uid://dxk1jvimm72ti"]
 
 [ext_resource type="Script" uid="uid://ceedsgkf30k30" path="res://scenes/player_character.gd" id="1_6r27q"]
 [ext_resource type="PackedScene" uid="uid://pc8cxy2n2vjx" path="res://scenes/bullet.tscn" id="2_kww55"]
+[ext_resource type="Texture2D" uid="uid://cpgffeu6no6yu" path="res://assets/brett-arm.png" id="3_4h0vy"]
 [ext_resource type="Texture2D" uid="uid://b7fa5g7ocxdik" path="res://assets/brett.png" id="3_kww55"]
+[ext_resource type="Texture2D" uid="uid://bhp2el5a4cwq7" path="res://assets/cyber-glock.png" id="5_uj7mf"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_4h0vy"]
 atlas = ExtResource("3_kww55")
@@ -105,7 +107,7 @@ animations = [{
 radius = 6.0
 
 [node name="PlayerCharacter" type="CharacterBody2D"]
-z_index = 1
+z_index = 2
 z_as_relative = false
 y_sort_enabled = true
 script = ExtResource("1_6r27q")
@@ -114,18 +116,30 @@ bullet_scene = ExtResource("2_kww55")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 z_index = 1
 z_as_relative = false
-y_sort_enabled = true
 position = Vector2(0, -16)
 sprite_frames = SubResource("SpriteFrames_br6ma")
-animation = &"idle"
+animation = &"run"
 autoplay = "idle"
-frame = 5
-frame_progress = 0.198818
 
-[node name="WeaponMuzzle" type="Marker2D" parent="."]
+[node name="ArmSprite2D" type="Sprite2D" parent="AnimatedSprite2D"]
+show_behind_parent = true
+z_index = 1
+z_as_relative = false
+position = Vector2(5, 2)
+texture = ExtResource("3_4h0vy")
+offset = Vector2(4.5, 0.5)
+
+[node name="WeaponsSprite2D" type="Sprite2D" parent="AnimatedSprite2D/ArmSprite2D"]
+show_behind_parent = true
+z_index = 1
+z_as_relative = false
+position = Vector2(12.5, 0)
+texture = ExtResource("5_uj7mf")
+
+[node name="WeaponMuzzle" type="Marker2D" parent="AnimatedSprite2D/ArmSprite2D/WeaponsSprite2D"]
+position = Vector2(17.5, -2)
 
 [node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(2, 2)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -4)
