@@ -45,7 +45,7 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	
 	# Handle rotation towards mouse
-	look_at(get_global_mouse_position())
+	#look_at(get_global_mouse_position())
 	
 	# Handle shooting
 	if Input.is_action_pressed("shoot") and can_fire:

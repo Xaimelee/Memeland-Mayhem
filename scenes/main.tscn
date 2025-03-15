@@ -5,12 +5,14 @@
 [ext_resource type="PackedScene" uid="uid://cg637s8evw1pe" path="res://scenes/map.tscn" id="3_sugp2"]
 
 [node name="Main" type="Node2D"]
+z_as_relative = false
+y_sort_enabled = true
 script = ExtResource("1_o5qli")
 
 [node name="Map" parent="." instance=ExtResource("3_sugp2")]
 
 [node name="PlayerCharacter" parent="." instance=ExtResource("2_0wfyh")]
-position = Vector2(2387, 812)
+position = Vector2(3406, 798)
 
 [node name="SpawnTimer" type="Timer" parent="."]
 

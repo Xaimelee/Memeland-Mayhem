@@ -101,13 +101,21 @@ animations = [{
 "speed": 10.0
 }]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_6r27q"]
+[sub_resource type="CircleShape2D" id="CircleShape2D_kww55"]
+radius = 6.0
 
 [node name="PlayerCharacter" type="CharacterBody2D"]
+z_index = 1
+z_as_relative = false
+y_sort_enabled = true
 script = ExtResource("1_6r27q")
 bullet_scene = ExtResource("2_kww55")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+z_index = 1
+z_as_relative = false
+y_sort_enabled = true
+position = Vector2(0, -16)
 sprite_frames = SubResource("SpriteFrames_br6ma")
 animation = &"idle"
 autoplay = "idle"
@@ -117,6 +125,25 @@ frame_progress = 0.198818
 [node name="WeaponMuzzle" type="Marker2D" parent="."]
 
 [node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(2, 2)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("CircleShape2D_6r27q")
+position = Vector2(0, -4)
+shape = SubResource("CircleShape2D_kww55")
+
+[node name="Label" type="Label" parent="."]
+z_index = 2
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -24.5
+offset_top = -71.0
+offset_right = 24.5
+offset_bottom = -48.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_vertical = 8
+text = "Player"
+horizontal_alignment = 1
