@@ -289,8 +289,11 @@ func get_auth_with_redirect(provider: AuthProvider) -> void:
 		url_endpoint+=key+"="+provider.params[key]+"&"
 	url_endpoint += provider.params.redirect_type+"="+_local_uri
 	url_endpoint = _clean_url(url_endpoint)
-	if Utilities.is_web() and OS.has_feature("JavaScript"):
+	if Utilities.is_web() and OS.has_feature("web"):
 		JavaScriptBridge.eval('window.location.replace("' + url_endpoint + '")')
+		#Doing window.open so the game window isn't replaced
+		#JavaScriptBridge.eval('window.open("' + url_endpoint + '")')
+		print(url_endpoint)
 	elif Engine.has_singleton(_INAPP_PLUGIN) and OS.get_name() == "iOS":
 		#in app for ios if the iOS plugin exists
 		set_local_provider(provider)
@@ -304,6 +307,7 @@ func get_auth_with_redirect(provider: AuthProvider) -> void:
 # A token is automatically obtained using an authorization code using @get_google_auth()
 # @provider_id and @request_uri can be changed
 func login_with_oauth(_token: String, provider: AuthProvider) -> void:
+	#If we can get an accesstoken then we can avoid needing to exchange token
 	if _token:
 		is_oauth_login = true
 		var token : String = _token.uri_decode()
