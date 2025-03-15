@@ -15,7 +15,5 @@ script = ExtResource("1_o5qli")
 [node name="PlayerCharacter" parent="." instance=ExtResource("2_0wfyh")]
 position = Vector2(2322, 798)
 
-[node name="SpawnTimer" type="Timer" parent="."]
-
 [node name="EnemyCharacter" parent="." instance=ExtResource("4_jyhfs")]
 position = Vector2(2166, 795)
