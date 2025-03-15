@@ -94,6 +94,7 @@ func take_damage(amount: float) -> void:
 	health -= amount
 	health = max(0, health)
 	health_changed.emit(health)
+	print(amount)
 	
 	if health <= 0:
 		die()
@@ -101,9 +102,10 @@ func take_damage(amount: float) -> void:
 		#sprite.play("hit")
 
 func die() -> void:
-	#sprite.play("death")
+	sprite.play("die")
 	# Wait for animation to finish
 	await sprite.animation_finished
+	print("dead")
 	queue_free()
 
 func _on_fire_timer_timeout() -> void:

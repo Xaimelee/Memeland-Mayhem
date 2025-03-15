@@ -6,6 +6,8 @@ class_name Bullet extends Area2D
 
 var direction: Vector2 = Vector2.ZERO
 
+@onready var sprite: Sprite2D = $Sprite2D
+
 func _ready() -> void:
 	# Set up lifetime timer
 	var timer = get_tree().create_timer(lifetime)
@@ -13,6 +15,9 @@ func _ready() -> void:
 	
 	# Connect signals
 	body_entered.connect(_on_body_entered)
+	
+	# Set bullet rotation
+	sprite.rotation = direction.angle()
 
 func _physics_process(delta: float) -> void:
 	# Move in the set direction
@@ -20,7 +25,6 @@ func _physics_process(delta: float) -> void:
 
 func set_direction(new_direction: Vector2) -> void:
 	direction = new_direction
-	rotation = direction.angle()
 
 func _on_body_entered(body: Node2D) -> void:
 	# Check if we hit an enemy or other damageable object
