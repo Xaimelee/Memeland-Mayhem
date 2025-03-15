@@ -11,8 +11,17 @@ config_version=5
 [application]
 
 config/name="Memeland Mayhem"
+run/main_scene="uid://b8ots8wbbkcx8"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
+
+[autoload]
+
+Firebase="*res://addons/godot-firebase/firebase/firebase.tscn"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/godot-firebase/plugin.cfg", "res://addons/http-sse-client/plugin.cfg")
 
 [rendering]
 
