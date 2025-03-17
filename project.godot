@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Memeland Mayhem"
-run/main_scene="uid://c573o225twlil"
+run/main_scene="uid://c5vf38rb4jq8n"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
 
@@ -19,7 +19,6 @@ config/icon="res://icon.svg"
 
 Firebase="*res://addons/godot-firebase/firebase/firebase.tscn"
 SolanaService="*res://addons/SolanaSDK/Autoload/SolanaService.tscn"
-HttpRequestHandler="*res://addons/SolanaSDK/Autoload/HttpRequestHandler.tscn"
 
 [display]
 

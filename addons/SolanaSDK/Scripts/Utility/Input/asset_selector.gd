@@ -2,7 +2,7 @@ extends Node
 class_name AssetSelector
 
 @export var displayable_asset:DisplayableAsset
-@export var display_system_scn:PackedScene
+@export var display_system:AssetDisplaySystem
 
 #set if you want for asset to be invisible before something is clicked
 @export var asset_content:Control
@@ -14,6 +14,8 @@ signal on_selected(selected_asset:WalletAsset)
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	display_system.visible=false
+	display_system.on_asset_selected.connect(select_asset)
 	displayable_asset.on_selected.connect(show_display_system)
 	
 	if asset_content!=null:
@@ -23,10 +25,7 @@ func _ready() -> void:
 	pass # Replace with function body.
 
 func show_display_system(_selected_asset:DisplayableAsset) -> void:
-	var display_system:AssetDisplaySystem = display_system_scn.instantiate()
-	get_tree().root.add_child(display_system)
-		
-	display_system.on_asset_selected.connect(select_asset)
+	display_system.visible=true
 	display_system.load_all_owned_assets()
 
 func select_asset(display_selection:WalletAsset) -> void:

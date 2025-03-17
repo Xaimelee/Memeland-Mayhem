@@ -1,83 +1,59 @@
 extends Node
 class_name FileLoader
 
-@export_file("*.json") var path_to_metadata_whitelist:String
-
 var image_cache:Dictionary
 var metadata_cache:Dictionary
-
-var cors_proxy_link:String = "https://proxy.cors.sh/"
-
-var whitelist:Array
-
-func _ready() -> void:
-	var json_as_text = FileAccess.get_file_as_string(path_to_metadata_whitelist)
-	var json_as_array:Array = JSON.parse_string(json_as_text)
-	if json_as_array:
-		whitelist = json_as_array
-
-func is_whitelisted(url:String) -> bool:
-	for whitelisted_link in whitelist:
-		if url.contains(whitelisted_link):
-			return true
-	return false
 	
-func load_token_metadata(uri:String,ignore_whitelist:bool=false) -> Dictionary:
+func load_token_metadata(uri:String) -> Dictionary:
 	if metadata_cache.has(uri):
 		return metadata_cache[uri]
 		
-	if !is_whitelisted(uri) and !ignore_whitelist:
+	var http_request = HTTPRequest.new()
+	add_child(http_request)
+	# Perform a GET request. The URL below returns JSON as of writing.
+	var request = http_request.request(uri)
+	if request != OK:
+		push_error("An error occurred in the HTTP request.")
 		return {}
 		
-	var response:Dictionary
-	var request_link:String = uri
+	var raw_response = await http_request.request_completed
+	http_request.queue_free()
+	var response_dict = parse_http_response(raw_response,true)
 	
-	while true:
-		response = await HttpRequestHandler.send_get_request(request_link)
-		if response.size()>0:
-			metadata_cache[uri] = response["body"]
-			break
-		else:
-			#if fails, try one more time using cors proxy link	
-			if request_link == uri:
-				request_link = cors_proxy_link+uri
-				continue
-			else:
-				push_error("Failed to fetch Token Metadata for %s" % uri)
-				return {}
-				
-	return response["body"]
+	if response_dict["response_code"] != 200:
+		print(response_dict)
+		push_error("Failed to fetch Token Metadata")
+		return {}
+	
+	if response_dict["body"] == null:
+		return {}
+	
+	metadata_cache[uri] = response_dict["body"]
+	return response_dict["body"]
 	
 
-func load_token_image(image_link:String,size:int=512,ignore_whitelist:bool=false) -> Texture2D:
+func load_token_image(image_link:String,size:int=512) -> Texture2D:
 	if image_cache.has(image_link):
-		var image:Image = image_cache[image_link].get_image()
-#		still reload the cached image if requesting bigger size
-		if size <= image.get_size().x or size <= image.get_size().y:
-			return image_cache[image_link]
+		return image_cache[image_link]
 		
-	if !is_whitelisted(image_link) and !ignore_whitelist:
+	var http_request = HTTPRequest.new()
+	add_child(http_request)
+	
+	var request = http_request.request_raw(image_link)
+	if request != OK:
+		push_error("An error occurred in the HTTP request.")
 		return null
-		
-	var response:Dictionary
-	var request_link:String = image_link
-	while true:
-		response = await HttpRequestHandler.send_get_request(request_link,false)
-		if response.size()>0:
-			break
-		else:
-			#if fails, try one more time using cors proxy link	
-			if request_link == image_link:
-				request_link = cors_proxy_link+image_link
-				continue
-			else:
-				push_error("Failed to fetch Token Image")
-				break
-				
-	if response.size() == 0:
+	
+	var raw_response = await http_request.request_completed
+	http_request.queue_free()
+	
+	var response_dict = parse_http_response(raw_response)
+	
+	if response_dict["response_code"] != 200:
+		push_error("Failed to fetch Token Image")
 		return null
-				
-	var content_type:String = parse_image_type(response["headers"])
+	
+	var content_type:String = parse_image_type(response_dict["headers"])
 	if content_type=="":
 		push_error("Failed to figure out Image Type")
 		return null
@@ -87,7 +63,7 @@ func load_token_image(image_link:String,size:int=512,ignore_whitelist:bool=false
 		return null
 #		texture = parse_gif_data_to_texture(response_dict["body"],size)
 	else:
-		texture = parse_image_data_to_texture(response["body"],size)
+		texture = parse_image_data_to_texture(response_dict["body"],size)
 		
 	if texture==null:
 		return null
@@ -95,6 +71,22 @@ func load_token_image(image_link:String,size:int=512,ignore_whitelist:bool=false
 	image_cache[image_link] = texture
 	return texture
 	
+	
+	
+func parse_http_response(response:Array, body_to_json:bool=false) -> Dictionary:
+	var body = response[3]
+	if body_to_json:
+		var json = JSON.new()
+		json.parse(response[3].get_string_from_utf8())
+		body = json.get_data()
+	
+	var dict = {
+		"result":response[0],
+		"response_code":response[1],
+		"headers":response[2],
+		"body":body
+	}
+	return dict
 	
 func parse_image_type(headers:Array[String]) -> String:
 	for header in headers:
@@ -113,8 +105,6 @@ func parse_image_data_to_texture(image_raw_data:PackedByteArray, image_size:int)
 		img_load_request = image.load_png_from_buffer(image_raw_data)
 		
 	elif has_webp_signature(image_raw_data):
-		if is_webp_animated(image_raw_data):
-			return null
 		img_load_request = image.load_webp_from_buffer(image_raw_data)
 		
 	else:
@@ -126,7 +116,7 @@ func parse_image_data_to_texture(image_raw_data:PackedByteArray, image_size:int)
 			
 	if img_load_request != OK:
 		return null
-
+		
 	image.resize(image_size,image_size)	
 	return ImageTexture.create_from_image(image)
 	
@@ -137,36 +127,43 @@ func parse_image_data_to_texture(image_raw_data:PackedByteArray, image_size:int)
 #	return texture
 	
 func has_jpg_signature(raw_image_data:PackedByteArray)->bool:
-	var marker:PackedByteArray = PackedByteArray([255, 216])
-	return raw_image_data.slice(0,2) == marker
-	
-func has_png_signature(raw_image_data:PackedByteArray)->bool:
-	var marker:PackedByteArray = PackedByteArray([137, 80, 78, 71, 13, 10, 26, 10])
-	return raw_image_data.slice(0,8) == marker
-	
-func has_webp_signature(raw_image_data:PackedByteArray)->bool:
-	var riff_marker:PackedByteArray =  PackedByteArray([82, 73, 70, 70])
-	var webp_marker:PackedByteArray = PackedByteArray([87, 69, 66, 80])
-	if raw_image_data.slice(0,4) != riff_marker:
-		return false
-	if raw_image_data.slice(8,12) != webp_marker:
-		return false
+	var marker = [255, 216]
+	for i in range(2):
+		if raw_image_data[i] != marker[i]:
+			return false
 	return true
 	
-func is_webp_animated(raw_image_data:PackedByteArray)->bool:
-	if raw_image_data.size() < 18:  # Minimum size for VP8X check
-		return false
-	var vp8x_marker:PackedByteArray = PackedByteArray([86, 80, 56, 88])
-	# VP8X marker and ANIM flag (bit 1 in 4th byte of the VP8X chunk)
-	if raw_image_data.slice(12,16) == vp8x_marker:
-		# Byte 16 contains feature flags; check if ANIM bit is set
-		return (raw_image_data[16] & 0b00010000) != 0  # Check if 'A' bit (bit 4) is set
+func has_png_signature(raw_image_data:PackedByteArray)->bool:
+	var marker = [137, 80, 78, 71, 13, 10, 26, 10]
+	for i in range(8):
+		if raw_image_data[i] != marker[i]:
+			return false
+	return true
 	
-	return false
+func has_webp_signature(raw_image_data:PackedByteArray)->bool:
+	var marker = [82, 73, 70, 70, 0, 0, 0, 0, 87, 69, 66, 80]
+	for i in range(12):
+		if raw_image_data[i] != marker[i]:
+			return false
+	return true
 	
 func load_3d_model(model_link:String) -> GLTFState:
-	var response:Dictionary = await HttpRequestHandler.send_get_request(model_link)
-	if response.size()==0:
+	var http_request = HTTPRequest.new()
+	add_child(http_request)
+	
+	var request = http_request.request_raw(model_link)
+	if request != OK:
+		push_error("An error occurred in the HTTP request.")
+		return null
+	
+	var raw_response = await http_request.request_completed
+	http_request.queue_free()
+	
+	var response_dict = parse_http_response(raw_response)
+	
+	if response_dict["response_code"] != 200:
+		print(response_dict)
+		push_error("Failed to fetch Token Model")
 		return null
 	
 	var state:GLTFState = GLTFState.new()
@@ -174,7 +171,7 @@ func load_3d_model(model_link:String) -> GLTFState:
 	var glb_load_request
 	var flags = 8	
 	#flags |= EditorSceneFormatImporter.IMPORT_USE_NAMED_SKIN_BINDS
-	glb_load_request = gltf_document.append_from_buffer(response["body"], "", state, flags)
+	glb_load_request = gltf_document.append_from_buffer(response_dict["body"], "", state, flags)
 	
 	if glb_load_request != OK:
 		return null

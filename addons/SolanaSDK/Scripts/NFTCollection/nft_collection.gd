@@ -24,20 +24,17 @@ func get_collection_key() -> Pubkey:
 	return collection_mint	
 		
 
-func belongs_to_collection(asset:WalletAsset) -> bool:
+func belongs_to_collection(nft:Nft) -> bool:
 	if collection_mint==null:
 		set_key()
-		
-	if asset is Token:
-		return false
 		
 	if first_verified_creator_mode:
 #		for creator in nft.metadata.get_creators():
 #			print("creator: ",creator.address.to_string())
-		if asset.metadata.get_creators().size() == 0:
+		if nft.metadata.get_creators().size() == 0:
 			return false
-		return asset.metadata.get_creators()[0].address.to_string() == collection_mint.to_string()
+		return nft.metadata.get_creators()[0].address.to_string() == collection_mint.to_string()
 	else:
-		if asset.metadata.get_collection() == null:
+		if nft.metadata.get_collection() == null:
 			return false
-		return asset.metadata.get_collection().key.to_string() == collection_mint.to_string()
+		return nft.metadata.get_collection().key.to_string() == collection_mint.to_string()
