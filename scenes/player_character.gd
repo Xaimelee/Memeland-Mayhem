@@ -10,18 +10,12 @@ signal weapon_fired(position: Vector2, direction: Vector2)
 @export var fire_rate: float = 0.2
 @export var damage: float = 10.0
 @export var max_shoot_distance: float = 1000.0
-
-# Visual effect settings
-@export var beam_color: Color = Color(0.9, 0.6, 0.1, 0.8)
-@export var beam_width: float = 3.0
-@export var beam_fade_time: float = 0.1
-@export var muzzle_flash_scale: float = 0.5
-@export var impact_effect_scale: float = 0.7
+@export var projectile_speed: float = 1500.0
 
 var health: float = max_health
 var can_fire: bool = true
-var current_beam_alpha: float = 0.0
 var fire_height: Vector2 = Vector2(0, 12.0)
+var current_tween: Tween
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var arm_sprite: Sprite2D = $AnimatedSprite2D/ArmSprite2D
@@ -29,38 +23,10 @@ var fire_height: Vector2 = Vector2(0, 12.0)
 @onready var weapon_muzzle: Marker2D = $AnimatedSprite2D/ArmSprite2D/WeaponsSprite2D/WeaponMuzzle
 @onready var camera: Camera2D = $Camera2D
 @onready var raycast: RayCast2D = $RayCast2D
-@onready var line: Line2D = $Line2D
 @onready var fire_timer: Timer = $FireTimer
-@onready var bullet_effect_timer: Timer = $BulletEffectTimer
-
-# New visual effect nodes
 @onready var muzzle_flash: CPUParticles2D = $MuzzleFlash
-@onready var beam_particles: CPUParticles2D = $BeamParticles
 @onready var impact_particles: CPUParticles2D = $ImpactParticles
-
-func _ready() -> void:
-	# Initialize visual effects
-	line.default_color = beam_color
-	line.width = beam_width
-	line.visible = false
-	
-	# Set up muzzle flash
-	muzzle_flash.emitting = false
-	muzzle_flash.modulate = beam_color
-	muzzle_flash.scale = Vector2(muzzle_flash_scale, muzzle_flash_scale)
-	
-	# Set up beam particles
-	beam_particles.emitting = false
-	beam_particles.modulate = beam_color
-	
-	# Set up impact particles
-	impact_particles.emitting = false
-	impact_particles.scale = Vector2(impact_effect_scale, impact_effect_scale)
-	
-	# Make sure bullet effect timer is properly set up
-	bullet_effect_timer.wait_time = beam_fade_time
-	if not bullet_effect_timer.timeout.is_connected(_on_bullet_effect_timer_timeout):
-		bullet_effect_timer.timeout.connect(_on_bullet_effect_timer_timeout)
+@onready var projectile: Sprite2D = $BulletSprite2D
 
 func _physics_process(delta: float) -> void:
 	# Handle movement
@@ -110,13 +76,6 @@ func _physics_process(delta: float) -> void:
 	# Handle shooting
 	if Input.is_action_pressed("shoot") and can_fire:
 		shoot()
-	
-	# Fade out beam effect
-	if line.visible and current_beam_alpha > 0:
-		current_beam_alpha = max(0, current_beam_alpha - delta * (1.0 / beam_fade_time))
-		var color = beam_color
-		color.a = current_beam_alpha
-		line.default_color = color
 
 func shoot() -> void:
 	can_fire = false
@@ -126,7 +85,6 @@ func shoot() -> void:
 	var muzzle_global_pos = weapon_muzzle.global_position
 	
 	# Get direction to mouse from the muzzle position
-	#var direction = (get_global_mouse_position() - muzzle_global_pos).normalized()
 	var direction = Vector2(cos(arm_sprite.rotation), sin(arm_sprite.rotation))
 	
 	# Set raycast position and direction with fire_height offset
@@ -134,11 +92,7 @@ func shoot() -> void:
 	raycast.target_position = direction * max_shoot_distance
 	raycast.force_raycast_update()
 	
-	# Convert muzzle position to line's local space
-	var muzzle_local_pos = line.to_local(muzzle_global_pos)
-	
 	# Variables for beam effect
-	var beam_length = max_shoot_distance
 	var hit_something = false
 	var collision_point = muzzle_global_pos + direction * max_shoot_distance
 	
@@ -148,56 +102,22 @@ func shoot() -> void:
 		var collider = raycast.get_collider()
 		hit_something = true
 		
-		# Calculate beam length
-		beam_length = muzzle_global_pos.distance_to(collision_point)
-		
-		# Convert collision point to line's local space
-		var collision_local_pos = line.to_local(collision_point)
-		
-		# Set line points for visual effect
-		line.points[0] = muzzle_local_pos
-		line.points[1] = collision_local_pos
-		
 		# Apply damage if hit an enemy
 		if collider.has_method("take_damage"):
 			collider.take_damage(damage)
-	else:
-		# Calculate end point if nothing was hit
-		var end_point = muzzle_global_pos + direction * max_shoot_distance
-		var end_local_pos = line.to_local(end_point)
-		
-		# Set line to max distance if nothing was hit
-		line.points[0] = muzzle_local_pos
-		line.points[1] = end_local_pos
 	
 	# Show visual effects
-	create_shot_effects(muzzle_global_pos, collision_point, direction, beam_length, hit_something)
-	
-	# Reset beam alpha for fade effect
-	current_beam_alpha = 0.5
-	var color = beam_color
-	color.a = current_beam_alpha
-	line.default_color = color
-	
-	# Show line effect
-	line.visible = true
-	bullet_effect_timer.start()
+	create_shot_effects(muzzle_global_pos, collision_point, direction, hit_something)
 
-func create_shot_effects(muzzle_pos: Vector2, impact_pos: Vector2, direction: Vector2, beam_length: float, hit_something: bool) -> void:
+func create_shot_effects(muzzle_pos: Vector2, impact_pos: Vector2, direction: Vector2, hit_something: bool) -> void:
 	# 1. Muzzle flash effect
 	muzzle_flash.global_position = muzzle_pos
 	muzzle_flash.rotation = direction.angle()
 	muzzle_flash.restart()
 	muzzle_flash.emitting = true
 	
-	# 2. Beam particles effect
-	beam_particles.global_position = muzzle_pos
-	beam_particles.rotation = direction.angle()
-	beam_particles.emission_rect_extents.x = beam_length * 0.5
-	beam_particles.position.x = beam_length * 0.5
-	beam_particles.amount = int(beam_length / 10.0)  # Adjust particle density based on beam length
-	beam_particles.restart()
-	beam_particles.emitting = true
+	# 2. Bullet effect
+	animate_projectile(muzzle_pos, impact_pos, direction, hit_something)
 	
 	# 3. Impact effect (if hit something)
 	if hit_something:
@@ -207,11 +127,40 @@ func create_shot_effects(muzzle_pos: Vector2, impact_pos: Vector2, direction: Ve
 		impact_particles.emitting = true
 	
 	# 4. Camera shake effect (subtle)
-	camera.offset = Vector2(randf_range(-2, 2), randf_range(-2, 2))
+	camera.offset = Vector2(randf_range(-2, 2), -2)
 	create_tween().tween_property(camera, "offset", Vector2.ZERO, 0.1)
 	
 	# 5. Emit signal for other effects (like sound)
 	weapon_fired.emit(muzzle_pos, direction)
+
+func animate_projectile(start_pos: Vector2, end_pos: Vector2, direction: Vector2, hit_something: bool) -> void:
+	# Cancel any existing tween
+	if current_tween and current_tween.is_valid():
+		current_tween.kill()
+	
+	# Set up projectile
+	projectile.global_position = start_pos
+	projectile.rotation = direction.angle()
+	projectile.visible = true
+	
+	# Calculate travel time based on distance and speed
+	var distance = start_pos.distance_to(end_pos)
+	var travel_time = distance / projectile_speed
+	
+	# Create new tween
+	current_tween = create_tween()
+	current_tween.tween_property(projectile, "global_position", end_pos, travel_time)
+	
+	# When tween completes, show impact effect and hide projectile
+	current_tween.tween_callback(func():
+		projectile.visible = false
+		
+		if hit_something:
+			impact_particles.global_position = end_pos
+			impact_particles.rotation = (direction * -1).angle()
+			impact_particles.restart()
+			impact_particles.emitting = true
+	)
 
 func take_damage(amount: float) -> void:
 	health -= amount
@@ -233,8 +182,3 @@ func die() -> void:
 
 func _on_fire_timer_timeout() -> void:
 	can_fire = true
-
-func _on_bullet_effect_timer_timeout() -> void:
-	# Hide line effect
-	line.visible = false
-	beam_particles.emitting = false

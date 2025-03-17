@@ -5,7 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://b7fa5g7ocxdik" path="res://assets/brett.png" id="3_kww55"]
 [ext_resource type="PackedScene" uid="uid://c2rf557pj5vrx" path="res://scenes/impact_particles.tscn" id="5_6unfe"]
 [ext_resource type="Texture2D" uid="uid://bhp2el5a4cwq7" path="res://assets/cyber-glock.png" id="5_uj7mf"]
-[ext_resource type="PackedScene" uid="uid://dr2iej8pwa83c" path="res://scenes/beam_particles.tscn" id="6_pxja8"]
+[ext_resource type="Texture2D" uid="uid://cfsvybqixlpo6" path="res://assets/cyber-bullet.png" id="7_6unfe"]
 [ext_resource type="PackedScene" uid="uid://cx85rvdlejuhv" path="res://scenes/muzzle_flash.tscn" id="7_iadup"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_4h0vy"]
@@ -116,9 +116,6 @@ script = ExtResource("1_6r27q")
 speed = 250.0
 fire_rate = 0.24
 max_shoot_distance = 320.0
-beam_width = 1.5
-muzzle_flash_scale = 1.0
-impact_effect_scale = 1.0
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 z_index = 1
@@ -171,24 +168,9 @@ size_flags_vertical = 8
 text = "Player"
 horizontal_alignment = 1
 
-[node name="Line2D" type="Line2D" parent="."]
-z_index = 1
-z_as_relative = false
-y_sort_enabled = true
-position = Vector2(0, -16)
-points = PackedVector2Array(0, 0, 0, 0)
-width = 1.0
-
 [node name="FireTimer" type="Timer" parent="."]
 wait_time = 0.2
 one_shot = true
-
-[node name="BulletEffectTimer" type="Timer" parent="."]
-wait_time = 0.2
-one_shot = true
-
-[node name="BeamParticles" parent="." instance=ExtResource("6_pxja8")]
-visible = false
 
 [node name="ImpactParticles" parent="." instance=ExtResource("5_6unfe")]
 z_index = 1
@@ -200,5 +182,11 @@ z_index = 1
 z_as_relative = false
 y_sort_enabled = true
 
+[node name="BulletSprite2D" type="Sprite2D" parent="."]
+visible = false
+z_index = 1
+z_as_relative = false
+y_sort_enabled = true
+texture = ExtResource("7_6unfe")
+
 [connection signal="timeout" from="FireTimer" to="." method="_on_fire_timer_timeout"]
-[connection signal="timeout" from="BulletEffectTimer" to="." method="_on_bullet_effect_timer_timeout"]
