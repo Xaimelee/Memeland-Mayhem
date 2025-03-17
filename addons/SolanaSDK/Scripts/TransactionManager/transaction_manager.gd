@@ -324,5 +324,4 @@ func sign_message():
 	})();
 	"""
 
-	#var result = await JavaScriptBridge.eval(js_code, true)
-	#print("JavaScript result: ", result)
+	var result = await JavaScriptBridge.eval(js_code, true)
