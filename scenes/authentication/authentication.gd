@@ -1,16 +1,23 @@
 extends Node
 
-const HEADERS : PackedStringArray = [
-	"Content-Type: application/json",
-	"Accept: application/json",
-]
+#const HEADERS : PackedStringArray = [
+	#"Content-Type: application/json",
+	#"Accept: application/json",
+#]
 
 @onready 
 var status_label := $Status
+@onready
+var wallet_adapter_ui : WalletAdapterUI = $WalletAdapterUI
 
 func _ready() -> void:
-	SolanaService.wallet.on_login_success.connect(_on_login_succeeded)
-	SolanaService.wallet.on_login_fail.connect(_on_login_succeeded)
+	wallet_adapter_ui.visible = false
+	#SolanaService.wallet.on_login_success.connect(_on_login_succeeded)
+	#SolanaService.wallet.on_login_fail.connect(_on_login_failed)
+	SolanaService.wallet.on_login_begin.connect(pop_adapter)
+	SolanaService.wallet.on_login_finish.connect(confirm_login)
+	wallet_adapter_ui.on_provider_selected.connect(process_adapter_result)
+	wallet_adapter_ui.on_adapter_cancel.connect(cancel_login)
 	#Firebase.Auth.login_succeeded.connect(_on_login_succeeded)
 	#Firebase.Auth.login_failed.connect(_on_login_failed)
 	#var provider: AuthProvider = Firebase.Auth.get_GoogleProvider()
@@ -72,3 +79,18 @@ func _on_login_succeeded(auth_result) -> void:
 func _on_login_failed(code, message) -> void:
 	status_label.text = "Status: Failed"
 	print("Failed")
+
+func pop_adapter()-> void:
+	wallet_adapter_ui.visible = true
+	wallet_adapter_ui.setup(SolanaService.wallet.wallet_adapter.get_available_wallets())
+	
+func process_adapter_result(provider_id:int) -> void:
+	SolanaService.wallet.login_adapter(provider_id)
+
+func cancel_login()-> void:
+	wallet_adapter_ui.visible = false
+	
+func confirm_login(login_success:bool) -> void:
+	wallet_adapter_ui.visible = false
+	if SolanaService.wallet.is_logged_in():
+		SolanaService.transaction_manager.sign_message()

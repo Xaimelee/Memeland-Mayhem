@@ -270,3 +270,59 @@ func transfer_token(token_address:String,receiver:String,amount:float,tx_commitm
 	else:
 		var tx_data:TransactionData = await sign_and_send(transaction)
 		return tx_data
+
+#func sign_message():
+	#var instructions: Array[Instruction] = []
+#
+	## Create a fake instruction (this does nothing but forces signing)
+	#var dummy_instruction = Instruction.new()
+	#dummy_instruction.set_program_id(SystemProgram.get_pid()) # Use a system program
+	#dummy_instruction.set_accounts([]) # No accounts needed
+	#dummy_instruction.set_data(PackedByteArray([0])) # Dummy data
+#
+	#instructions.append(dummy_instruction)
+#
+	## Create a transaction with this dummy instruction
+	#var transaction: Transaction = await SolanaService.transaction_manager.create_transaction(instructions, SolanaService.wallet.get_kp())
+#
+	#if transaction == null:
+		#push_error("Failed to create transaction")
+		#return
+#
+	## Sign transaction (but don't send it)
+	#var signed_transaction: Transaction = await SolanaService.transaction_manager.sign_transaction_normal(transaction, [SolanaService.wallet.get_kp()])
+#
+	#if signed_transaction:
+		#print("Signed message (transaction signature): ", signed_transaction.get_signature().hex_encode())
+	#else:
+		#push_error("Signing failed!")
+
+func sign_message():
+	var js_code = """
+	(async function() {
+		if (!window.solana) {
+			console.error("Solana wallet not found");
+			return "Wallet not found";
+		}
+
+		try {
+			await window.solana.connect();
+			const message = new TextEncoder().encode("Sign this message to verify login.");
+			const signedMessage = await window.solana.signMessage(message, "utf8");
+
+			console.log("Signed Message:", signedMessage.signature);
+			console.log("Public Key:", signedMessage.publicKey.toBase58());
+
+			return JSON.stringify({
+				signature: Array.from(signedMessage.signature),
+				publicKey: signedMessage.publicKey.toBase58()
+			});
+		} catch (error) {
+			console.error("Signing failed:", error);
+			return "Error signing message: " + error.message;
+		}
+	})();
+	"""
+
+	#var result = await JavaScriptBridge.eval(js_code, true)
+	#print("JavaScript result: ", result)

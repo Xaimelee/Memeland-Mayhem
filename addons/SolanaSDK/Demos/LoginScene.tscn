@@ -1,11 +1,11 @@
 [gd_scene load_steps=15 format=3 uid="uid://bf3edinsgleli"]
 
-[ext_resource type="Script" path="res://addons/SolanaSDK/Demos/_LoginDemo/login_manager.gd" id="1_0vojp"]
+[ext_resource type="Script" uid="uid://c2agw7rpouxas" path="res://addons/SolanaSDK/Demos/_LoginDemo/login_manager.gd" id="1_0vojp"]
 [ext_resource type="Texture2D" uid="uid://dnqcw4msg2uow" path="res://addons/SolanaSDK/Textures/Buttons/b_orange_pressed.PNG" id="5_o1wf6"]
 [ext_resource type="Texture2D" uid="uid://5erj253phx4s" path="res://addons/SolanaSDK/Textures/Buttons/b_orange_hover.PNG" id="6_5mt3p"]
 [ext_resource type="Texture2D" uid="uid://et1kvxp5bprg" path="res://addons/SolanaSDK/Textures/Buttons/b_inactive.PNG" id="7_mpo2d"]
 [ext_resource type="PackedScene" uid="uid://be2rmdwqrqiw0" path="res://addons/SolanaSDK/Scripts/WalletAdapter/WalletAdapterUI.tscn" id="7_the6a"]
-[ext_resource type="Script" path="res://addons/SolanaSDK/Demos/_LoginDemo/scene_loader.gd" id="8_r3y48"]
+[ext_resource type="Script" uid="uid://dglos2tr8gj0p" path="res://addons/SolanaSDK/Demos/_LoginDemo/scene_loader.gd" id="8_r3y48"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bume7"]
 bg_color = Color(0.937255, 0.682353, 0.341176, 1)
@@ -110,8 +110,8 @@ offset_right = 178.0
 offset_bottom = -196.0
 grow_horizontal = 2
 grow_vertical = 0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 25
 theme_override_styles/focus = SubResource("StyleBoxEmpty_muk2j")
 theme_override_styles/disabled = SubResource("StyleBoxTexture_tt47o")
