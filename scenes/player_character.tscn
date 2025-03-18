@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://dxk1jvimm72ti"]
+[gd_scene load_steps=23 format=3 uid="uid://dxk1jvimm72ti"]
 
 [ext_resource type="Script" uid="uid://ceedsgkf30k30" path="res://scenes/player_character.gd" id="1_6r27q"]
 [ext_resource type="Texture2D" uid="uid://cpgffeu6no6yu" path="res://assets/brett-arm.png" id="3_4h0vy"]
@@ -108,6 +108,9 @@ animations = [{
 [sub_resource type="CircleShape2D" id="CircleShape2D_kww55"]
 radius = 6.0
 
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_6unfe"]
+radius = 8.0
+
 [node name="PlayerCharacter" type="CharacterBody2D"]
 z_index = 2
 z_as_relative = false
@@ -122,7 +125,7 @@ z_index = 1
 z_as_relative = false
 position = Vector2(0, -16)
 sprite_frames = SubResource("SpriteFrames_br6ma")
-animation = &"run"
+animation = &"idle"
 autoplay = "idle"
 
 [node name="ArmSprite2D" type="Sprite2D" parent="AnimatedSprite2D"]
@@ -144,12 +147,22 @@ texture = ExtResource("5_uj7mf")
 position = Vector2(9.5, -2)
 
 [node name="RayCast2D" type="RayCast2D" parent="."]
+collision_mask = 3
+collide_with_areas = true
 
 [node name="Camera2D" type="Camera2D" parent="."]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="MovementCollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -4)
 shape = SubResource("CircleShape2D_kww55")
+
+[node name="DamageArea2D" type="Area2D" parent="."]
+position = Vector2(0, -4)
+collision_layer = 2
+collision_mask = 0
+
+[node name="DamageCollisionShape2D2" type="CollisionShape2D" parent="DamageArea2D"]
+shape = SubResource("CapsuleShape2D_6unfe")
 
 [node name="Label" type="Label" parent="."]
 z_index = 2

@@ -14,7 +14,9 @@ signal weapon_fired(position: Vector2, direction: Vector2)
 
 var health: float = max_health
 var can_fire: bool = true
-var fire_height: Vector2 = Vector2(0, 12.0)
+# Fire height is required to avoid horizontally shot bullets stuck in the wall,
+# while the player is right in front of the wall.
+var fire_height: Vector2 = Vector2(0, 12.0)  
 var current_tween: Tween
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D

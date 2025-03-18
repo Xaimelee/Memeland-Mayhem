@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://qxnqtyeg4ue0"]
+[gd_scene load_steps=26 format=3 uid="uid://qxnqtyeg4ue0"]
 
 [ext_resource type="Script" uid="uid://37hkap528bb6" path="res://scenes/enemy_character.gd" id="1_p2vio"]
 [ext_resource type="Texture2D" uid="uid://b7fa5g7ocxdik" path="res://assets/brett.png" id="2_a650k"]
@@ -152,6 +152,9 @@ animations = [{
 [sub_resource type="CircleShape2D" id="CircleShape2D_d557m"]
 radius = 6.0
 
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_a650k"]
+radius = 8.0
+
 [node name="EnemyCharacter" type="CharacterBody2D"]
 script = ExtResource("1_p2vio")
 
@@ -181,12 +184,20 @@ texture = ExtResource("4_xgmuc")
 [node name="WeaponMuzzle" type="Marker2D" parent="AnimatedSprite2D/ArmSprite2D/WeaponsSprite2D"]
 position = Vector2(17.5, -2)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="MovementCollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -4)
 shape = SubResource("CircleShape2D_d557m")
 
 [node name="Timer" type="Timer" parent="."]
 wait_time = 5.0
 one_shot = true
+
+[node name="DamageArea2D" type="Area2D" parent="."]
+position = Vector2(0, -4)
+collision_layer = 2
+collision_mask = 0
+
+[node name="DamageCollisionShape2D2" type="CollisionShape2D" parent="DamageArea2D"]
+shape = SubResource("CapsuleShape2D_a650k")
 
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
