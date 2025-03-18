@@ -1,12 +1,10 @@
-[gd_scene load_steps=23 format=3 uid="uid://dxk1jvimm72ti"]
+[gd_scene load_steps=21 format=3 uid="uid://dxk1jvimm72ti"]
 
 [ext_resource type="Script" uid="uid://ceedsgkf30k30" path="res://scenes/player_character.gd" id="1_6r27q"]
 [ext_resource type="Texture2D" uid="uid://cpgffeu6no6yu" path="res://assets/brett-arm.png" id="3_4h0vy"]
 [ext_resource type="Texture2D" uid="uid://b7fa5g7ocxdik" path="res://assets/brett.png" id="3_kww55"]
-[ext_resource type="PackedScene" uid="uid://c2rf557pj5vrx" path="res://scenes/impact_particles.tscn" id="5_6unfe"]
-[ext_resource type="Texture2D" uid="uid://bhp2el5a4cwq7" path="res://assets/cyber-glock.png" id="5_uj7mf"]
-[ext_resource type="Texture2D" uid="uid://cfsvybqixlpo6" path="res://assets/cyber-bullet.png" id="7_6unfe"]
-[ext_resource type="PackedScene" uid="uid://cx85rvdlejuhv" path="res://scenes/muzzle_flash.tscn" id="7_iadup"]
+[ext_resource type="PackedScene" uid="uid://c8vj3yqnvys4p" path="res://scenes/boring_rifle.tscn" id="4_uj7mf"]
+[ext_resource type="PackedScene" uid="uid://bqnxqvdmyj5xt" path="res://scenes/cyber_glock.tscn" id="5_2vmgx"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_4h0vy"]
 atlas = ExtResource("3_kww55")
@@ -117,8 +115,6 @@ z_as_relative = false
 y_sort_enabled = true
 script = ExtResource("1_6r27q")
 speed = 250.0
-fire_rate = 0.24
-max_shoot_distance = 320.0
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 z_index = 1
@@ -136,19 +132,10 @@ position = Vector2(5, 2)
 texture = ExtResource("3_4h0vy")
 offset = Vector2(4.5, 0.5)
 
-[node name="WeaponsSprite2D" type="Sprite2D" parent="AnimatedSprite2D/ArmSprite2D"]
-show_behind_parent = true
-z_index = 1
-z_as_relative = false
-position = Vector2(12.5, 0)
-texture = ExtResource("5_uj7mf")
+[node name="BoringRifle" parent="AnimatedSprite2D/ArmSprite2D" instance=ExtResource("4_uj7mf")]
 
-[node name="WeaponMuzzle" type="Marker2D" parent="AnimatedSprite2D/ArmSprite2D/WeaponsSprite2D"]
-position = Vector2(9.5, -2)
-
-[node name="RayCast2D" type="RayCast2D" parent="."]
-collision_mask = 3
-collide_with_areas = true
+[node name="CyberGlock" parent="AnimatedSprite2D/ArmSprite2D" instance=ExtResource("5_2vmgx")]
+visible = false
 
 [node name="Camera2D" type="Camera2D" parent="."]
 
@@ -180,26 +167,3 @@ grow_vertical = 0
 size_flags_vertical = 8
 text = "Player"
 horizontal_alignment = 1
-
-[node name="FireTimer" type="Timer" parent="."]
-wait_time = 0.2
-one_shot = true
-
-[node name="ImpactParticles" parent="." instance=ExtResource("5_6unfe")]
-z_index = 1
-z_as_relative = false
-y_sort_enabled = true
-
-[node name="MuzzleFlash" parent="." instance=ExtResource("7_iadup")]
-z_index = 1
-z_as_relative = false
-y_sort_enabled = true
-
-[node name="BulletSprite2D" type="Sprite2D" parent="."]
-visible = false
-z_index = 1
-z_as_relative = false
-y_sort_enabled = true
-texture = ExtResource("7_6unfe")
-
-[connection signal="timeout" from="FireTimer" to="." method="_on_fire_timer_timeout"]

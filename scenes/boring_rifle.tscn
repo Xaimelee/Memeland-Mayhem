@@ -1,0 +1,54 @@
+[gd_scene load_steps=6 format=3 uid="uid://c8vj3yqnvys4p"]
+
+[ext_resource type="Script" uid="uid://1kmr3fp72sdl" path="res://scenes/weapon.gd" id="1_2mbdx"]
+[ext_resource type="Texture2D" uid="uid://c2rwlvyxutel5" path="res://assets/boring-rifle.png" id="2_vvbt8"]
+[ext_resource type="Texture2D" uid="uid://dqmecsiqp76sh" path="res://assets/boring-bullet.png" id="3_x0kks"]
+[ext_resource type="PackedScene" uid="uid://cx85rvdlejuhv" path="res://scenes/muzzle_flash.tscn" id="4_pmatb"]
+[ext_resource type="PackedScene" uid="uid://c2rf557pj5vrx" path="res://scenes/impact_particles.tscn" id="5_4uxq7"]
+
+[node name="BoringRifle" type="Node2D"]
+show_behind_parent = true
+z_index = 1
+z_as_relative = false
+y_sort_enabled = true
+script = ExtResource("1_2mbdx")
+damage = 40.0
+
+[node name="WeaponsSprite2D" type="Sprite2D" parent="."]
+show_behind_parent = true
+z_index = 1
+z_as_relative = false
+position = Vector2(16, -2)
+texture = ExtResource("2_vvbt8")
+
+[node name="WeaponMuzzle" type="Marker2D" parent="WeaponsSprite2D"]
+position = Vector2(18, -2)
+
+[node name="RayCast2D" type="RayCast2D" parent="WeaponsSprite2D/WeaponMuzzle"]
+target_position = Vector2(100, 0)
+collision_mask = 3
+collide_with_areas = true
+
+[node name="BulletSprite2D" type="Sprite2D" parent="WeaponsSprite2D/WeaponMuzzle"]
+visible = false
+z_index = 1
+z_as_relative = false
+y_sort_enabled = true
+texture = ExtResource("3_x0kks")
+
+[node name="MuzzleFlash" parent="WeaponsSprite2D/WeaponMuzzle" instance=ExtResource("4_pmatb")]
+z_index = 1
+z_as_relative = false
+y_sort_enabled = true
+
+[node name="FireTimer" type="Timer" parent="."]
+wait_time = 0.6
+one_shot = true
+
+[node name="ImpactParticles" parent="." instance=ExtResource("5_4uxq7")]
+z_index = 1
+z_as_relative = false
+y_sort_enabled = true
+lifetime = 0.4
+
+[connection signal="timeout" from="FireTimer" to="." method="_on_fire_timer_timeout"]

@@ -2,7 +2,7 @@ class_name EnemyCharacter extends CharacterBody2D
 
 signal enemy_died
 
-@export var max_health: float = 50.0
+@export var max_health: float = 100.0
 @export var score_value: int = 10
 
 var health: float = max_health
