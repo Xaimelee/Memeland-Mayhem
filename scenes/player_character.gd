@@ -105,8 +105,8 @@ func shoot() -> void:
 		hit_something = true
 		
 		# Apply damage if hit an enemy
-		if collider.has_method("take_damage"):
-			collider.take_damage(damage)
+		if collider.get_parent().has_method("take_damage"):
+			collider.get_parent().take_damage(damage)
 	
 	# Show visual effects
 	create_shot_effects(muzzle_global_pos, collision_point, direction, hit_something)
@@ -128,11 +128,16 @@ func create_shot_effects(muzzle_pos: Vector2, impact_pos: Vector2, direction: Ve
 		impact_particles.restart()
 		impact_particles.emitting = true
 	
-	# 4. Camera shake effect (subtle)
+	# 4. Arm effect
+	var original_position = Vector2(-5, 3) if get_global_mouse_position().x < position.x else Vector2(5, 2)
+	arm_sprite.position -= Vector2(cos(arm_sprite.rotation), sin(arm_sprite.rotation)) * 2
+	create_tween().tween_property(arm_sprite, "position", original_position, 0.1)
+	
+	# 5. Camera shake effect (subtle)
 	camera.offset = Vector2(randf_range(-2, 2), -2)
 	create_tween().tween_property(camera, "offset", Vector2.ZERO, 0.1)
 	
-	# 5. Emit signal for other effects (like sound)
+	# 6. Emit signal for other effects (like sound)
 	weapon_fired.emit(muzzle_pos, direction)
 
 func animate_projectile(start_pos: Vector2, end_pos: Vector2, direction: Vector2, hit_something: bool) -> void:

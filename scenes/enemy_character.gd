@@ -10,6 +10,8 @@ var health: float = max_health
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var arm_sprite: Sprite2D = $AnimatedSprite2D/ArmSprite2D
 @onready var decay_timer: Timer = $Timer
+@onready var damage_area: Area2D = $DamageArea2D
+
 
 func _ready() -> void:
 	# Start idle animation
@@ -26,6 +28,7 @@ func take_damage(amount: float) -> void:
 
 func die() -> void:
 	# Disable collision
+	damage_area.collision_layer = 0
 	collision_layer = 0
 	collision_mask = 0
 	

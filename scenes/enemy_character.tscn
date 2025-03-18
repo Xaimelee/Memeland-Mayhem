@@ -156,6 +156,9 @@ radius = 6.0
 radius = 8.0
 
 [node name="EnemyCharacter" type="CharacterBody2D"]
+z_index = 1
+z_as_relative = false
+y_sort_enabled = true
 script = ExtResource("1_p2vio")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
