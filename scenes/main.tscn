@@ -12,8 +12,11 @@ script = ExtResource("1_o5qli")
 
 [node name="Map" parent="." instance=ExtResource("3_sugp2")]
 
-[node name="PlayerCharacter" parent="." instance=ExtResource("2_0wfyh")]
-position = Vector2(2322, 798)
+[node name="PlayerCharacter" parent="." groups=["players"] instance=ExtResource("2_0wfyh")]
+position = Vector2(3799, 654)
 
 [node name="EnemyCharacter" parent="." instance=ExtResource("4_jyhfs")]
-position = Vector2(2166, 795)
+position = Vector2(3859, 546)
+speed = 100.0
+
+[connection signal="reached_next_position" from="EnemyCharacter" to="." method="_on_enemy_character_reached_next_position"]
