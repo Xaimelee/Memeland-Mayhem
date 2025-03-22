@@ -1,34 +1,10 @@
-[gd_scene load_steps=27 format=3 uid="uid://dxk1jvimm72ti"]
+[gd_scene load_steps=21 format=3 uid="uid://dxk1jvimm72ti"]
 
 [ext_resource type="Script" uid="uid://ceedsgkf30k30" path="res://scenes/player_character.gd" id="1_6r27q"]
 [ext_resource type="Texture2D" uid="uid://cpgffeu6no6yu" path="res://assets/brett-arm.png" id="3_4h0vy"]
 [ext_resource type="Texture2D" uid="uid://b7fa5g7ocxdik" path="res://assets/brett.png" id="3_kww55"]
 [ext_resource type="PackedScene" uid="uid://c8vj3yqnvys4p" path="res://scenes/boring_rifle.tscn" id="4_uj7mf"]
 [ext_resource type="PackedScene" uid="uid://bqnxqvdmyj5xt" path="res://scenes/cyber_glock.tscn" id="5_2vmgx"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_br6ma"]
-atlas = ExtResource("3_kww55")
-region = Rect2(0, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_xc70a"]
-atlas = ExtResource("3_kww55")
-region = Rect2(64, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_2w5w8"]
-atlas = ExtResource("3_kww55")
-region = Rect2(128, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_qwq0k"]
-atlas = ExtResource("3_kww55")
-region = Rect2(192, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_eomf4"]
-atlas = ExtResource("3_kww55")
-region = Rect2(256, 128, 64, 64)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_8vkra"]
-atlas = ExtResource("3_kww55")
-region = Rect2(320, 128, 64, 64)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_4h0vy"]
 atlas = ExtResource("3_kww55")
@@ -80,29 +56,6 @@ region = Rect2(320, 64, 64, 64)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_br6ma"]
 animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_br6ma")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_xc70a")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_2w5w8")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_qwq0k")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_eomf4")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_8vkra")
-}],
-"loop": false,
-"name": &"die",
-"speed": 10.0
-}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_4h0vy")
@@ -168,7 +121,7 @@ z_index = 1
 z_as_relative = false
 position = Vector2(0, -16)
 sprite_frames = SubResource("SpriteFrames_br6ma")
-animation = &"die"
+animation = &"idle"
 autoplay = "idle"
 
 [node name="ArmSprite2D" type="Sprite2D" parent="AnimatedSprite2D"]

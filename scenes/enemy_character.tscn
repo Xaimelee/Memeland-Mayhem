@@ -1,9 +1,10 @@
-[gd_scene load_steps=26 format=3 uid="uid://qxnqtyeg4ue0"]
+[gd_scene load_steps=27 format=3 uid="uid://qxnqtyeg4ue0"]
 
 [ext_resource type="Script" uid="uid://37hkap528bb6" path="res://scenes/enemy_character.gd" id="1_p2vio"]
 [ext_resource type="Texture2D" uid="uid://b7fa5g7ocxdik" path="res://assets/brett.png" id="2_a650k"]
 [ext_resource type="Texture2D" uid="uid://cpgffeu6no6yu" path="res://assets/brett-arm.png" id="3_4vovm"]
-[ext_resource type="Texture2D" uid="uid://bhp2el5a4cwq7" path="res://assets/cyber-glock.png" id="4_xgmuc"]
+[ext_resource type="PackedScene" uid="uid://c8vj3yqnvys4p" path="res://scenes/boring_rifle.tscn" id="4_4vovm"]
+[ext_resource type="PackedScene" uid="uid://bqnxqvdmyj5xt" path="res://scenes/cyber_glock.tscn" id="5_xgmuc"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_a650k"]
 atlas = ExtResource("2_a650k")
@@ -177,22 +178,17 @@ position = Vector2(5, 2)
 texture = ExtResource("3_4vovm")
 offset = Vector2(4.5, 0.5)
 
-[node name="WeaponsSprite2D" type="Sprite2D" parent="AnimatedSprite2D/ArmSprite2D"]
-show_behind_parent = true
-z_index = 1
-z_as_relative = false
-position = Vector2(12.5, 0)
-texture = ExtResource("4_xgmuc")
+[node name="BoringRifle" parent="AnimatedSprite2D/ArmSprite2D" instance=ExtResource("4_4vovm")]
+visible = false
 
-[node name="WeaponMuzzle" type="Marker2D" parent="AnimatedSprite2D/ArmSprite2D/WeaponsSprite2D"]
-position = Vector2(17.5, -2)
+[node name="CyberGlock" parent="AnimatedSprite2D/ArmSprite2D" instance=ExtResource("5_xgmuc")]
 
 [node name="MovementCollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -4)
 shape = SubResource("CircleShape2D_d557m")
 
-[node name="Timer" type="Timer" parent="."]
-wait_time = 5.0
+[node name="AttackTimer" type="Timer" parent="."]
+wait_time = 2.0
 one_shot = true
 
 [node name="DamageArea2D" type="Area2D" parent="."]
@@ -203,4 +199,4 @@ collision_mask = 0
 [node name="DamageCollisionShape2D2" type="CollisionShape2D" parent="DamageArea2D"]
 shape = SubResource("CapsuleShape2D_a650k")
 
-[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]
+[connection signal="timeout" from="AttackTimer" to="." method="_on_attack_timer_timeout"]

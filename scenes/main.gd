@@ -34,11 +34,12 @@ func init_astar() -> void:
 					astar.connect_points(point_id, point_id - 1, 1)
 
 func _on_enemy_character_reached_next_position(enemy: CharacterBody2D) -> void:
-	#enemy.next_position = {}
 	var point_id = position_to_point_id(enemy.position)
 	if point_id == -1:
 		return
-	var target_point_id = position_to_point_id(enemy.target.position)
+	var target_point_id = astar.get_point_ids().get(randi() % astar.get_point_count())
+	if enemy.current_state == enemy.State.CHASE:
+		target_point_id = position_to_point_id(enemy.target.position)
 	if target_point_id == -1:
 		return
 	var next_map_position = astar.get_point_path(point_id, target_point_id)[1]

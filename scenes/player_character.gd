@@ -14,9 +14,13 @@ var health: float = max_health
 @onready var primary_weapon: Node2D = $AnimatedSprite2D/ArmSprite2D/BoringRifle
 @onready var secondary_weapon: Node2D = $AnimatedSprite2D/ArmSprite2D/CyberGlock
 @onready var weapon: Node2D = primary_weapon
+@onready var damage_area: Area2D = $DamageArea2D
 @onready var camera: Camera2D = $Camera2D
 
 func _physics_process(delta: float) -> void:
+	if health <= 0:
+		return
+	
 	# Handle movement
 	var input_direction = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	
@@ -47,12 +51,6 @@ func _physics_process(delta: float) -> void:
 		arm_sprite.position.x = 5
 		arm_sprite.position.y = 2
 		weapon.flip(false)
-	
-	# Running backwards
-	if (input_direction.x == 1) == sprite.flip_h:
-		sprite.speed_scale = -1
-	else:
-		sprite.speed_scale = 1
 	
 	# Handle rotation towards mouse
 	arm_sprite.look_at(get_global_mouse_position())
@@ -88,15 +86,25 @@ func take_damage(amount: float) -> void:
 	health -= amount
 	health = max(0, health)
 	health_changed.emit(health)
+	print("hit")
 	
 	if health <= 0:
 		die()
-	#else:
-		#sprite.play("hit")
 
 func die() -> void:
+	# Disable collision
+	damage_area.collision_layer = 0
+	collision_layer = 0
+	collision_mask = 0
+	
+	# Play death animation
 	sprite.play("die")
-	# Wait for animation to finish
-	await sprite.animation_finished
-	print("dead")
-	queue_free()
+	
+	# Remove the weapon holding arm
+	arm_sprite.queue_free()
+	
+	# Emit signal before freeing
+	#enemy_died.emit()
+	
+	# Start decay timer
+	#decay_timer.start()

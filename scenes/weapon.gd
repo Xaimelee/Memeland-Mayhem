@@ -3,7 +3,7 @@ class_name Weapon
 
 @export var damage: float = 10.0
 @export var max_shoot_distance: float = 1000.0
-@export var projectile_speed: float = 1500.0
+@export var projectile_speed: float = 5000.0
 
 var can_fire: bool = true
 # Fire height is required to avoid horizontally shot bullets stuck in the wall,
@@ -32,21 +32,22 @@ func flip(to_flip) -> void:
 func shoot() -> void:
 	can_fire = false
 	fire_timer.start()
-	
-	# Get the global position of the weapon muzzle
-	var muzzle_global_pos = weapon_muzzle.global_position
-	
-	# Get direction to mouse from the muzzle position
-	var direction = Vector2(cos(get_parent().rotation), sin(get_parent().rotation))
-	
+	update_line_of_fire()
+	handle_hit()
+
+func update_line_of_fire() -> void:
 	# Set raycast position and direction with fire_height offset
-	raycast.global_position = muzzle_global_pos + fire_height
+	raycast.global_position = weapon_muzzle.global_position + fire_height
 	raycast.target_position = Vector2(max_shoot_distance, 0)
 	raycast.force_raycast_update()
-	
+
+func handle_hit() -> void:
 	# Variables for beam effect
 	var hit_something = false
-	var collision_point = muzzle_global_pos + direction * max_shoot_distance
+	
+	# Get direction to target from the muzzle position
+	var direction = Vector2(cos(get_parent().rotation), sin(get_parent().rotation))
+	var collision_point = weapon_muzzle.global_position + direction * max_shoot_distance
 	
 	# Check if raycast hit something
 	if raycast.is_colliding():
@@ -59,7 +60,7 @@ func shoot() -> void:
 			collider.get_parent().take_damage(damage)
 	
 	# Show visual effects
-	create_shot_effects(muzzle_global_pos, collision_point, hit_something)
+	create_shot_effects(weapon_muzzle.global_position, collision_point, hit_something)
 
 func create_shot_effects(muzzle_pos: Vector2, impact_pos: Vector2, hit_something: bool) -> void:
 	# 1. Muzzle flash effect
