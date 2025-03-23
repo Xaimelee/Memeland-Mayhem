@@ -125,6 +125,9 @@ func handle_attack_state(delta: float) -> void:
 	shoot()
 	
 func shoot() -> void:
+	var random_offset_x = randf_range(-32, 32)
+	var random_offset_y = randf_range(-32, 32)
+	arm_sprite.look_at(target.position + Vector2(random_offset_x, random_offset_y))
 	weapon.shoot()
 	ready_to_attack = false
 	attack_timer.start()

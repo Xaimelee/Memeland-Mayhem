@@ -3,21 +3,19 @@ class_name Weapon
 
 @export var damage: float = 10.0
 @export var max_shoot_distance: float = 1000.0
-@export var projectile_speed: float = 2500.0
+@export var projectile_texture: Texture2D
+@export var impact_particles_lifetime: float = 0.5
 
 var can_fire: bool = true
 # Fire height is required to avoid horizontally shot bullets stuck in the wall,
 # while the player is right in front of the wall.
 var fire_height: Vector2 = Vector2(0, 12.0)  
-var current_tween: Tween
 
 @onready var weapon_sprite: Sprite2D = $WeaponsSprite2D
 @onready var weapon_muzzle: Marker2D = $WeaponsSprite2D/WeaponMuzzle
 @onready var raycast: RayCast2D = $WeaponsSprite2D/WeaponMuzzle/RayCast2D
 @onready var fire_timer: Timer = $FireTimer
 @onready var muzzle_flash: CPUParticles2D = $WeaponsSprite2D/WeaponMuzzle/MuzzleFlash
-@onready var impact_particles: CPUParticles2D = $ImpactParticles
-@onready var projectile: Sprite2D = $WeaponsSprite2D/WeaponMuzzle/BulletSprite2D
 
 func flip(to_flip) -> void:
 	if to_flip:
@@ -42,9 +40,6 @@ func update_line_of_fire() -> void:
 	raycast.force_raycast_update()
 
 func handle_hit() -> void:
-	# Variables for beam effect
-	var hit_something = false
-	
 	# Get direction to target from the muzzle position
 	var direction = Vector2(cos(get_parent().rotation), sin(get_parent().rotation))
 	var collision_point = weapon_muzzle.global_position + direction * max_shoot_distance
@@ -54,55 +49,25 @@ func handle_hit() -> void:
 	if raycast.is_colliding():
 		collision_point = raycast.get_collision_point() - fire_height
 		collider = raycast.get_collider().get_parent()
-		hit_something = true
 		
 		# Apply damage if hit an enemy
 		if collider.has_method("take_damage"):
 			collider.take_damage(damage)
-			create_shot_effects(weapon_muzzle.global_position, collision_point, hit_something, collider)
-			return
 	
-	# Show visual effects
-	create_shot_effects(weapon_muzzle.global_position, collision_point, hit_something, null)
-
-func create_shot_effects(muzzle_pos: Vector2, impact_pos: Vector2, hit_something: bool, collider: CharacterBody2D) -> void:
 	# 1. Muzzle flash effect
 	muzzle_flash.restart()
 	muzzle_flash.emitting = true
 	
 	# 2. Bullet effect
-	animate_projectile(muzzle_pos, impact_pos, hit_something, collider)
-
-func animate_projectile(start_pos: Vector2, end_pos: Vector2, hit_something: bool, collider: CharacterBody2D) -> void:
-	# Set up projectile
-	projectile.global_position = start_pos
-	projectile.visible = true
-	
-	if collider:
+	var projectile = Projectile.new()
+	projectile.texture = projectile_texture
+	projectile.global_position = weapon_muzzle.global_position
+	projectile.target_position = collision_point
+	projectile.impact_particles_lifetime = impact_particles_lifetime
+	if collider and collider is CharacterBody2D:
 		projectile.target = collider
-		return
-	
-	# Calculate travel time based on distance and speed
-	var distance = start_pos.distance_to(end_pos)
-	var travel_time = distance / projectile_speed
-	
-	# Cancel any existing tween
-	if current_tween and current_tween.is_valid():
-		current_tween.kill()
-	
-	# Create new tween
-	current_tween = create_tween()
-	current_tween.tween_property(projectile, "global_position", end_pos, travel_time)
-	
-	# When tween completes, show impact effect and hide projectile
-	current_tween.tween_callback(func():
-		projectile.visible = false
-		
-		if hit_something:
-			impact_particles.global_position = end_pos
-			impact_particles.restart()
-			impact_particles.emitting = true
-	)
+	get_tree().root.add_child(projectile)
+
 
 func _on_fire_timer_timeout() -> void:
 	can_fire = true

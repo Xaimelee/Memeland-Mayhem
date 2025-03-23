@@ -86,7 +86,6 @@ func take_damage(amount: float) -> void:
 	health -= amount
 	health = max(0, health)
 	health_changed.emit(health)
-	print("hit")
 	
 	if health <= 0:
 		die()

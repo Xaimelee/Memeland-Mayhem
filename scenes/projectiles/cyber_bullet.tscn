@@ -1,0 +1,8 @@
+[gd_scene load_steps=3 format=3 uid="uid://eht6j5f7rytq"]
+
+[ext_resource type="Texture2D" uid="uid://cfsvybqixlpo6" path="res://assets/cyber-bullet.png" id="1_k7ajm"]
+[ext_resource type="Script" uid="uid://dpy2mwqfuo73o" path="res://scenes/projectiles/projectile.gd" id="2_o47tv"]
+
+[node name="CyberBullet" type="Sprite2D"]
+texture = ExtResource("1_k7ajm")
+script = ExtResource("2_o47tv")
