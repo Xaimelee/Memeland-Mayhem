@@ -20,9 +20,7 @@ var ready_to_attack: bool = true
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var arm_sprite: Sprite2D = $AnimatedSprite2D/ArmSprite2D
-@onready var primary_weapon: Node2D = $AnimatedSprite2D/ArmSprite2D/BoringRifle
-@onready var secondary_weapon: Node2D = $AnimatedSprite2D/ArmSprite2D/CyberGlock
-@onready var weapon: Node2D = secondary_weapon
+@onready var weapon: Node2D = $AnimatedSprite2D/ArmSprite2D/UnderTaker
 @onready var damage_area: Area2D = $DamageArea2D
 @onready var attack_timer: Timer = $AttackTimer
 

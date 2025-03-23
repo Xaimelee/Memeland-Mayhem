@@ -1,10 +1,9 @@
-[gd_scene load_steps=27 format=3 uid="uid://qxnqtyeg4ue0"]
+[gd_scene load_steps=26 format=3 uid="uid://qxnqtyeg4ue0"]
 
 [ext_resource type="Script" uid="uid://37hkap528bb6" path="res://scenes/enemy_character.gd" id="1_p2vio"]
 [ext_resource type="Texture2D" uid="uid://1442fxu03nny" path="res://assets/pepe-zombie.png" id="2_4vovm"]
 [ext_resource type="Texture2D" uid="uid://bfgpjcyn0w6bb" path="res://assets/pepe-zombie-arm.png" id="3_4vovm"]
-[ext_resource type="PackedScene" uid="uid://c8vj3yqnvys4p" path="res://scenes/weapons/boring_rifle.tscn" id="4_4vovm"]
-[ext_resource type="PackedScene" uid="uid://bqnxqvdmyj5xt" path="res://scenes/weapons/cyber_glock.tscn" id="5_xgmuc"]
+[ext_resource type="PackedScene" uid="uid://df7bvuymd1rae" path="res://scenes/weapons/under_taker.tscn" id="4_a650k"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_xgmuc"]
 atlas = ExtResource("2_4vovm")
@@ -180,10 +179,7 @@ position = Vector2(5, 2)
 texture = ExtResource("3_4vovm")
 offset = Vector2(4.5, 0.5)
 
-[node name="BoringRifle" parent="AnimatedSprite2D/ArmSprite2D" instance=ExtResource("4_4vovm")]
-visible = false
-
-[node name="CyberGlock" parent="AnimatedSprite2D/ArmSprite2D" instance=ExtResource("5_xgmuc")]
+[node name="UnderTaker" parent="AnimatedSprite2D/ArmSprite2D" instance=ExtResource("4_a650k")]
 
 [node name="MovementCollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -4)
