@@ -10,6 +10,7 @@ enum State {IDLE, CHASE, ATTACK, DEAD}
 @export var acceleration: float = 2000.0
 @export var friction: float = 1000.0
 @export var detection_range: float = 500.0
+@export var attack_range: float = 400.0
 
 var health: float = max_health
 var target: CharacterBody2D = null
@@ -75,7 +76,7 @@ func update_state() -> void:
 		current_state = State.IDLE
 		return
 	var distance_to_player = global_position.distance_to(target.global_position)
-	if is_lined_up() and distance_to_player <= weapon.max_shoot_distance:
+	if is_lined_up() and distance_to_player <= attack_range:
 		current_state = State.ATTACK
 	elif distance_to_player <= detection_range:
 		current_state = State.CHASE

@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://c8vj3yqnvys4p"]
+[gd_scene load_steps=7 format=3 uid="uid://c8vj3yqnvys4p"]
 
 [ext_resource type="Script" uid="uid://1kmr3fp72sdl" path="res://scenes/weapon.gd" id="1_2mbdx"]
 [ext_resource type="Texture2D" uid="uid://c2rwlvyxutel5" path="res://assets/boring-rifle.png" id="2_vvbt8"]
 [ext_resource type="Texture2D" uid="uid://dqmecsiqp76sh" path="res://assets/boring-bullet.png" id="3_x0kks"]
 [ext_resource type="PackedScene" uid="uid://cx85rvdlejuhv" path="res://scenes/muzzle_flash.tscn" id="4_pmatb"]
+[ext_resource type="Script" uid="uid://dpy2mwqfuo73o" path="res://scenes/projectile.gd" id="4_vvbt8"]
 [ext_resource type="PackedScene" uid="uid://c2rf557pj5vrx" path="res://scenes/impact_particles.tscn" id="5_4uxq7"]
 
 [node name="BoringRifle" type="Node2D"]
@@ -35,6 +36,7 @@ z_index = 1
 z_as_relative = false
 y_sort_enabled = true
 texture = ExtResource("3_x0kks")
+script = ExtResource("4_vvbt8")
 
 [node name="MuzzleFlash" parent="WeaponsSprite2D/WeaponMuzzle" instance=ExtResource("4_pmatb")]
 z_index = 1

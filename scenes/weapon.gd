@@ -3,7 +3,7 @@ class_name Weapon
 
 @export var damage: float = 10.0
 @export var max_shoot_distance: float = 1000.0
-@export var projectile_speed: float = 5000.0
+@export var projectile_speed: float = 2500.0
 
 var can_fire: bool = true
 # Fire height is required to avoid horizontally shot bullets stuck in the wall,
@@ -48,40 +48,47 @@ func handle_hit() -> void:
 	# Get direction to target from the muzzle position
 	var direction = Vector2(cos(get_parent().rotation), sin(get_parent().rotation))
 	var collision_point = weapon_muzzle.global_position + direction * max_shoot_distance
+	var collider = null
 	
 	# Check if raycast hit something
 	if raycast.is_colliding():
 		collision_point = raycast.get_collision_point() - fire_height
-		var collider = raycast.get_collider()
+		collider = raycast.get_collider().get_parent()
 		hit_something = true
 		
 		# Apply damage if hit an enemy
-		if collider.get_parent().has_method("take_damage"):
-			collider.get_parent().take_damage(damage)
+		if collider.has_method("take_damage"):
+			collider.take_damage(damage)
+			create_shot_effects(weapon_muzzle.global_position, collision_point, hit_something, collider)
+			return
 	
 	# Show visual effects
-	create_shot_effects(weapon_muzzle.global_position, collision_point, hit_something)
+	create_shot_effects(weapon_muzzle.global_position, collision_point, hit_something, null)
 
-func create_shot_effects(muzzle_pos: Vector2, impact_pos: Vector2, hit_something: bool) -> void:
+func create_shot_effects(muzzle_pos: Vector2, impact_pos: Vector2, hit_something: bool, collider: CharacterBody2D) -> void:
 	# 1. Muzzle flash effect
 	muzzle_flash.restart()
 	muzzle_flash.emitting = true
 	
 	# 2. Bullet effect
-	animate_projectile(muzzle_pos, impact_pos, hit_something)
+	animate_projectile(muzzle_pos, impact_pos, hit_something, collider)
 
-func animate_projectile(start_pos: Vector2, end_pos: Vector2, hit_something: bool) -> void:
-	# Cancel any existing tween
-	if current_tween and current_tween.is_valid():
-		current_tween.kill()
-	
+func animate_projectile(start_pos: Vector2, end_pos: Vector2, hit_something: bool, collider: CharacterBody2D) -> void:
 	# Set up projectile
 	projectile.global_position = start_pos
 	projectile.visible = true
 	
+	if collider:
+		projectile.target = collider
+		return
+	
 	# Calculate travel time based on distance and speed
 	var distance = start_pos.distance_to(end_pos)
 	var travel_time = distance / projectile_speed
+	
+	# Cancel any existing tween
+	if current_tween and current_tween.is_valid():
+		current_tween.kill()
 	
 	# Create new tween
 	current_tween = create_tween()
