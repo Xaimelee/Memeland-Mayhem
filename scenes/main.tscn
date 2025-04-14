@@ -17,23 +17,18 @@ position = Vector2(3414, 794)
 
 [node name="EnemyCharacter" parent="." instance=ExtResource("4_jyhfs")]
 position = Vector2(4431, 999)
-speed = 100.0
 
 [node name="EnemyCharacter2" parent="." instance=ExtResource("4_jyhfs")]
 position = Vector2(4305, 255)
-speed = 100.0
 
 [node name="EnemyCharacter3" parent="." instance=ExtResource("4_jyhfs")]
 position = Vector2(4464, 628)
-speed = 100.0
 
 [node name="EnemyCharacter4" parent="." instance=ExtResource("4_jyhfs")]
 position = Vector2(4578, 363)
-speed = 100.0
 
 [node name="EnemyCharacter5" parent="." instance=ExtResource("4_jyhfs")]
 position = Vector2(4531, 1204)
-speed = 100.0
 
 [connection signal="reached_next_position" from="EnemyCharacter" to="." method="_on_enemy_character_reached_next_position"]
 [connection signal="reached_next_position" from="EnemyCharacter2" to="." method="_on_enemy_character_reached_next_position"]
