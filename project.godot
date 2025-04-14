@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 Firebase="*res://addons/godot-firebase/firebase/firebase.tscn"
 SolanaService="*res://addons/SolanaSDK/Autoload/SolanaService.tscn"
+MultiplayerManager="*res://scenes/multiplayer/multiplayer_manager.tscn"
 
 [display]
 
