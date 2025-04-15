@@ -12,26 +12,37 @@ script = ExtResource("1_o5qli")
 
 [node name="Map" parent="." instance=ExtResource("3_sugp2")]
 
-[node name="PlayerCharacter" parent="." groups=["players"] instance=ExtResource("2_0wfyh")]
+[node name="PlayerSpawnPoint" type="Node2D" parent="."]
+position = Vector2(3411.7, 789.6)
+
+[node name="Characters" type="Node2D" parent="."]
+z_as_relative = false
+y_sort_enabled = true
+
+[node name="PlayerCharacter" parent="Characters" groups=["players"] instance=ExtResource("2_0wfyh")]
 position = Vector2(3414, 794)
 
-[node name="EnemyCharacter" parent="." instance=ExtResource("4_jyhfs")]
+[node name="EnemyCharacter" parent="Characters" instance=ExtResource("4_jyhfs")]
 position = Vector2(4431, 999)
 
-[node name="EnemyCharacter2" parent="." instance=ExtResource("4_jyhfs")]
+[node name="EnemyCharacter2" parent="Characters" instance=ExtResource("4_jyhfs")]
 position = Vector2(4305, 255)
 
-[node name="EnemyCharacter3" parent="." instance=ExtResource("4_jyhfs")]
+[node name="EnemyCharacter3" parent="Characters" instance=ExtResource("4_jyhfs")]
 position = Vector2(4464, 628)
 
-[node name="EnemyCharacter4" parent="." instance=ExtResource("4_jyhfs")]
+[node name="EnemyCharacter4" parent="Characters" instance=ExtResource("4_jyhfs")]
 position = Vector2(4578, 363)
 
-[node name="EnemyCharacter5" parent="." instance=ExtResource("4_jyhfs")]
+[node name="EnemyCharacter5" parent="Characters" instance=ExtResource("4_jyhfs")]
 position = Vector2(4531, 1204)
 
-[connection signal="reached_next_position" from="EnemyCharacter" to="." method="_on_enemy_character_reached_next_position"]
-[connection signal="reached_next_position" from="EnemyCharacter2" to="." method="_on_enemy_character_reached_next_position"]
-[connection signal="reached_next_position" from="EnemyCharacter3" to="." method="_on_enemy_character_reached_next_position"]
-[connection signal="reached_next_position" from="EnemyCharacter4" to="." method="_on_enemy_character_reached_next_position"]
-[connection signal="reached_next_position" from="EnemyCharacter5" to="." method="_on_enemy_character_reached_next_position"]
+[node name="CharacterSpawner" type="MultiplayerSpawner" parent="."]
+_spawnable_scenes = PackedStringArray("uid://dxk1jvimm72ti", "uid://qxnqtyeg4ue0")
+spawn_path = NodePath("../Characters")
+
+[connection signal="reached_next_position" from="Characters/EnemyCharacter" to="." method="_on_enemy_character_reached_next_position"]
+[connection signal="reached_next_position" from="Characters/EnemyCharacter2" to="." method="_on_enemy_character_reached_next_position"]
+[connection signal="reached_next_position" from="Characters/EnemyCharacter3" to="." method="_on_enemy_character_reached_next_position"]
+[connection signal="reached_next_position" from="Characters/EnemyCharacter4" to="." method="_on_enemy_character_reached_next_position"]
+[connection signal="reached_next_position" from="Characters/EnemyCharacter5" to="." method="_on_enemy_character_reached_next_position"]

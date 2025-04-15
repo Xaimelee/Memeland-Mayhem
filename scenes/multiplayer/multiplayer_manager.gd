@@ -2,7 +2,10 @@ extends Node
 
 const SERVER_PORT: int = 8080
 const SERVER_IP: String = "localhost"
+const PLAYER_SCENE: PackedScene = preload("res://scenes/player_character.tscn")
 
+@onready var characters: Node2D = get_node("/root/Main/Characters")
+@onready var player_spawn: Node2D = get_node("/root/Main/PlayerSpawnPoint")
 @onready var peer = WebSocketMultiplayerPeer.new()
 
 func _ready() -> void:
@@ -31,8 +34,17 @@ func _on_connected_to_server() -> void:
 
 ## ID of 1 means connection to the server (authority)
 func _on_peer_connected(id: int) -> void:
+	if multiplayer.is_server():
+		var player: PlayerCharacter = PLAYER_SCENE.instantiate()
+		characters.add_child(player, true)
+		player.rpc("init_player", id, player_spawn.global_position)
 	## Need to properly check here if a connection attempt has succeeded or failed
 	print("Client connected: " + str(id))
 
 func _on_peer_disconnected(id: int) -> void:
 	print("Client disconnected: " + str(id))
+	for character in characters.get_children() as Array[CharacterBody2D]:
+		var player: PlayerCharacter = character as PlayerCharacter
+		if player is not PlayerCharacter: continue
+		if player.id == id:
+			player.queue_free()

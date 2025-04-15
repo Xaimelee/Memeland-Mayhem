@@ -8,6 +8,7 @@ signal health_changed(new_health: float)
 @export var friction: float = 1000.0
 
 var health: float = max_health
+var id: int = 0
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var arm_sprite: Sprite2D = $AnimatedSprite2D/ArmSprite2D
@@ -18,8 +19,13 @@ var health: float = max_health
 @onready var camera: Camera2D = $Camera2D
 
 func _physics_process(delta: float) -> void:
-	if health <= 0:
+	if !has_ownership(): 
+		## This may not be entirely efficient but its an easy way to do this...
+		## because we don't currently have a pre game state and have a player...
+		## already in the map for easy testing
+		camera.enabled = false
 		return
+	if health <= 0: return
 	
 	# Handle movement
 	var input_direction = Input.get_vector("move_left", "move_right", "move_up", "move_down")
@@ -107,3 +113,13 @@ func die() -> void:
 	
 	# Start decay timer
 	#decay_timer.start()
+
+@rpc("authority", "call_local")
+func init_player(new_id: int, spawn_position: Vector2) -> void:
+	id = new_id
+	global_position = spawn_position
+	if has_ownership():
+		camera.enabled = true
+
+func has_ownership() -> bool:
+	return id == multiplayer.get_unique_id()
