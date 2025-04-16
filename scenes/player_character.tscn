@@ -156,10 +156,11 @@ radius = 6.0
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_6unfe"]
 radius = 8.0
 
-[node name="PlayerCharacter" type="CharacterBody2D"]
+[node name="PlayerCharacter" type="CharacterBody2D" groups=["players"]]
 z_index = 2
 z_as_relative = false
 y_sort_enabled = true
+collision_layer = 2
 script = ExtResource("1_6r27q")
 speed = 250.0
 

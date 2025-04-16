@@ -42,6 +42,9 @@ func _on_enemy_character_reached_next_position(enemy: CharacterBody2D) -> void:
 		target_point_id = position_to_point_id(enemy.target.position)
 	if target_point_id == -1:
 		return
+	var path: PackedVector2Array = astar.get_point_path(point_id, target_point_id)
+	if path.size() < 2:
+		return
 	var next_map_position = astar.get_point_path(point_id, target_point_id)[1]
 	enemy.next_position = wall_layer.map_to_local(next_map_position)
 

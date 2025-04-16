@@ -159,6 +159,7 @@ radius = 8.0
 z_index = 1
 z_as_relative = false
 y_sort_enabled = true
+collision_layer = 2
 script = ExtResource("1_p2vio")
 speed = 100.0
 detection_range = 3000.0

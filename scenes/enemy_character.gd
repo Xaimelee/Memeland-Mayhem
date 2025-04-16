@@ -26,9 +26,11 @@ var ready_to_attack: bool = true
 
 
 func _physics_process(delta: float) -> void:
-	target = get_tree().get_nodes_in_group("players")[0]
-	if target.health <= 0:
-		target = null
+	if get_tree().get_nodes_in_group("players").size() > 0:
+		target = get_tree().get_nodes_in_group("players")[0]
+	if target:
+		if target.health <= 0:
+			target = null
 	
 	# Update state based on player distance
 	update_state()

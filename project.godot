@@ -27,6 +27,10 @@ window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 window/stretch/scale=1.5
 
+[editor]
+
+run/main_run_args="local"
+
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/SolanaSDK/plugin.cfg", "res://addons/godot-firebase/plugin.cfg", "res://addons/http-sse-client/plugin.cfg")

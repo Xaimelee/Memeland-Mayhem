@@ -6,9 +6,11 @@ signal health_changed(new_health: float)
 @export var speed: float = 300.0
 @export var acceleration: float = 2000.0
 @export var friction: float = 1000.0
+@export var id: int = 1
 
 var health: float = max_health
-var id: int = 0
+var input_direction: Vector2 = Vector2.ZERO
+var target_position: Vector2 = Vector2.ZERO
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var arm_sprite: Sprite2D = $AnimatedSprite2D/ArmSprite2D
@@ -18,31 +20,46 @@ var id: int = 0
 @onready var damage_area: Area2D = $DamageArea2D
 @onready var camera: Camera2D = $Camera2D
 
+func _process(delta: float) -> void:
+	# We only want to calculate physic interactions on the server so we need to lerp the player movement on clients...
+	# so it still feels smooth. This will need testing with latency.
+	if not MultiplayerManager.is_server():
+		global_position = global_position.lerp(target_position, 30.0 * delta)
+
 func _physics_process(delta: float) -> void:
 	if !has_ownership(): 
-		## This may not be entirely efficient but its an easy way to do this...
-		## because we don't currently have a pre game state and have a player...
-		## already in the map for easy testing
+		# This may not be entirely efficient but its an easy way to do this...
+		# because we don't currently have a pre game state and have a player...
+		# already in the map for easy testing
 		camera.enabled = false
-		return
 	if health <= 0: return
 	
 	# Handle movement
-	var input_direction = Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	if has_ownership():
+		input_direction = Input.get_vector("move_left", "move_right", "move_up", "move_down")
+		rpc("update_input_direction", input_direction)
 	
 	if input_direction != Vector2.ZERO:
 		# Accelerate when there's input
-		velocity = velocity.move_toward(input_direction * speed, acceleration * delta)
+		if MultiplayerManager.is_server():
+			velocity = velocity.move_toward(input_direction * speed, acceleration * delta)
 		# Play movement animation
 		sprite.play("run")
 	else:
 		# Apply friction when no input
-		velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
+		if MultiplayerManager.is_server():
+			velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
 		# Play idle animation
 		sprite.play("idle")
-	
+
+	if MultiplayerManager.is_server():
+		rpc("update_velocity", velocity)
 	# Apply movement
-	move_and_slide()
+	if MultiplayerManager.is_server():
+		move_and_slide()
+		rpc("update_target_position", global_position)
+	
+	if !has_ownership(): return
 	
 	# Flip towards mouse
 	if get_global_mouse_position().x < position.x:
@@ -114,12 +131,23 @@ func die() -> void:
 	# Start decay timer
 	#decay_timer.start()
 
+@rpc("any_peer", "call_local")
+func update_input_direction(new_input_direction: Vector2) -> void:
+	input_direction = new_input_direction
+
+@rpc("authority", "call_local")
+func update_velocity(new_velocity: Vector2) -> void:
+	velocity = new_velocity
+
+@rpc("authority", "call_remote")
+func update_target_position(new_target_position: Vector2) -> void:
+	target_position = new_target_position
+
 @rpc("authority", "call_local")
 func init_player(new_id: int, spawn_position: Vector2) -> void:
 	id = new_id
+	target_position = spawn_position
 	global_position = spawn_position
-	if has_ownership():
-		camera.enabled = true
 
 func has_ownership() -> bool:
 	return id == multiplayer.get_unique_id()

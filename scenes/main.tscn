@@ -19,8 +19,8 @@ position = Vector2(3411.7, 789.6)
 z_as_relative = false
 y_sort_enabled = true
 
-[node name="PlayerCharacter" parent="Characters" groups=["players"] instance=ExtResource("2_0wfyh")]
-position = Vector2(3414, 794)
+[node name="PlayerCharacter" parent="Characters" instance=ExtResource("2_0wfyh")]
+position = Vector2(3409, 790)
 
 [node name="EnemyCharacter" parent="Characters" instance=ExtResource("4_jyhfs")]
 position = Vector2(4431, 999)
