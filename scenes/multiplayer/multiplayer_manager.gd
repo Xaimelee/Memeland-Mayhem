@@ -9,14 +9,14 @@ const PLAYER_SCENE: PackedScene = preload("res://scenes/player_character.tscn")
 @onready var peer = WebSocketMultiplayerPeer.new()
 
 func _ready() -> void:
-	## We will need a proper setup where based on game state (i.e going from menu to game)
-	## triggers the network to be started
-	start_network()
-	## Simplier than needing to spawn a player in for local testing.
+	# We will need a proper setup where based on game state (i.e going from menu to game)
+	# Simplier than needing to spawn a player in for local testing.
 	if not is_local():
 		var player = get_tree().get_nodes_in_group("players")[0]
 		if player != null:
-			player.queue_free()
+			player.free()
+	# triggers the network to be started
+	start_network()
 
 func start_network() -> void:
 	var err: Error

@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://dxk1jvimm72ti"]
+[gd_scene load_steps=28 format=3 uid="uid://dxk1jvimm72ti"]
 
 [ext_resource type="Script" uid="uid://ceedsgkf30k30" path="res://scenes/player_character.gd" id="1_6r27q"]
 [ext_resource type="Texture2D" uid="uid://cpgffeu6no6yu" path="res://assets/brett-arm.png" id="3_4h0vy"]
@@ -156,6 +156,11 @@ radius = 6.0
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_6unfe"]
 radius = 8.0
 
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_uj7mf"]
+properties/0/path = NodePath(".:id")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+
 [node name="PlayerCharacter" type="CharacterBody2D" groups=["players"]]
 z_index = 2
 z_as_relative = false
@@ -215,3 +220,6 @@ grow_vertical = 0
 size_flags_vertical = 8
 text = "Player"
 horizontal_alignment = 1
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
+replication_config = SubResource("SceneReplicationConfig_uj7mf")

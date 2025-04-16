@@ -17,6 +17,7 @@ var target: CharacterBody2D = null
 var next_position: Vector2 = position
 var current_state: State = State.IDLE
 var ready_to_attack: bool = true
+var target_position: Vector2 = Vector2.ZERO
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var arm_sprite: Sprite2D = $AnimatedSprite2D/ArmSprite2D
@@ -24,10 +25,22 @@ var ready_to_attack: bool = true
 @onready var damage_area: Area2D = $DamageArea2D
 @onready var attack_timer: Timer = $AttackTimer
 
+func _process(delta: float) -> void:
+	# We only want to calculate physic interactions on the server so we need to lerp the player movement on clients...
+	# so it still feels smooth. This will need testing with latency.
+	if not MultiplayerManager.is_server():
+		global_position = global_position.lerp(target_position, 30.0 * delta)
 
 func _physics_process(delta: float) -> void:
-	if get_tree().get_nodes_in_group("players").size() > 0:
-		target = get_tree().get_nodes_in_group("players")[0]
+	if MultiplayerManager.is_server():
+		for player in get_tree().get_nodes_in_group("players") as Array[PlayerCharacter]:
+			if player.current_state == player.State.DEAD: continue
+			target = player
+		if target:
+			rpc("update_target", target.get_path())
+		else:
+			rpc("update_target", "")
+	# Probably need to update this later on, enemy and player likely need to inherit from some base class
 	if target:
 		if target.health <= 0:
 			target = null
@@ -46,7 +59,9 @@ func _physics_process(delta: float) -> void:
 		State.DEAD:
 			return
 	
-	move_and_slide()
+	if MultiplayerManager.is_server():
+		move_and_slide()
+		rpc("update_target_position", global_position)
 	
 	if not target:
 		return
@@ -164,6 +179,17 @@ func die() -> void:
 	
 	# Start decay timer
 	#decay_timer.start()
+
+@rpc("authority", "call_remote")
+func update_target_position(new_target_position: Vector2) -> void:
+	target_position = new_target_position
+
+@rpc("authority", "call_remote")
+func update_target(new_target_node_path: String) -> void:
+	if new_target_node_path == "":
+		target = null
+		return
+	target = get_node(new_target_node_path)
 
 func _on_attack_timer_timeout() -> void:
 	ready_to_attack = true

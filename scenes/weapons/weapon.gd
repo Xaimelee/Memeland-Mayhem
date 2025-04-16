@@ -51,7 +51,7 @@ func handle_hit() -> void:
 		collider = raycast.get_collider().get_parent()
 		
 		# Apply damage if hit an enemy
-		if collider.has_method("take_damage"):
+		if collider.has_method("take_damage") and MultiplayerManager.is_server():
 			collider.take_damage(damage)
 	
 	# 1. Muzzle flash effect
