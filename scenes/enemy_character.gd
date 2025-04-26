@@ -21,7 +21,7 @@ var target_position: Vector2 = Vector2.ZERO
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var arm_sprite: Sprite2D = $AnimatedSprite2D/ArmSprite2D
-@onready var weapon: Node2D = $AnimatedSprite2D/ArmSprite2D/UnderTaker
+@onready var weapon: Weapon = $AnimatedSprite2D/ArmSprite2D/UnderTaker
 @onready var damage_area: Area2D = $DamageArea2D
 @onready var attack_timer: Timer = $AttackTimer
 
@@ -46,7 +46,8 @@ func _physics_process(delta: float) -> void:
 			target = null
 	
 	# Update state based on player distance
-	update_state()
+	if MultiplayerManager.is_server():
+		change_state()
 	
 	# Handle state behavior
 	match current_state:
@@ -83,21 +84,21 @@ func _physics_process(delta: float) -> void:
 	# Handle rotation towards target
 	arm_sprite.look_at(target.position)
 
-func update_state() -> void:
+func change_state() -> void:
 	if health <= 0:
-		current_state = State.DEAD
+		rpc("update_state", State.DEAD)
 		return
 	if not target:
-		current_state = State.IDLE
+		rpc("update_state", State.IDLE)
 		return
 	var distance_to_player = global_position.distance_to(target.global_position)
 	if is_lined_up() and distance_to_player <= attack_range:
-		current_state = State.ATTACK
+		rpc("update_state", State.ATTACK)
 	elif distance_to_player <= detection_range:
-		current_state = State.CHASE
+		rpc("update_state", State.CHASE)
 	else:
-		current_state = State.IDLE
-		
+		rpc("update_state", State.IDLE)
+
 func is_lined_up() -> bool:
 	weapon.update_line_of_fire()
 	return weapon.raycast.is_colliding() and weapon.raycast.get_collider().get_parent() == target
@@ -154,13 +155,15 @@ func shoot() -> void:
 	
 	
 func take_damage(amount: float) -> void:
-	if current_state == State.DEAD:
-		return
-	health -= amount
-	health = max(0, health)
-	
-	if health <= 0:
-		die()
+	if MultiplayerManager.is_server():
+		rpc("update_health", amount)
+	#if current_state == State.DEAD:
+		#return
+	#health -= amount
+	#health = max(0, health)
+	#
+	#if health <= 0:
+		#die()
 
 func die() -> void:
 	# Disable collision
@@ -172,7 +175,9 @@ func die() -> void:
 	sprite.play("die")
 	
 	# Remove the weapon holding arm
-	arm_sprite.queue_free()
+	# This is now visible instead of queuefree because of sync errors...
+	# caused by the auto spawner sync node I think.
+	arm_sprite.visible = false
 	
 	# Emit signal before freeing
 	enemy_died.emit()
@@ -190,6 +195,21 @@ func update_target(new_target_node_path: String) -> void:
 		target = null
 		return
 	target = get_node(new_target_node_path)
+
+@rpc("authority", "call_local")
+func update_state(new_state: State) -> void:
+	# We should check this on server to avoid sending pointless rpcs.
+	# It will mean that when enemies are spawned, we need a way to get...
+	# updated info ASAP from the server. Might just need our own sync node?
+	if current_state == new_state: return
+	current_state = new_state
+	if current_state == State.DEAD:
+		die()
+
+@rpc("authority", "call_local")
+func update_health(new_health: float) -> void:
+	health -= new_health
+	health = max(0, health)
 
 func _on_attack_timer_timeout() -> void:
 	ready_to_attack = true

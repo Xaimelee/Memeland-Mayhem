@@ -4,6 +4,7 @@ signal health_changed(new_health: float)
 
 enum State {ALIVE, DEAD}
 enum ArmState {LEFT, RIGHT}
+enum WeaponState {PRIMARY, SECONDARY}
 
 @export var max_health: float = 100.0
 @export var speed: float = 300.0
@@ -17,12 +18,13 @@ var target_position: Vector2 = Vector2.ZERO
 var mouse_position: Vector2 = Vector2.ZERO
 var current_arm_state: ArmState = ArmState.LEFT
 var current_state: State = State.ALIVE
+var current_weapon_state: WeaponState = WeaponState.PRIMARY
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var arm_sprite: Sprite2D = $AnimatedSprite2D/ArmSprite2D
 @onready var primary_weapon: Node2D = $AnimatedSprite2D/ArmSprite2D/BoringRifle
 @onready var secondary_weapon: Node2D = $AnimatedSprite2D/ArmSprite2D/CyberGlock
-@onready var weapon: Node2D = primary_weapon
+@onready var weapon: Weapon = primary_weapon
 @onready var damage_area: Area2D = $DamageArea2D
 @onready var camera: Camera2D = $Camera2D
 
@@ -79,17 +81,18 @@ func _physics_process(delta: float) -> void:
 	# Handle shooting
 	var shooting = false
 	if Input.is_action_pressed("shoot_primary") and primary_weapon.can_fire:
-		weapon = primary_weapon
-		secondary_weapon.visible = false
 		shooting = true
+		change_weapon_state(WeaponState.PRIMARY)
+		rpc_id(1, "send_weapon_state", current_weapon_state)
 	elif Input.is_action_pressed("shoot_secondary") and secondary_weapon.can_fire:
-		weapon = secondary_weapon
-		primary_weapon.visible = false
 		shooting = true
+		change_weapon_state(WeaponState.SECONDARY)
+		rpc_id(1, "send_weapon_state", current_weapon_state)
 	if shooting:
-		weapon.visible = true
-		rpc("send_shoot")
-		#shoot()
+		# We call shoot right away so it feels responsive to the client
+		# This may result in "ghost" hits for high latency users
+		shoot()
+		rpc_id(1, "send_shoot")
 	
 func shoot() -> void:
 	weapon.shoot()
@@ -156,19 +159,22 @@ func change_arm_state(new_arm_state: ArmState) -> void:
 			arm_sprite.position.y = 2
 			weapon.flip(false)
 
+func change_weapon_state(new_weapon_state: WeaponState) -> void:
+	if new_weapon_state == WeaponState.PRIMARY:
+		weapon = primary_weapon
+		secondary_weapon.visible = false
+		current_weapon_state = WeaponState.PRIMARY
+	else:
+		weapon = secondary_weapon
+		primary_weapon.visible = false
+		current_weapon_state = WeaponState.SECONDARY
+	weapon.visible = true
+
 # Fix this later to respect client-server authority, likely need to be done in the weapon script?
-@rpc("any_peer", "call_local")
+@rpc("any_peer", "call_remote")
 func send_shoot() -> void:
-	weapon.shoot()
-	
-	# 1. Arm effect
-	var original_position = Vector2(-5, 3) if mouse_position.x < position.x else Vector2(5, 2)
-	arm_sprite.position -= Vector2(cos(arm_sprite.rotation), sin(arm_sprite.rotation)) * 2
-	create_tween().tween_property(arm_sprite, "position", original_position, 0.1)
-	
-	# 2. Camera shake effect (subtle)
-	camera.offset = Vector2(randf_range(-2, 2), -2)
-	create_tween().tween_property(camera, "offset", Vector2.ZERO, 0.1)
+	if not validate_user_rpc("Possible shoot manipulation"): return
+	rpc("update_shoot")
 
 @rpc("any_peer", "call_remote")
 func send_mouse_position(new_mouse_position: Vector2) -> void:
@@ -179,6 +185,23 @@ func send_mouse_position(new_mouse_position: Vector2) -> void:
 func send_input_direction(new_input_direction: Vector2) -> void:
 	if not validate_user_rpc("Possible input manipulation"): return
 	input_direction = new_input_direction
+
+@rpc("any_peer", "call_local")
+func send_weapon_state(new_weapon_state: WeaponState) -> void:
+	if not validate_user_rpc("Possible weapon state manipulation"): return
+	rpc("update_weapon_state", new_weapon_state)
+
+@rpc("authority", "call_local")
+func update_shoot() -> void:
+	# We locally show shoot visuals as soon as the request is sent to the server
+	if has_ownership(): return
+	shoot()
+
+@rpc("authority", "call_local")
+func update_weapon_state(new_weapon_state: WeaponState) -> void:
+	# We locally show the weapon swap right away for the owner to prevent it feeling delayed
+	if has_ownership(): return
+	change_weapon_state(new_weapon_state)
 
 @rpc("authority", "call_local")
 func update_health(new_health: float) -> void:
@@ -194,12 +217,9 @@ func update_mouse_position(new_mouse_position: Vector2) -> void:
 	if has_ownership(): return
 	mouse_position = new_mouse_position
 
-#@rpc("authority", "call_local")
-#func update_velocity(new_velocity: Vector2) -> void:
-	#velocity = new_velocity
-
 @rpc("authority", "call_remote")
 func update_target_position(new_target_position: Vector2) -> void:
+	# We just update target position on clients
 	target_position = new_target_position
 
 @rpc("authority", "call_local")
