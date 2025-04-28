@@ -49,14 +49,23 @@ func _physics_process(delta: float) -> void:
 	
 	if input_direction != Vector2.ZERO:
 		# Accelerate when there's input
-		if MultiplayerManager.is_server():
+		if MultiplayerManager.is_server() || has_ownership():
 			velocity = velocity.move_toward(input_direction * speed, acceleration * delta)
+		# Play movement animation
+		#sprite.play("run")
+	else:
+		# Apply friction when no input
+		if MultiplayerManager.is_server() || has_ownership():
+			velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
+		# Play idle animation
+		#sprite.play("idle")
+
+	# Probably replace with some synced bool if moving which can be client authority if...
+	# it is purely for visuals
+	if !global_position.is_equal_approx(target_position) || input_direction != Vector2.ZERO:
 		# Play movement animation
 		sprite.play("run")
 	else:
-		# Apply friction when no input
-		if MultiplayerManager.is_server():
-			velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
 		# Play idle animation
 		sprite.play("idle")
 

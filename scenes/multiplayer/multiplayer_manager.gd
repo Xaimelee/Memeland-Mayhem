@@ -1,7 +1,10 @@
 extends Node
 
 const SERVER_PORT: int = 8080
-const SERVER_IP: String = "localhost"
+#localhost
+#ec2-3-107-84-157.ap-southeast-2.compute.amazonaws.com
+#52.63.141.232
+const SERVER_IP: String = "52.63.141.232"
 const PLAYER_SCENE: PackedScene = preload("res://scenes/player_character.tscn")
 
 @onready var characters: Node2D = get_node("/root/Main/Characters")
