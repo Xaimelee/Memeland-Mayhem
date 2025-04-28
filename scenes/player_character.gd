@@ -20,6 +20,11 @@ var current_arm_state: ArmState = ArmState.LEFT
 var current_state: State = State.ALIVE
 var current_weapon_state: WeaponState = WeaponState.PRIMARY
 
+#CSP
+var predicted_position : Vector2 = Vector2.ZERO
+var time_since_last_update : float = 0.0
+var should_correct_position: bool = false
+
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var arm_sprite: Sprite2D = $AnimatedSprite2D/ArmSprite2D
 @onready var primary_weapon: Node2D = $AnimatedSprite2D/ArmSprite2D/BoringRifle
@@ -29,9 +34,15 @@ var current_weapon_state: WeaponState = WeaponState.PRIMARY
 @onready var camera: Camera2D = $Camera2D
 
 func _process(delta: float) -> void:
+	time_since_last_update += delta
 	# We only want to calculate physic interactions on the server so we need to lerp the player movement on clients...
 	# so it still feels smooth. This will need testing with latency.
-	if not MultiplayerManager.is_server():
+	if not MultiplayerManager.is_server() and not has_ownership():
+		global_position = global_position.lerp(target_position, 30.0 * delta)
+	if has_ownership():
+		predicted_position += velocity * delta
+		global_position = predicted_position
+	if should_correct_position and has_ownership():
 		global_position = global_position.lerp(target_position, 30.0 * delta)
 
 func _physics_process(delta: float) -> void:
@@ -69,9 +80,14 @@ func _physics_process(delta: float) -> void:
 		# Play idle animation
 		sprite.play("idle")
 
+	if has_ownership():
+		adjust_prediction_based_on_input(delta)
+
 	# Apply movement
 	if MultiplayerManager.is_server():
 		move_and_slide()
+
+	if MultiplayerManager.is_server():
 		rpc("update_target_position", global_position)
 
 	# Flip towards mouse
@@ -143,6 +159,17 @@ func die() -> void:
 	
 	# Start decay timer
 	#decay_timer.start()
+
+func adjust_prediction_based_on_input(delta):
+	# Set a threshold for when correction should happen
+	var threshold : float = 10.0  # You can adjust this value
+	var correction_distance = global_position.distance_to(target_position)
+	print(correction_distance)
+	should_correct_position = correction_distance > threshold
+	#if correction_distance > threshold:
+		# Only apply correction if the difference is beyond the threshold
+
+		#global_position = global_position.lerp(predicted_position, 30.0 * delta)  # Apply the smooth adjustment to the character
 
 func change_state(new_state: State) -> void:
 	current_state = new_state
@@ -229,7 +256,9 @@ func update_mouse_position(new_mouse_position: Vector2) -> void:
 @rpc("authority", "call_remote")
 func update_target_position(new_target_position: Vector2) -> void:
 	# We just update target position on clients
+	predicted_position = new_target_position
 	target_position = new_target_position
+	time_since_last_update = 0
 
 @rpc("authority", "call_local")
 func init_player(new_id: int, spawn_position: Vector2) -> void:
