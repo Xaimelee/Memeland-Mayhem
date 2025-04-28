@@ -20,6 +20,11 @@ config/icon="res://icon.svg"
 Firebase="*res://addons/godot-firebase/firebase/firebase.tscn"
 SolanaService="*res://addons/SolanaSDK/Autoload/SolanaService.tscn"
 MultiplayerManager="*res://scenes/multiplayer/multiplayer_manager.tscn"
+NetworkTime="*res://addons/netfox/network-time.gd"
+NetworkTimeSynchronizer="*res://addons/netfox/network-time-synchronizer.gd"
+NetworkRollback="*res://addons/netfox/rollback/network-rollback.gd"
+NetworkEvents="*res://addons/netfox/network-events.gd"
+NetworkPerformance="*res://addons/netfox/network-performance.gd"
 
 [display]
 
@@ -29,7 +34,7 @@ window/stretch/scale=1.5
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/SolanaSDK/plugin.cfg", "res://addons/godot-firebase/plugin.cfg", "res://addons/http-sse-client/plugin.cfg")
+enabled=PackedStringArray("res://addons/SolanaSDK/plugin.cfg", "res://addons/godot-firebase/plugin.cfg", "res://addons/http-sse-client/plugin.cfg", "res://addons/netfox.internals/plugin.cfg", "res://addons/netfox/plugin.cfg")
 
 [input]
 
