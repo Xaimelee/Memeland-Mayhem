@@ -53,8 +53,22 @@ func _on_peer_connected(id: int) -> void:
 	if is_server():
 		for child in characters.get_children():
 			var player: PlayerCharacter = child
-			if player is not PlayerCharacter: continue
-			player.rpc_id(id, "init_player", player.id, player.global_position)
+			if child is PlayerCharacter:
+				child.rpc_id(
+					id, 
+					"init_player", 
+					child.id, 
+					child.global_position
+				)
+			elif child is EnemyCharacter:
+				child.rpc_id(
+					id, 
+					"init_enemy", 
+					child.global_position, 
+					child.get_target_path(), 
+					child.current_state, 
+					child.health
+				)
 		var player: PlayerCharacter = PLAYER_SCENE.instantiate()
 		characters.add_child(player, true)
 		var spawn_position: Vector2 = player_spawn.global_position

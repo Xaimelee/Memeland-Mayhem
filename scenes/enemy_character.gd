@@ -36,10 +36,7 @@ func _physics_process(delta: float) -> void:
 		for player in get_tree().get_nodes_in_group("players") as Array[PlayerCharacter]:
 			if player.current_state == player.State.DEAD: continue
 			target = player
-		if target:
-			rpc("update_target", target.get_path())
-		else:
-			rpc("update_target", "")
+		rpc("update_target", get_target_path())
 	# Probably need to update this later on, enemy and player likely need to inherit from some base class
 	if target:
 		if target.health <= 0:
@@ -186,6 +183,14 @@ func die() -> void:
 	#decay_timer.start()
 
 @rpc("authority", "call_remote")
+func init_enemy(new_position: Vector2, new_target_node_path: String, new_state: State, new_health: float) -> void:
+	global_position = new_position
+	target_position = new_position
+	update_target(new_target_node_path)
+	update_state(new_state)
+	update_health(new_health)
+
+@rpc("authority", "call_remote")
 func update_target_position(new_target_position: Vector2) -> void:
 	target_position = new_target_position
 
@@ -210,6 +215,11 @@ func update_state(new_state: State) -> void:
 func update_health(new_health: float) -> void:
 	health -= new_health
 	health = max(0, health)
+
+func get_target_path() -> String:
+	if target == null:
+		return ""
+	return target.get_path()
 
 func _on_attack_timer_timeout() -> void:
 	ready_to_attack = true
