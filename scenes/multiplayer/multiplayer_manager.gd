@@ -51,6 +51,10 @@ func _on_server_disconnected() -> void:
 ## ID of 1 means connection to the server (authority)
 func _on_peer_connected(id: int) -> void:
 	if is_server():
+		for child in characters.get_children():
+			var player: PlayerCharacter = child
+			if player == null: continue
+			player.rpc_id(id, "init_player", player.id, player.global_position)
 		var player: PlayerCharacter = PLAYER_SCENE.instantiate()
 		characters.add_child(player, true)
 		var spawn_position: Vector2 = player_spawn.global_position
@@ -58,6 +62,7 @@ func _on_peer_connected(id: int) -> void:
 		player.set_multiplayer_authority(1)
 		player.player_input.set_multiplayer_authority(id)
 		player.rpc("init_player", id, spawn_position + random_offset)
+		
 	## Need to properly check here if a connection attempt has succeeded or failed
 	print("Client connected: " + str(id))
 

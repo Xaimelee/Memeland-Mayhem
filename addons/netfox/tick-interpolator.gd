@@ -111,8 +111,10 @@ func _connect_signals() -> void:
 	NetworkTime.after_tick_loop.connect(_after_tick_loop)
 
 func _disconnect_signals() -> void:
-	NetworkTime.before_tick_loop.disconnect(_before_tick_loop)
-	NetworkTime.after_tick_loop.disconnect(_after_tick_loop)
+	if NetworkTime.before_tick_loop.is_connected(_before_tick_loop):
+		NetworkTime.before_tick_loop.disconnect(_before_tick_loop)
+	if NetworkTime.after_tick_loop.is_connected(_after_tick_loop):
+		NetworkTime.after_tick_loop.disconnect(_after_tick_loop)
 
 func _enter_tree() -> void:
 	if Engine.is_editor_hint():

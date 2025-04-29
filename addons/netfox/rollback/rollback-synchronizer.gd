@@ -285,13 +285,20 @@ func _connect_signals() -> void:
 	NetworkRollback.after_loop.connect(_after_loop)
 
 func _disconnect_signals() -> void:
-	NetworkTime.before_tick.disconnect(_before_tick)
-	NetworkTime.after_tick.disconnect(_after_tick)
-	NetworkRollback.before_loop.disconnect(_before_loop)
-	NetworkRollback.on_prepare_tick.disconnect(_prepare_tick)
-	NetworkRollback.on_process_tick.disconnect(_process_tick)
-	NetworkRollback.on_record_tick.disconnect(_record_tick)
-	NetworkRollback.after_loop.disconnect(_after_loop)
+	if NetworkTime.before_tick.is_connected(_before_tick):
+		NetworkTime.before_tick.disconnect(_before_tick)
+	if NetworkTime.after_tick.is_connected(_after_tick):
+		NetworkTime.after_tick.disconnect(_after_tick)
+	if NetworkRollback.before_loop.is_connected(_before_loop):
+		NetworkRollback.before_loop.disconnect(_before_loop)
+	if NetworkRollback.on_prepare_tick.is_connected(_prepare_tick):
+		NetworkRollback.on_prepare_tick.disconnect(_prepare_tick)
+	if NetworkRollback.on_process_tick.is_connected(_process_tick):
+		NetworkRollback.on_process_tick.disconnect(_process_tick)
+	if NetworkRollback.on_record_tick.is_connected(_record_tick):
+		NetworkRollback.on_record_tick.disconnect(_record_tick)
+	if NetworkRollback.after_loop.is_connected(_after_loop):
+		NetworkRollback.after_loop.disconnect(_after_loop)
 
 func _notification(what) -> void:
 	if what == NOTIFICATION_EDITOR_PRE_SAVE:
