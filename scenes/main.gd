@@ -6,6 +6,7 @@ var mission_area: Rect2i = Rect2i(200, 0, 100, 100)
 @onready var wall_layer: TileMapLayer = $Map/Walls
 
 func _ready() -> void:
+	MultiplayerManager.start_network()
 	init_astar()
 
 func init_astar() -> void:

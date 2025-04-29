@@ -1,27 +1,27 @@
 extends Node
 
 const SERVER_PORT: int = 8080
-#localhost
-#ec2-3-107-84-157.ap-southeast-2.compute.amazonaws.com
-#52.63.141.232
-const SERVER_IP: String = "52.63.141.232"
 const PLAYER_SCENE: PackedScene = preload("res://scenes/player_character.tscn")
+const MAIN_MENU_SCENE: PackedScene = preload("res://scenes/main_menu.tscn")
 
-@onready var characters: Node2D = get_node("/root/Main/Characters")
-@onready var player_spawn: Node2D = get_node("/root/Main/PlayerSpawnPoint")
 @onready var peer = WebSocketMultiplayerPeer.new()
 
-func _ready() -> void:
-	# We will need a proper setup where based on game state (i.e going from menu to game)
-	# Simplier than needing to spawn a player in for local testing.
+# So we can set this via a menu button
+#localhost
+#52.63.141.232
+var server_ip: String = "52.63.141.232"
+var override_is_local: bool = false
+var characters: Node2D
+var player_spawn: Node2D
+
+func start_network() -> void:
 	if not is_local():
 		var player = get_tree().get_nodes_in_group("players")[0]
 		if player != null:
 			player.free()
-	# triggers the network to be started
-	start_network()
-
-func start_network() -> void:
+	# Atm we assume start_network is always called by main after its loaded
+	characters = get_node("/root/Main/Characters")
+	player_spawn = get_node("/root/Main/PlayerSpawnPoint")
 	var err: Error
 	multiplayer.peer_connected.connect(_on_peer_connected)
 	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
@@ -31,7 +31,7 @@ func start_network() -> void:
 			multiplayer.multiplayer_peer = peer
 			print("Server created")
 	else:
-		err = peer.create_client("ws://" + SERVER_IP + ":" + str(SERVER_PORT))
+		err = peer.create_client("ws://" + server_ip + ":" + str(SERVER_PORT))
 		if err == 0:
 			multiplayer.connected_to_server.connect(_on_connected_to_server)
 			multiplayer.connection_failed.connect(_on_connection_failed)
@@ -44,6 +44,8 @@ func _on_connected_to_server() -> void:
 
 func _on_connection_failed() -> void:
 	print("Client Failed to Connect")
+	# Return to menu if failed to connect
+	get_tree().change_scene_to_packed(MAIN_MENU_SCENE)
 
 func _on_server_disconnected() -> void:
 	print("Client Disconnected from Server")
@@ -94,6 +96,8 @@ func is_server() -> bool:
 	return false
 
 func is_local() -> bool:
+	if override_is_local:
+		return true
 	for arg in OS.get_cmdline_args():
 		if arg.contains("local"):
 			return true

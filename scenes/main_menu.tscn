@@ -1,0 +1,42 @@
+[gd_scene load_steps=2 format=3 uid="uid://wa40guwp27ql"]
+
+[ext_resource type="Script" uid="uid://befvs00n7xl0e" path="res://scenes/main_menu.gd" id="1_l6cm7"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_l6cm7")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -69.0
+offset_top = -50.5
+offset_right = 69.0
+offset_bottom = 50.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MainServerButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Main Server"
+
+[node name="LocalHostButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Local Host Server"
+
+[node name="LocalButton" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+text = "Local Testing"
+
+[connection signal="pressed" from="VBoxContainer/MainServerButton" to="." method="_on_main_server_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/LocalHostButton" to="." method="_on_local_host_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/LocalButton" to="." method="_on_local_button_pressed"]
