@@ -75,10 +75,6 @@ shoot_secondary={
 2d_physics/layer_2="Characters"
 2d_physics/layer_3="Bullets"
 
-[netfox]
-
-time/sync_to_physics=true
-
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
