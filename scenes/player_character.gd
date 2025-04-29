@@ -172,11 +172,6 @@ func send_mouse_position(new_mouse_position: Vector2) -> void:
 	if not validate_user_rpc("Possible mouse position manipulation"): return
 	rpc("update_mouse_position", new_mouse_position)
 
-#@rpc("any_peer", "call_local")
-#func send_input_direction(new_input_direction: Vector2) -> void:
-	#if not validate_user_rpc("Possible input manipulation"): return
-	#input_direction = new_input_direction
-
 @rpc("any_peer", "call_local")
 func send_weapon_state(new_weapon_state: WeaponState) -> void:
 	if not validate_user_rpc("Possible weapon state manipulation"): return
@@ -202,29 +197,10 @@ func update_health(new_health: float) -> void:
 	if health <= 0:
 		change_state(State.DEAD)
 
-#@rpc("authority", "call_local")
-#func update_mouse_position(new_mouse_position: Vector2) -> void:
-	## We dont need to update mouse position for the owner, since they sent the mouse position originally
-	#if has_ownership(): return
-	#mouse_position = new_mouse_position
-
-@rpc("authority", "call_remote")
-func update_target_position(new_target_position: Vector2) -> void:
-	# We just update target position on clients
-	target_position = new_target_position
-	return
-	#if not has_ownership(): return
-	#var previous_movement = get_movement_history(tick)
-	#var previous_position: Vector2 = Vector2.ZERO
-	#if previous_movement.is_empty():
-		#previous_position = target_position
-	#else:
-		#previous_position = previous_movement.get("position")
-	#var distance: float = previous_position.distance_to(target_position)
-	#if distance > CORRECTION_THRESHOLD:
-		#is_correcting = true
-	#else:
-		#is_correcting = false
+#@rpc("authority", "call_remote")
+#func update_target_position(new_target_position: Vector2) -> void:
+	## We just update target position on clients
+	#target_position = new_target_position
 
 @rpc("authority", "call_local")
 func init_player(new_id: int, spawn_position: Vector2) -> void:
