@@ -11,6 +11,7 @@ enum WeaponState {PRIMARY, SECONDARY}
 @export var acceleration: float = 2000.0
 @export var friction: float = 1000.0
 @export var id: int = 1
+@export var player_input: PlayerInput
 
 var health: float = max_health
 var input_direction: Vector2 = Vector2.ZERO
@@ -19,11 +20,14 @@ var mouse_position: Vector2 = Vector2.ZERO
 var current_arm_state: ArmState = ArmState.LEFT
 var current_state: State = State.ALIVE
 var current_weapon_state: WeaponState = WeaponState.PRIMARY
+var movement_history: Array[Dictionary] = []
 
-#CSP
-var predicted_position : Vector2 = Vector2.ZERO
-var time_since_last_update : float = 0.0
-var should_correct_position: bool = false
+# CSP
+const CORRECTION_THRESHOLD: float = 10
+var is_correcting: bool = false
+# For server
+var recent_input_direction: Vector2 = Vector2.ZERO
+var recent_tick = 0
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var arm_sprite: Sprite2D = $AnimatedSprite2D/ArmSprite2D
@@ -33,16 +37,20 @@ var should_correct_position: bool = false
 @onready var damage_area: Area2D = $DamageArea2D
 @onready var camera: Camera2D = $Camera2D
 
+func _ready() -> void:
+	player_input.player_character = self
+
 func _process(delta: float) -> void:
-	time_since_last_update += delta
 	# We only want to calculate physic interactions on the server so we need to lerp the player movement on clients...
 	# so it still feels smooth. This will need testing with latency.
+	var lerp_movement: bool = false
 	if not MultiplayerManager.is_server() and not has_ownership():
-		global_position = global_position.lerp(target_position, 30.0 * delta)
-	if has_ownership():
-		predicted_position += velocity * delta
-		global_position = predicted_position
-	if should_correct_position and has_ownership():
+		lerp_movement = true
+	#elif has_ownership() and is_correcting:
+		#global_position = global_position.lerp(target_position, 5.0 * delta)
+	#elif has_ownership() and not is_correcting and player_input.input_direction == Vector2.ZERO:
+		#global_position = global_position.lerp(target_position, 10.0 * delta)
+	if lerp_movement:
 		global_position = global_position.lerp(target_position, 30.0 * delta)
 
 func _physics_process(delta: float) -> void:
@@ -54,41 +62,37 @@ func _physics_process(delta: float) -> void:
 	if current_state == State.DEAD: return
 	
 	# Handle movement
-	if has_ownership():
-		input_direction = Input.get_vector("move_left", "move_right", "move_up", "move_down")
-		rpc_id(1, "send_input_direction", input_direction)
-	
-	if input_direction != Vector2.ZERO:
+	#if has_ownership():
+	#	input_direction = Input.get_vector("move_left", "move_right", "move_up", "move_down")
+	#	rpc_id(1, "send_input_direction", input_direction)
+	if player_input.input_direction != Vector2.ZERO:
 		# Accelerate when there's input
-		if MultiplayerManager.is_server() || has_ownership():
-			velocity = velocity.move_toward(input_direction * speed, acceleration * delta)
+		if MultiplayerManager.is_server() or has_ownership():
+			velocity = velocity.move_toward(player_input.input_direction * speed, acceleration * delta)
 		# Play movement animation
 		#sprite.play("run")
 	else:
 		# Apply friction when no input
-		if MultiplayerManager.is_server() || has_ownership():
+		if MultiplayerManager.is_server() or has_ownership():
 			velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
 		# Play idle animation
 		#sprite.play("idle")
 
 	# Probably replace with some synced bool if moving which can be client authority if...
 	# it is purely for visuals
-	if !global_position.is_equal_approx(target_position) || input_direction != Vector2.ZERO:
+	if !global_position.is_equal_approx(target_position) || player_input.input_direction != Vector2.ZERO:
 		# Play movement animation
 		sprite.play("run")
 	else:
 		# Play idle animation
 		sprite.play("idle")
 
-	if has_ownership():
-		adjust_prediction_based_on_input(delta)
-
 	# Apply movement
-	if MultiplayerManager.is_server():
+	if MultiplayerManager.is_server() or has_ownership():
 		move_and_slide()
 
 	if MultiplayerManager.is_server():
-		rpc("update_target_position", global_position)
+		rpc("update_target_position", global_position, player_input.current_tick)
 
 	# Flip towards mouse
 	if current_arm_state == ArmState.LEFT and mouse_position.x >= position.x:
@@ -99,7 +103,14 @@ func _physics_process(delta: float) -> void:
 	# Handle rotation towards mouse
 	arm_sprite.look_at(mouse_position)
 
-	if !has_ownership(): return
+	if not has_ownership(): return
+	if not is_correcting:
+		movement_history.push_front({ "position": global_position, "tick": player_input.current_tick})
+		if movement_history.size() > 200:
+			movement_history.pop_back()
+	else:
+		global_position = global_position.lerp(target_position, 5.0 * delta)
+	# Move this to player input probably
 	mouse_position = get_global_mouse_position()
 	rpc_id(1, "send_mouse_position", mouse_position)
 
@@ -159,17 +170,6 @@ func die() -> void:
 	
 	# Start decay timer
 	#decay_timer.start()
-
-func adjust_prediction_based_on_input(delta):
-	# Set a threshold for when correction should happen
-	var threshold : float = 10.0  # You can adjust this value
-	var correction_distance = global_position.distance_to(target_position)
-	print(correction_distance)
-	should_correct_position = correction_distance > threshold
-	#if correction_distance > threshold:
-		# Only apply correction if the difference is beyond the threshold
-
-		#global_position = global_position.lerp(predicted_position, 30.0 * delta)  # Apply the smooth adjustment to the character
 
 func change_state(new_state: State) -> void:
 	current_state = new_state
@@ -254,17 +254,37 @@ func update_mouse_position(new_mouse_position: Vector2) -> void:
 	mouse_position = new_mouse_position
 
 @rpc("authority", "call_remote")
-func update_target_position(new_target_position: Vector2) -> void:
+func update_target_position(new_target_position: Vector2, tick: int) -> void:
 	# We just update target position on clients
-	predicted_position = new_target_position
 	target_position = new_target_position
-	time_since_last_update = 0
+	print(global_position)
+	print(target_position)
+	return
+	if not has_ownership(): return
+	var previous_movement = get_movement_history(tick)
+	var previous_position: Vector2 = Vector2.ZERO
+	if previous_movement.is_empty():
+		previous_position = target_position
+	else:
+		previous_position = previous_movement.get("position")
+	var distance: float = previous_position.distance_to(target_position)
+	if distance > CORRECTION_THRESHOLD:
+		is_correcting = true
+	else:
+		is_correcting = false
 
 @rpc("authority", "call_local")
 func init_player(new_id: int, spawn_position: Vector2) -> void:
 	id = new_id
 	target_position = spawn_position
 	global_position = spawn_position
+	player_input.set_multiplayer_authority(new_id)
+
+func get_movement_history(tick: int) -> Dictionary:
+	for movement_dictionary in movement_history:
+		if movement_dictionary.get("tick") != tick: continue
+		return movement_dictionary
+	return {}
 
 func validate_user_rpc(error_message: String) -> bool:
 	# Incase someone tries to change from rpc_id to rpc, we make sure that if somehow this is ran...

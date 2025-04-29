@@ -55,6 +55,8 @@ func _on_peer_connected(id: int) -> void:
 		characters.add_child(player, true)
 		var spawn_position: Vector2 = player_spawn.global_position
 		var random_offset: Vector2 = Vector2(randf_range(-5, 5), randf_range(-5, 5))
+		player.set_multiplayer_authority(1)
+		player.player_input.set_multiplayer_authority(id)
 		player.rpc("init_player", id, spawn_position + random_offset)
 	## Need to properly check here if a connection attempt has succeeded or failed
 	print("Client connected: " + str(id))
