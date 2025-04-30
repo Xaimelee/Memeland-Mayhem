@@ -110,43 +110,43 @@ func change_state() -> void:
 func is_lined_up() -> bool:
 	weapon.update_line_of_fire()
 	return weapon.raycast.is_colliding() and weapon.raycast.get_collider().get_parent() == target
-
-func handle_idle_state(delta: float) -> void:
-	# Apply friction to slow down
-	velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
-	sprite.play("idle")
-
-func handle_chase_state(delta: float) -> void:
-	if not target:
-		return
-	if not next_position:
-		emit_signal("reached_next_position", self)
-	elif global_position.distance_to(next_position) < 4:
-		emit_signal("reached_next_position", self)
-	if not next_position:
-		return
-	var direction = global_position.direction_to(next_position)
-	velocity = velocity.move_toward(direction * speed, acceleration * delta)
-	sprite.play("run")
-
-
-func handle_attack_state(delta: float) -> void:
-	if not target:
-		return
-	if not weapon.can_fire:
-		return
-	if not ready_to_attack:
-		return
-	if not next_position:
-		emit_signal("reached_next_position", self)
-	elif global_position.distance_to(next_position) < 4:
-		emit_signal("reached_next_position", self)
-	if not next_position:
-		return
-	var direction = global_position.direction_to(next_position)
-	velocity = velocity.move_toward(direction * speed, acceleration * delta)
-	sprite.play("run")
-	shoot()
+#
+#func handle_idle_state(delta: float) -> void:
+	## Apply friction to slow down
+	#velocity = velocity.move_toward(Vector2.ZERO, friction * delta)
+	#sprite.play("idle")
+#
+#func handle_chase_state(delta: float) -> void:
+	#if not target:
+		#return
+	#if not next_position:
+		#emit_signal("reached_next_position", self)
+	#elif global_position.distance_to(next_position) < 4:
+		#emit_signal("reached_next_position", self)
+	#if not next_position:
+		#return
+	#var direction = global_position.direction_to(next_position)
+	#velocity = velocity.move_toward(direction * speed, acceleration * delta)
+	#sprite.play("run")
+#
+#
+#func handle_attack_state(delta: float) -> void:
+	#if not target:
+		#return
+	#if not weapon.can_fire:
+		#return
+	#if not ready_to_attack:
+		#return
+	#if not next_position:
+		#emit_signal("reached_next_position", self)
+	#elif global_position.distance_to(next_position) < 4:
+		#emit_signal("reached_next_position", self)
+	#if not next_position:
+		#return
+	#var direction = global_position.direction_to(next_position)
+	#velocity = velocity.move_toward(direction * speed, acceleration * delta)
+	#sprite.play("run")
+	#shoot()
 
 @rpc("authority", "call_local")
 func shoot() -> void:
