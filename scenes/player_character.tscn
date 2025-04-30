@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=3 uid="uid://dxk1jvimm72ti"]
+[gd_scene load_steps=35 format=3 uid="uid://dxk1jvimm72ti"]
 
 [ext_resource type="Script" uid="uid://ceedsgkf30k30" path="res://scenes/player_character.gd" id="1_6r27q"]
 [ext_resource type="Texture2D" uid="uid://cpgffeu6no6yu" path="res://assets/brett-arm.png" id="3_4h0vy"]
@@ -10,6 +10,10 @@
 [ext_resource type="Script" uid="uid://dour8fehaaugp" path="res://addons/netfox/tick-interpolator.gd" id="7_iadup"]
 [ext_resource type="Script" uid="uid://ehd18cbq0u5n" path="res://scenes/player_input.gd" id="7_pxja8"]
 [ext_resource type="Script" uid="uid://cbnhopyj7n0lf" path="res://scenes/components/damage.gd" id="10_herhr"]
+[ext_resource type="PackedScene" uid="uid://dt8k73d284knj" path="res://scenes/hud/healthbar.tscn" id="11_xb3ya"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xb3ya"]
+bg_color = Color(1, 1, 0, 1)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_br6ma"]
 atlas = ExtResource("3_kww55")
@@ -174,6 +178,7 @@ collision_layer = 2
 script = ExtResource("1_6r27q")
 speed = 250.0
 player_input = NodePath("PlayerInput")
+not_owned_healthbar_style = SubResource("StyleBoxFlat_xb3ya")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 z_index = 1
@@ -210,7 +215,7 @@ collision_mask = 0
 [node name="DamageCollisionShape2D2" type="CollisionShape2D" parent="DamageArea2D"]
 shape = SubResource("CapsuleShape2D_6unfe")
 
-[node name="Label" type="Label" parent="."]
+[node name="PlayerName" type="Label" parent="."]
 z_index = 2
 anchors_preset = 7
 anchor_left = 0.5
@@ -218,9 +223,9 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -24.5
-offset_top = -71.0
+offset_top = -63.0
 offset_right = 24.5
-offset_bottom = -48.0
+offset_bottom = -40.0
 grow_horizontal = 2
 grow_vertical = 0
 size_flags_vertical = 8
@@ -253,5 +258,8 @@ metadata/_custom_type_script = "uid://dour8fehaaugp"
 [node name="Damage" type="Node" parent="."]
 script = ExtResource("10_herhr")
 metadata/_custom_type_script = "uid://cbnhopyj7n0lf"
+
+[node name="Healthbar" parent="." node_paths=PackedStringArray("health") instance=ExtResource("11_xb3ya")]
+health = NodePath("../Health")
 
 [connection signal="health_changed" from="Health" to="." method="_on_health_health_changed"]

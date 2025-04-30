@@ -11,6 +11,7 @@ enum WeaponState {PRIMARY, SECONDARY}
 @export var friction: float = 1000.0
 @export var id: int = 1
 @export var player_input: PlayerInput
+@export var not_owned_healthbar_style: StyleBoxFlat
 
 var target_position: Vector2 = Vector2.ZERO
 var current_arm_state: ArmState = ArmState.LEFT
@@ -26,6 +27,8 @@ var current_weapon_state: WeaponState = WeaponState.PRIMARY
 @onready var camera: Camera2D = $Camera2D
 @onready var rollback_synchronizer: RollbackSynchronizer = $RollbackSynchronizer
 @onready var health: Health = $Health
+@onready var healthbar: Healthbar = $Healthbar
+@onready var player_name: Label = $PlayerName
 
 func _ready() -> void:
 	player_input.player_character = self
@@ -132,8 +135,10 @@ func change_state(new_state: PlayerState) -> void:
 	current_state = new_state
 	match current_state:
 		PlayerState.DEAD:
+			player_name.visible = false
 			die()
 		_:
+			player_name.visible = true
 			return
 
 func change_arm_state(new_arm_state: ArmState) -> void:
@@ -211,6 +216,8 @@ func init_player(new_id: int, spawn_position: Vector2) -> void:
 	global_position = spawn_position
 	player_input.set_multiplayer_authority(new_id)
 	rollback_synchronizer.process_settings()
+	if not has_ownership() and healthbar:
+		healthbar.progress_bar.add_theme_stylebox_override("fill", not_owned_healthbar_style)
 
 func validate_user_rpc(error_message: String) -> bool:
 	# Incase someone tries to change from rpc_id to rpc, we make sure that if somehow this is ran...
