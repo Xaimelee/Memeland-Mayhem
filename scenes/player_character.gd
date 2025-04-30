@@ -4,7 +4,7 @@ signal health_changed(new_health: float)
 
 enum PlayerState {ALIVE, DEAD}
 enum ArmState {LEFT, RIGHT}
-enum WeaponState {PRIMARY, SECONDARY}
+enum EquipmentSlot {ONE, TWO, THREE, FOUR}
 
 @export var speed: float = 300.0
 @export var acceleration: float = 2000.0
@@ -16,7 +16,8 @@ enum WeaponState {PRIMARY, SECONDARY}
 var target_position: Vector2 = Vector2.ZERO
 var current_arm_state: ArmState = ArmState.LEFT
 var current_state: PlayerState = PlayerState.ALIVE
-var current_weapon_state: WeaponState = WeaponState.PRIMARY
+var current_equipment_slot: EquipmentSlot = EquipmentSlot.ONE
+var equipment: Array[Weapon] = [null, null, null, null]
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var arm_sprite: Sprite2D = $AnimatedSprite2D/ArmSprite2D
@@ -31,6 +32,8 @@ var current_weapon_state: WeaponState = WeaponState.PRIMARY
 @onready var player_name: Label = $PlayerName
 
 func _ready() -> void:
+	equipment[0] = primary_weapon
+	equipment[1] = secondary_weapon
 	player_input.player_character = self
 	if is_multiplayer_authority():
 		MultiplayerManager.player_connected.connect(_on_player_connected)
@@ -79,19 +82,22 @@ func _physics_process(delta: float) -> void:
 	arm_sprite.look_at(player_input.mouse_position)
 
 	if not has_ownership(): return
+	# Equipment swapping
+	for i in range(4):
+		var action_name: String = "equipment_{0}".format([i + 1])
+		if Input.is_action_just_pressed(action_name):
+			var slot: EquipmentSlot = EquipmentSlot.values()[i]
+			if not equipment[slot]: return
+			change_equipment_slot(slot)
+			rpc_id(1, "send_equipment_slot", current_equipment_slot)
+			break;
 	# Handle shooting
 	var shooting = false
-	if Input.is_action_pressed("shoot_primary") and primary_weapon.can_fire:
-		shooting = true
-		change_weapon_state(WeaponState.PRIMARY)
-		rpc_id(1, "send_weapon_state", current_weapon_state)
-	elif Input.is_action_pressed("shoot_secondary") and secondary_weapon.can_fire:
-		shooting = true
-		change_weapon_state(WeaponState.SECONDARY)
-		rpc_id(1, "send_weapon_state", current_weapon_state)
+	if not weapon: return
+	shooting = Input.is_action_pressed("shoot_primary") and weapon.can_fire
 	if shooting:
-		# We call shoot right away so it feels responsive to the client
-		# This may result in "ghost" hits for high latency users
+		# We run this locally so the player has instant visual feedback that they're shooting and hitting.
+		# This should be an acceptable hack unless someone has super high latency.
 		shoot()
 		rpc_id(1, "send_shoot")
 	
@@ -157,16 +163,22 @@ func change_arm_state(new_arm_state: ArmState) -> void:
 			arm_sprite.position.y = 2
 			weapon.flip(false)
 
-func change_weapon_state(new_weapon_state: WeaponState) -> void:
-	if new_weapon_state == WeaponState.PRIMARY:
-		weapon = primary_weapon
-		secondary_weapon.visible = false
-		current_weapon_state = WeaponState.PRIMARY
-	else:
-		weapon = secondary_weapon
-		primary_weapon.visible = false
-		current_weapon_state = WeaponState.SECONDARY
+func change_equipment_slot(equipment_slot: EquipmentSlot) -> void:
+	var new_weapon: Weapon = equipment[equipment_slot]
+	if not new_weapon: return
+	weapon.visible = false
+	weapon = new_weapon
 	weapon.visible = true
+	current_equipment_slot = equipment_slot
+	#if new_weapon_state == WeaponState.PRIMARY:
+		#weapon = primary_weapon
+		#secondary_weapon.visible = false
+		#current_weapon_state = WeaponState.PRIMARY
+	#else:
+		#weapon = secondary_weapon
+		#primary_weapon.visible = false
+		#current_weapon_state = WeaponState.SECONDARY
+	#weapon.visible = true
 
 # Fix this later to respect client-server authority, likely need to be done in the weapon script?
 @rpc("any_peer", "call_remote")
@@ -180,9 +192,9 @@ func send_mouse_position(new_mouse_position: Vector2) -> void:
 	rpc("update_mouse_position", new_mouse_position)
 
 @rpc("any_peer", "call_local")
-func send_weapon_state(new_weapon_state: WeaponState) -> void:
-	if not validate_user_rpc("Possible weapon state manipulation"): return
-	rpc("update_weapon_state", new_weapon_state)
+func send_equipment_slot(new_equipment_slot: EquipmentSlot) -> void:
+	if not validate_user_rpc("Possible equipment slot manipulation"): return
+	rpc("update_equipment_slot", new_equipment_slot)
 
 @rpc("authority", "call_local")
 func update_shoot() -> void:
@@ -191,10 +203,10 @@ func update_shoot() -> void:
 	shoot()
 
 @rpc("authority", "call_local")
-func update_weapon_state(new_weapon_state: WeaponState) -> void:
+func update_equipment_slot(new_equipment_slot: EquipmentSlot) -> void:
 	# We locally show the weapon swap right away for the owner to prevent it feeling delayed
 	if has_ownership(): return
-	change_weapon_state(new_weapon_state)
+	change_equipment_slot(new_equipment_slot)
 
 #@rpc("authority", "call_local")
 #func update_health(new_health: float) -> void:
