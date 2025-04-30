@@ -16,8 +16,8 @@ var current_health: float = max_health:
 			health_changed.emit(current_health)
 
 func _ready() -> void:
-	if not is_multiplayer_authority(): return
-	MultiplayerManager.player_connected.connect(_on_player_connected)
+	if is_multiplayer_authority():
+		MultiplayerManager.player_connected.connect(_on_player_connected)
 
 func change_health(new_health: float, should_replace: bool = false) -> void:
 	# This might be better than checking if is server? since authority id will always be 1

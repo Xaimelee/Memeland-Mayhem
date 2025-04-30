@@ -29,6 +29,8 @@ var current_weapon_state: WeaponState = WeaponState.PRIMARY
 
 func _ready() -> void:
 	player_input.player_character = self
+	if is_multiplayer_authority():
+		MultiplayerManager.player_connected.connect(_on_player_connected)
 
 # Using Netfox to implement CSP movement
 func _rollback_tick(delta, tick, is_fresh) -> void:
@@ -226,3 +228,7 @@ func has_ownership() -> bool:
 func _on_health_health_changed(health: float) -> void:
 	if health <= 0:
 		change_state(PlayerState.DEAD)
+
+# This is so we can sync server state with players who have joined later on
+func _on_player_connected(peer_id: int):
+	rpc_id(peer_id, "init_player", id, global_position)

@@ -26,8 +26,8 @@ var target_position: Vector2 = Vector2.ZERO
 @onready var enemy_states: StateMachine = $EnemyStates
 
 func _ready() -> void:
-	if not is_multiplayer_authority(): return
-	MultiplayerManager.player_connected.connect(_on_player_connected)
+	if is_multiplayer_authority():
+		MultiplayerManager.player_connected.connect(_on_player_connected)
 
 func _process(delta: float) -> void:
 	# We only want to calculate physic interactions on the server so we need to lerp the player movement on clients...

@@ -59,15 +59,6 @@ func _on_server_disconnected() -> void:
 ## ID of 1 means connection to the server (authority)
 func _on_peer_connected(id: int) -> void:
 	if is_server():
-		for child in characters.get_children():
-			if child is PlayerCharacter:
-				# Delegate to player character script
-				child.rpc_id(
-					id, 
-					"init_player", 
-					child.id, 
-					child.global_position
-				)
 		# We call this before adding any nodes because this is only really intended...
 		# to sync already existing node values to the new player
 		player_connected.emit(id)

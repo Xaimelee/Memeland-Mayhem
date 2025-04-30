@@ -22,12 +22,6 @@ var current_state: State:
 var states: Dictionary = {}
 
 func _ready() -> void:
-	if is_multiplayer_authority() and sync_state_changes:
-		MultiplayerManager.player_connected.connect(_on_player_connected)
-
-	for state: State in get_children():
-		states[state.name.to_lower()] = state
-
 	if starting_state:
 		call_deferred("_set_starting_state", starting_state)
 		#current_state = starting_state
@@ -37,6 +31,12 @@ func _ready() -> void:
 	# We can assume there are no states are manage
 	else:
 		return
+
+	for state: State in get_children():
+		states[state.name.to_lower()] = state
+
+	if is_multiplayer_authority() and sync_state_changes:
+		MultiplayerManager.player_connected.connect(_on_player_connected)
 
 func _process(delta: float) -> void:
 	if not current_state: return
