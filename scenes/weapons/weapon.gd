@@ -43,16 +43,25 @@ func handle_hit() -> void:
 	# Get direction to target from the muzzle position
 	var direction = Vector2(cos(get_parent().rotation), sin(get_parent().rotation))
 	var collision_point = weapon_muzzle.global_position + direction * max_shoot_distance
-	var collider = null
+	var collider: Node = null
 	
 	# Check if raycast hit something
 	if raycast.is_colliding():
 		collision_point = raycast.get_collision_point() - fire_height
 		collider = raycast.get_collider().get_parent()
-		
+		if not collider: return
 		# Apply damage if hit an enemy
-		if collider.has_method("take_damage") and MultiplayerManager.is_server():
-			collider.take_damage(damage)
+		var _damage: Damage = collider.get_node_or_null("Damage")
+		if MultiplayerManager.is_server() and _damage:
+			# I made this change because we might want to introduce extra things...
+			# which can take damage - like environment pieces and it feels more convienent...
+			# to just have a separate script to handle taking "damage". I have also synced this...
+			# separately from just reducing health because we might need effects to happen which...
+			# are not reliant on health being reduced. This is why there is now a signal for when...
+			# damage is taken.
+			_damage.rpc("receive_damage", damage)
+		#if collider.has_method("take_damage") and MultiplayerManager.is_server():
+			#collider.take_damage(damage)
 	
 	# 1. Muzzle flash effect
 	muzzle_flash.restart()

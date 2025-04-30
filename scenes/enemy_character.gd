@@ -164,8 +164,8 @@ func shoot() -> void:
 	create_tween().tween_property(arm_sprite, "position", original_position, 0.1)
 	
 	
-func take_damage(amount: float) -> void:
-	health.change_health(-amount)
+#func take_damage(amount: float) -> void:
+	#health.change_health(-amount)
 	#if MultiplayerManager.is_server():
 		#rpc("update_health", amount)
 	#if current_state == State.DEAD:
@@ -237,9 +237,6 @@ func get_target_path() -> String:
 
 func _on_attack_timer_timeout() -> void:
 	ready_to_attack = true
-
-func _on_health_health_changed(health: float) -> void:
-	pass # Replace with function body.
 
 # This is so we can sync server state with players who have joined later on
 func _on_player_connected(id: int):

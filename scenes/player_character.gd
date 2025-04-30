@@ -105,8 +105,8 @@ func shoot() -> void:
 	create_tween().tween_property(camera, "offset", Vector2.ZERO, 0.1)
 
 
-func take_damage(amount: float) -> void:
-	health.change_health(-amount)
+#func take_damage(amount: float) -> void:
+	#health.change_health(-amount)
 	#if MultiplayerManager.is_server():
 		#health.rpc("update_health", amount)
 

@@ -1,15 +1,16 @@
-[gd_scene load_steps=32 format=3 uid="uid://qxnqtyeg4ue0"]
+[gd_scene load_steps=33 format=3 uid="uid://qxnqtyeg4ue0"]
 
 [ext_resource type="Script" uid="uid://37hkap528bb6" path="res://scenes/enemy_character.gd" id="1_p2vio"]
 [ext_resource type="Texture2D" uid="uid://1442fxu03nny" path="res://assets/pepe-zombie.png" id="2_4vovm"]
 [ext_resource type="Texture2D" uid="uid://bfgpjcyn0w6bb" path="res://assets/pepe-zombie-arm.png" id="3_4vovm"]
 [ext_resource type="PackedScene" uid="uid://df7bvuymd1rae" path="res://scenes/weapons/under_taker.tscn" id="4_a650k"]
-[ext_resource type="PackedScene" uid="uid://c0lew1i24e8id" path="res://scenes/components/health.tscn" id="5_4vovm"]
 [ext_resource type="PackedScene" uid="uid://boabpujalnlif" path="res://scenes/components/state_machine/state_machine.tscn" id="6_mbkdu"]
 [ext_resource type="Script" uid="uid://b7556whmsskr7" path="res://scenes/components/state_machine/enemy_states/enemy_idle.gd" id="7_na0dc"]
 [ext_resource type="Script" uid="uid://ni8o20uu8hid" path="res://scenes/components/state_machine/enemy_states/enemy_chase.gd" id="8_1r54h"]
 [ext_resource type="Script" uid="uid://vnfb2hnavtm6" path="res://scenes/components/state_machine/enemy_states/enemy_attack.gd" id="9_ldapt"]
+[ext_resource type="Script" uid="uid://bc87ii71ke3rg" path="res://scenes/components/health.gd" id="10_mbkdu"]
 [ext_resource type="Script" uid="uid://bssusjsj4spig" path="res://scenes/components/state_machine/enemy_states/enemy_dead.gd" id="10_rjfk7"]
+[ext_resource type="Script" uid="uid://cbnhopyj7n0lf" path="res://scenes/components/damage.gd" id="11_na0dc"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_xgmuc"]
 atlas = ExtResource("2_4vovm")
@@ -204,8 +205,6 @@ collision_mask = 0
 [node name="DamageCollisionShape2D2" type="CollisionShape2D" parent="DamageArea2D"]
 shape = SubResource("CapsuleShape2D_a650k")
 
-[node name="Health" parent="." instance=ExtResource("5_4vovm")]
-
 [node name="EnemyStates" parent="." node_paths=PackedStringArray("starting_state") instance=ExtResource("6_mbkdu")]
 starting_state = NodePath("EnemyIdle")
 
@@ -229,5 +228,12 @@ script = ExtResource("10_rjfk7")
 enemy = NodePath("../..")
 metadata/_custom_type_script = "uid://bssusjsj4spig"
 
+[node name="Health" type="Node" parent="."]
+script = ExtResource("10_mbkdu")
+metadata/_custom_type_script = "uid://bc87ii71ke3rg"
+
+[node name="Damage" type="Node" parent="."]
+script = ExtResource("11_na0dc")
+metadata/_custom_type_script = "uid://cbnhopyj7n0lf"
+
 [connection signal="timeout" from="AttackTimer" to="." method="_on_attack_timer_timeout"]
-[connection signal="health_changed" from="Health" to="." method="_on_health_health_changed"]
