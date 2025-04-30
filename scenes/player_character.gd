@@ -2,21 +2,19 @@ class_name PlayerCharacter extends CharacterBody2D
 
 signal health_changed(new_health: float)
 
-enum State {ALIVE, DEAD}
+enum PlayerState {ALIVE, DEAD}
 enum ArmState {LEFT, RIGHT}
 enum WeaponState {PRIMARY, SECONDARY}
 
-@export var max_health: float = 100.0
 @export var speed: float = 300.0
 @export var acceleration: float = 2000.0
 @export var friction: float = 1000.0
 @export var id: int = 1
 @export var player_input: PlayerInput
 
-var health: float = max_health
 var target_position: Vector2 = Vector2.ZERO
 var current_arm_state: ArmState = ArmState.LEFT
-var current_state: State = State.ALIVE
+var current_state: PlayerState = PlayerState.ALIVE
 var current_weapon_state: WeaponState = WeaponState.PRIMARY
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -27,16 +25,17 @@ var current_weapon_state: WeaponState = WeaponState.PRIMARY
 @onready var damage_area: Area2D = $DamageArea2D
 @onready var camera: Camera2D = $Camera2D
 @onready var rollback_synchronizer: RollbackSynchronizer = $RollbackSynchronizer
+@onready var health: Health = $Health
 
 func _ready() -> void:
 	player_input.player_character = self
 
 # Using Netfox to implement CSP movement
 func _rollback_tick(delta, tick, is_fresh) -> void:
-	if current_state == State.DEAD: return
+	if current_state == PlayerState.DEAD: return
 	# We do this because other clients just get synced the global transform
 	if not has_ownership() and not MultiplayerManager.is_server(): return
-	if current_state == State.DEAD: return
+	if current_state == PlayerState.DEAD: return
 	if player_input.input_direction != Vector2.ZERO:
 		velocity = velocity.move_toward(player_input.input_direction * speed, acceleration * delta)
 	else:
@@ -51,7 +50,7 @@ func _physics_process(delta: float) -> void:
 		# because we don't currently have a pre game state and have a player...
 		# already in the map for easy testing
 		camera.enabled = false
-	if current_state == State.DEAD: return
+	if current_state == PlayerState.DEAD: return
 
 	# Probably replace with some synced bool if moving which can be client authority if...
 	# it is purely for visuals
@@ -105,8 +104,9 @@ func shoot() -> void:
 
 
 func take_damage(amount: float) -> void:
-	if MultiplayerManager.is_server():
-		rpc("update_health", amount)
+	health.change_health(-amount)
+	#if MultiplayerManager.is_server():
+		#health.rpc("update_health", amount)
 
 func die() -> void:
 	# Disable collision
@@ -126,10 +126,10 @@ func die() -> void:
 	# Start decay timer
 	#decay_timer.start()
 
-func change_state(new_state: State) -> void:
+func change_state(new_state: PlayerState) -> void:
 	current_state = new_state
 	match current_state:
-		State.DEAD:
+		PlayerState.DEAD:
 			die()
 		_:
 			return
@@ -189,13 +189,13 @@ func update_weapon_state(new_weapon_state: WeaponState) -> void:
 	if has_ownership(): return
 	change_weapon_state(new_weapon_state)
 
-@rpc("authority", "call_local")
-func update_health(new_health: float) -> void:
-	health -= new_health
-	health = max(0, health)
-	health_changed.emit(health)
-	if health <= 0:
-		change_state(State.DEAD)
+#@rpc("authority", "call_local")
+#func update_health(new_health: float) -> void:
+	#health -= new_health
+	#health = max(0, health)
+	#health_changed.emit(health)
+	#if health <= 0:
+		#change_state(State.DEAD)
 
 #@rpc("authority", "call_remote")
 #func update_target_position(new_target_position: Vector2) -> void:
@@ -222,3 +222,7 @@ func validate_user_rpc(error_message: String) -> bool:
 
 func has_ownership() -> bool:
 	return id == multiplayer.get_unique_id()
+
+func _on_health_health_changed(health: float) -> void:
+	if health <= 0:
+		change_state(PlayerState.DEAD)

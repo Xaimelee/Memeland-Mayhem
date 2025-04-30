@@ -34,12 +34,13 @@ func init_astar() -> void:
 				if astar.has_point(point_id - 1):
 					astar.connect_points(point_id, point_id - 1, 1)
 
-func _on_enemy_character_reached_next_position(enemy: CharacterBody2D) -> void:
+func _on_enemy_character_reached_next_position(enemy: EnemyCharacter) -> void:
 	var point_id = position_to_point_id(enemy.position)
 	if point_id == -1:
 		return
 	var target_point_id = astar.get_point_ids().get(randi() % astar.get_point_count())
-	if enemy.current_state == enemy.State.CHASE:
+	#if enemy.current_state == enemy.State.CHASE:
+	if enemy.enemy_states.is_state("enemychase") and enemy.target:
 		target_point_id = position_to_point_id(enemy.target.position)
 	if target_point_id == -1:
 		return

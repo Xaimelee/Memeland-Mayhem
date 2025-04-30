@@ -1,4 +1,4 @@
-[gd_scene load_steps=31 format=3 uid="uid://dxk1jvimm72ti"]
+[gd_scene load_steps=32 format=3 uid="uid://dxk1jvimm72ti"]
 
 [ext_resource type="Script" uid="uid://ceedsgkf30k30" path="res://scenes/player_character.gd" id="1_6r27q"]
 [ext_resource type="Texture2D" uid="uid://cpgffeu6no6yu" path="res://assets/brett-arm.png" id="3_4h0vy"]
@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://c8vj3yqnvys4p" path="res://scenes/weapons/boring_rifle.tscn" id="4_uj7mf"]
 [ext_resource type="PackedScene" uid="uid://bqnxqvdmyj5xt" path="res://scenes/weapons/cyber_glock.tscn" id="5_2vmgx"]
 [ext_resource type="Script" uid="uid://d350u8evihs1u" path="res://addons/netfox/rollback/rollback-synchronizer.gd" id="6_6unfe"]
+[ext_resource type="PackedScene" uid="uid://c0lew1i24e8id" path="res://scenes/components/health.tscn" id="7_herhr"]
 [ext_resource type="Script" uid="uid://dour8fehaaugp" path="res://addons/netfox/tick-interpolator.gd" id="7_iadup"]
 [ext_resource type="Script" uid="uid://ehd18cbq0u5n" path="res://scenes/player_input.gd" id="7_pxja8"]
 
@@ -231,6 +232,8 @@ replication_config = SubResource("SceneReplicationConfig_uj7mf")
 [node name="PlayerInput" type="Node" parent="."]
 script = ExtResource("7_pxja8")
 
+[node name="Health" parent="." instance=ExtResource("7_herhr")]
+
 [node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("6_6unfe")
 root = NodePath("..")
@@ -243,3 +246,5 @@ script = ExtResource("7_iadup")
 root = NodePath("..")
 properties = Array[String]([":global_transform"])
 metadata/_custom_type_script = "uid://dour8fehaaugp"
+
+[connection signal="health_changed" from="Health" to="." method="_on_health_health_changed"]

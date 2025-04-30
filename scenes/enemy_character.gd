@@ -1,21 +1,19 @@
 class_name EnemyCharacter extends CharacterBody2D
 
 signal enemy_died
-signal reached_next_position
+signal reached_next_position(enemy: EnemyCharacter)
 
 enum State {IDLE, CHASE, ATTACK, DEAD}
 
-@export var max_health: float = 100.0
 @export var speed: float = 300.0
 @export var acceleration: float = 2000.0
 @export var friction: float = 1000.0
 @export var detection_range: float = 500.0
 @export var attack_range: float = 400.0
 
-var health: float = max_health
 var target: CharacterBody2D = null
 var next_position: Vector2 = position
-var current_state: State = State.IDLE
+#var current_state: State = State.IDLE
 var ready_to_attack: bool = true
 var target_position: Vector2 = Vector2.ZERO
 
@@ -24,6 +22,12 @@ var target_position: Vector2 = Vector2.ZERO
 @onready var weapon: Weapon = $AnimatedSprite2D/ArmSprite2D/UnderTaker
 @onready var damage_area: Area2D = $DamageArea2D
 @onready var attack_timer: Timer = $AttackTimer
+@onready var health: Health = $Health
+@onready var enemy_states: StateMachine = $EnemyStates
+
+func _ready() -> void:
+	if not is_multiplayer_authority(): return
+	MultiplayerManager.player_connected.connect(_on_player_connected)
 
 func _process(delta: float) -> void:
 	# We only want to calculate physic interactions on the server so we need to lerp the player movement on clients...
@@ -34,28 +38,30 @@ func _process(delta: float) -> void:
 func _physics_process(delta: float) -> void:
 	if MultiplayerManager.is_server():
 		for player in get_tree().get_nodes_in_group("players") as Array[PlayerCharacter]:
-			if player.current_state == player.State.DEAD: continue
+			if player.current_state == player.PlayerState.DEAD: continue
 			target = player
 		rpc("update_target", get_target_path())
 	# Probably need to update this later on, enemy and player likely need to inherit from some base class
 	if target:
-		if target.health <= 0:
-			target = null
+		if target.health:
+			if target.health.current_health <= 0:
+				target = null
 	
 	# Update state based on player distance
 	if MultiplayerManager.is_server():
 		change_state()
 	
 	# Handle state behavior
-	match current_state:
-		State.IDLE:
-			handle_idle_state(delta)
-		State.CHASE:
-			handle_chase_state(delta)
-		State.ATTACK:
-			handle_attack_state(delta)
-		State.DEAD:
-			return
+	#match current_state:
+		#State.IDLE:
+			#handle_idle_state(delta)
+		#State.CHASE:
+			#handle_chase_state(delta)
+		#State.ATTACK:
+			#handle_attack_state(delta)
+		#State.DEAD:
+			#return
+	if enemy_states.is_state("enemydead"): return
 	
 	if MultiplayerManager.is_server():
 		move_and_slide()
@@ -82,19 +88,24 @@ func _physics_process(delta: float) -> void:
 	arm_sprite.look_at(target.position)
 
 func change_state() -> void:
-	if health <= 0:
-		rpc("update_state", State.DEAD)
+	if health.current_health <= 0:
+		enemy_states.change_state("enemydead")
+		#rpc("update_state", State.DEAD)
 		return
 	if not target:
-		rpc("update_state", State.IDLE)
+		enemy_states.change_state("enemyidle")
+		#rpc("update_state", State.IDLE)
 		return
 	var distance_to_player = global_position.distance_to(target.global_position)
 	if is_lined_up() and distance_to_player <= attack_range:
-		rpc("update_state", State.ATTACK)
+		enemy_states.change_state("enemyattack")
+		#rpc("update_state", State.ATTACK)
 	elif distance_to_player <= detection_range:
-		rpc("update_state", State.CHASE)
+		enemy_states.change_state("enemychase")
+		#rpc("update_state", State.CHASE)
 	else:
-		rpc("update_state", State.IDLE)
+		enemy_states.change_state("enemyidle")
+		#rpc("update_state", State.IDLE)
 
 func is_lined_up() -> bool:
 	weapon.update_line_of_fire()
@@ -136,8 +147,10 @@ func handle_attack_state(delta: float) -> void:
 	velocity = velocity.move_toward(direction * speed, acceleration * delta)
 	sprite.play("run")
 	shoot()
-	
+
+@rpc("authority", "call_local")
 func shoot() -> void:
+	if not target: return
 	var random_offset_x = randf_range(-32, 32)
 	var random_offset_y = randf_range(-32, 32)
 	arm_sprite.look_at(target.position + Vector2(random_offset_x, random_offset_y))
@@ -152,8 +165,9 @@ func shoot() -> void:
 	
 	
 func take_damage(amount: float) -> void:
-	if MultiplayerManager.is_server():
-		rpc("update_health", amount)
+	health.change_health(-amount)
+	#if MultiplayerManager.is_server():
+		#rpc("update_health", amount)
 	#if current_state == State.DEAD:
 		#return
 	#health -= amount
@@ -182,13 +196,13 @@ func die() -> void:
 	# Start decay timer
 	#decay_timer.start()
 
+# Used to sync current enemies to new players 
 @rpc("authority", "call_remote")
-func init_enemy(new_position: Vector2, new_target_node_path: String, new_state: State, new_health: float) -> void:
+func init_enemy(new_position: Vector2, new_target_node_path: String) -> void:
 	global_position = new_position
 	target_position = new_position
 	update_target(new_target_node_path)
-	update_state(new_state)
-	update_health(new_health)
+	#update_state(new_state)
 
 @rpc("authority", "call_remote")
 func update_target_position(new_target_position: Vector2) -> void:
@@ -201,20 +215,20 @@ func update_target(new_target_node_path: String) -> void:
 		return
 	target = get_node(new_target_node_path)
 
-@rpc("authority", "call_local")
-func update_state(new_state: State) -> void:
-	# We should check this on server to avoid sending pointless rpcs.
-	# It will mean that when enemies are spawned, we need a way to get...
-	# updated info ASAP from the server. Might just need our own sync node?
-	if current_state == new_state: return
-	current_state = new_state
-	if current_state == State.DEAD:
-		die()
+#@rpc("authority", "call_local")
+#func update_state(new_state: State) -> void:
+	## We should check this on server to avoid sending pointless rpcs.
+	## It will mean that when enemies are spawned, we need a way to get...
+	## updated info ASAP from the server. Might just need our own sync node?
+	#if current_state == new_state: return
+	#current_state = new_state
+	#if current_state == State.DEAD:
+		#die()
 
-@rpc("authority", "call_local")
-func update_health(new_health: float) -> void:
-	health -= new_health
-	health = max(0, health)
+#@rpc("authority", "call_local")
+#func update_health(new_health: float) -> void:
+	#health -= new_health
+	#health = max(0, health)
 
 func get_target_path() -> String:
 	if target == null:
@@ -223,3 +237,10 @@ func get_target_path() -> String:
 
 func _on_attack_timer_timeout() -> void:
 	ready_to_attack = true
+
+func _on_health_health_changed(health: float) -> void:
+	pass # Replace with function body.
+
+# This is so we can sync server state with players who have joined later on
+func _on_player_connected(id: int):
+	rpc_id(id, "init_enemy", global_position, get_target_path())

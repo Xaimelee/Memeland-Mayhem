@@ -1,5 +1,9 @@
 extends Node
 
+# Server side signals
+signal player_connected(id: int)
+signal player_disconnected(id: int)
+
 const SERVER_PORT: int = 8080
 const PLAYER_SCENE: PackedScene = preload("res://scenes/player_character.tscn")
 const MAIN_MENU_SCENE: PackedScene = preload("res://scenes/main_menu.tscn")
@@ -49,28 +53,24 @@ func _on_connection_failed() -> void:
 
 func _on_server_disconnected() -> void:
 	print("Client Disconnected from Server")
+	# Return to menu if disconnected
+	get_tree().change_scene_to_packed(MAIN_MENU_SCENE)
 
 ## ID of 1 means connection to the server (authority)
 func _on_peer_connected(id: int) -> void:
 	if is_server():
 		for child in characters.get_children():
-			var player: PlayerCharacter = child
 			if child is PlayerCharacter:
+				# Delegate to player character script
 				child.rpc_id(
 					id, 
 					"init_player", 
 					child.id, 
 					child.global_position
 				)
-			elif child is EnemyCharacter:
-				child.rpc_id(
-					id, 
-					"init_enemy", 
-					child.global_position, 
-					child.get_target_path(), 
-					child.current_state, 
-					child.health
-				)
+		# We call this before adding any nodes because this is only really intended...
+		# to sync already existing node values to the new player
+		player_connected.emit(id)
 		var player: PlayerCharacter = PLAYER_SCENE.instantiate()
 		characters.add_child(player, true)
 		var spawn_position: Vector2 = player_spawn.global_position
@@ -84,11 +84,13 @@ func _on_peer_connected(id: int) -> void:
 
 func _on_peer_disconnected(id: int) -> void:
 	print("Client disconnected: " + str(id))
-	for character in characters.get_children() as Array[CharacterBody2D]:
-		var player: PlayerCharacter = character as PlayerCharacter
-		if player is not PlayerCharacter: continue
-		if player.id == id:
-			player.queue_free()
+	if is_server():
+		for character in characters.get_children() as Array[CharacterBody2D]:
+			var player: PlayerCharacter = character as PlayerCharacter
+			if player is not PlayerCharacter: continue
+			if player.id == id:
+				player.queue_free()
+		player_disconnected.emit(id)
 
 func is_server() -> bool:
 	if OS.has_feature("dedicated_server") and multiplayer.is_server(): return true
