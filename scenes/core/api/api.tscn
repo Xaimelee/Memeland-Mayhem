@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dbquem5sh82sl"]
+
+[ext_resource type="Script" uid="uid://dgpnovu6vkj5p" path="res://scenes/core/api/api.gd" id="1_p34ig"]
+
+[node name="Api" type="Node"]
+script = ExtResource("1_p34ig")

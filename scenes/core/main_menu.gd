@@ -1,6 +1,6 @@
 extends Control
 
-const MAIN_SCENE: PackedScene = preload("res://scenes/main.tscn")
+const MAIN_SCENE: PackedScene = preload("uid://c573o225twlil")
 
 func _ready() -> void:
 	if MultiplayerManager.is_local() or MultiplayerManager.is_server():

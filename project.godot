@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Memeland Mayhem"
-run/main_scene="uid://wa40guwp27ql"
+run/main_scene="uid://ca14kj11seov0"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
 
@@ -25,6 +25,7 @@ NetworkTimeSynchronizer="*res://addons/netfox/network-time-synchronizer.gd"
 NetworkRollback="*res://addons/netfox/rollback/network-rollback.gd"
 NetworkEvents="*res://addons/netfox/network-events.gd"
 NetworkPerformance="*res://addons/netfox/network-performance.gd"
+Api="*res://scenes/core/api/api.tscn"
 
 [display]
 

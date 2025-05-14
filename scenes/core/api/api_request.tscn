@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://dh6mbxvp4aurg"]
+
+[ext_resource type="Script" uid="uid://c0arbdfdbxrmt" path="res://scenes/core/api/api_request.gd" id="1_36aor"]
+
+[node name="ApiRequest" type="HTTPRequest"]
+script = ExtResource("1_36aor")
+
+[connection signal="request_completed" from="." to="." method="_on_request_completed"]

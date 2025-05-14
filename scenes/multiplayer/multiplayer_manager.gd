@@ -5,8 +5,8 @@ signal player_connected(id: int)
 signal player_disconnected(id: int)
 
 const SERVER_PORT: int = 8080
-const PLAYER_SCENE: PackedScene = preload("res://scenes/player_character.tscn")
-const MAIN_MENU_SCENE: PackedScene = preload("res://scenes/main_menu.tscn")
+const PLAYER_SCENE: PackedScene = preload("uid://dxk1jvimm72ti")
+const MAIN_MENU_SCENE: PackedScene = preload("uid://wa40guwp27ql")
 
 @onready var peer = WebSocketMultiplayerPeer.new()
 
