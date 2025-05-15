@@ -1,5 +1,7 @@
 extends Node
 
+enum RequestId { TRY_LOGIN }
+
 const API_REQUEST = preload("uid://dh6mbxvp4aurg")
 const HEADER = [ 
 	"Content-Type: application/json"
@@ -8,11 +10,9 @@ const URL = [
 	"https://trylogin-2esjymujsa-uc.a.run.app"
 ]
 
-enum RequestId { TRY_LOGIN }
-
 func _ready() -> void:
 	# Just trying syntax
-	var user_data: UserData = UserData.new(0, "")
+	var user_data: UserData = UserData.new("id", "address")
 
 # Just doing a default body for now for testing purposes
 func post_request(request_id: RequestId, callable: Callable, body: String = JSON.new().stringify({"walletAddress": "DqD8ihQzuNyykK43WU2EEcTiVYAeJ8UVvaLdWey7YCCz"})) -> void:

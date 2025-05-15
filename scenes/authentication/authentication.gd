@@ -5,10 +5,8 @@ extends Node
 	#"Accept: application/json",
 #]
 
-@onready 
-var status_label := $Status
-@onready
-var wallet_adapter_ui : WalletAdapterUI = $WalletAdapterUI
+@onready var status_label := $Status
+@onready var wallet_adapter_ui : WalletAdapterUI = $WalletAdapterUI
 
 func _ready() -> void:
 	wallet_adapter_ui.visible = false
@@ -92,5 +90,5 @@ func cancel_login()-> void:
 	
 func confirm_login(login_success:bool) -> void:
 	wallet_adapter_ui.visible = false
-	if SolanaService.wallet.is_logged_in():
-		SolanaService.transaction_manager.sign_message()
+	#if SolanaService.wallet.is_logged_in():
+		#SolanaService.transaction_manager.sign_message()
