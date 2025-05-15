@@ -4,7 +4,7 @@ signal health_changed(new_health: float)
 
 enum PlayerState {ALIVE, DEAD}
 enum ArmState {LEFT, RIGHT}
-enum EquipmentSlot {ONE, TWO, THREE, FOUR}
+enum EquipmentSlot {ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT}
 
 @export var speed: float = 300.0
 @export var acceleration: float = 2000.0
@@ -17,26 +17,30 @@ var target_position: Vector2 = Vector2.ZERO
 var current_arm_state: ArmState = ArmState.LEFT
 var current_state: PlayerState = PlayerState.ALIVE
 var current_equipment_slot: EquipmentSlot = EquipmentSlot.ONE
-var equipment: Array[Weapon] = [null, null, null, null]
+#var equipment: Array[Weapon] = [null, null, null, null]
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var arm_sprite: Sprite2D = $AnimatedSprite2D/ArmSprite2D
-@onready var primary_weapon: Node2D = $AnimatedSprite2D/ArmSprite2D/BoringRifle
-@onready var secondary_weapon: Node2D = $AnimatedSprite2D/ArmSprite2D/CyberGlock
-@onready var weapon: Weapon = primary_weapon
+#@onready var primary_weapon: Node2D = $AnimatedSprite2D/ArmSprite2D/BoringRifle
+#@onready var secondary_weapon: Node2D = $AnimatedSprite2D/ArmSprite2D/CyberGlock
+@onready var weapon: Weapon = null
 @onready var damage_area: Area2D = $DamageArea2D
 @onready var camera: Camera2D = $Camera2D
 @onready var rollback_synchronizer: RollbackSynchronizer = $RollbackSynchronizer
 @onready var health: Health = $Health
 @onready var healthbar: Healthbar = $Healthbar
 @onready var player_name: Label = $PlayerName
+@onready var inventory: Inventory = $Inventory
 
 func _ready() -> void:
-	equipment[0] = primary_weapon
-	equipment[1] = secondary_weapon
+	#equipment[0] = primary_weapon
+	#equipment[1] = secondary_weapon
 	player_input.player_character = self
 	if is_multiplayer_authority():
 		MultiplayerManager.player_connected.connect(_on_player_connected)
+	# Testing syntax and flow
+	inventory.create_and_add_item("BoringRifle")
+	inventory.create_and_add_item("CyberGlock")
 
 # Using Netfox to implement CSP movement
 func _rollback_tick(delta, tick, is_fresh) -> void:
@@ -87,7 +91,7 @@ func _physics_process(delta: float) -> void:
 		var action_name: String = "equipment_{0}".format([i + 1])
 		if Input.is_action_just_pressed(action_name):
 			var slot: EquipmentSlot = EquipmentSlot.values()[i]
-			if not equipment[slot]: return
+			if not inventory.items[slot]: return
 			change_equipment_slot(slot)
 			rpc_id(1, "send_equipment_slot", current_equipment_slot)
 			break;
@@ -155,30 +159,24 @@ func change_arm_state(new_arm_state: ArmState) -> void:
 			arm_sprite.flip_v = true
 			arm_sprite.position.x = -5
 			arm_sprite.position.y = 3
-			weapon.flip(true)
+			if weapon:
+				weapon.flip(true)
 		_:
 			sprite.flip_h = false
 			arm_sprite.flip_v = false
 			arm_sprite.position.x = 5
 			arm_sprite.position.y = 2
-			weapon.flip(false)
+			if weapon:
+				weapon.flip(false)
 
 func change_equipment_slot(equipment_slot: EquipmentSlot) -> void:
-	var new_weapon: Weapon = equipment[equipment_slot]
+	var new_weapon: Weapon = inventory.items[equipment_slot] as Weapon
 	if not new_weapon: return
-	weapon.visible = false
+	if weapon:
+		weapon.visible = false
 	weapon = new_weapon
 	weapon.visible = true
 	current_equipment_slot = equipment_slot
-	#if new_weapon_state == WeaponState.PRIMARY:
-		#weapon = primary_weapon
-		#secondary_weapon.visible = false
-		#current_weapon_state = WeaponState.PRIMARY
-	#else:
-		#weapon = secondary_weapon
-		#primary_weapon.visible = false
-		#current_weapon_state = WeaponState.SECONDARY
-	#weapon.visible = true
 
 # Fix this later to respect client-server authority, likely need to be done in the weapon script?
 @rpc("any_peer", "call_remote")
@@ -251,3 +249,9 @@ func _on_health_health_changed(health: float) -> void:
 # This is so we can sync server state with players who have joined later on
 func _on_player_connected(peer_id: int):
 	rpc_id(peer_id, "init_player", id, global_position)
+
+
+func _on_inventory_item_added(item: Item) -> void:
+	# This makes the weapon visible if item was added to currently selected slot
+	if inventory.items.find(item) == current_equipment_slot:
+		change_equipment_slot(current_equipment_slot)

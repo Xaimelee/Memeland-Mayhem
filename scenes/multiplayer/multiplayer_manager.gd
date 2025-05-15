@@ -6,7 +6,7 @@ signal player_disconnected(id: int)
 
 const SERVER_PORT: int = 8080
 const PLAYER_SCENE: PackedScene = preload("uid://dxk1jvimm72ti")
-const MAIN_MENU_SCENE: PackedScene = preload("uid://wa40guwp27ql")
+const PLAYER_MENU: PackedScene = preload("uid://b4scbqjbo7wtn")
 
 @onready var peer = WebSocketMultiplayerPeer.new()
 
@@ -49,12 +49,12 @@ func _on_connected_to_server() -> void:
 func _on_connection_failed() -> void:
 	print("Client Failed to Connect")
 	# Return to menu if failed to connect
-	get_tree().change_scene_to_packed(MAIN_MENU_SCENE)
+	get_tree().change_scene_to_packed(PLAYER_MENU)
 
 func _on_server_disconnected() -> void:
 	print("Client Disconnected from Server")
 	# Return to menu if disconnected
-	get_tree().change_scene_to_packed(MAIN_MENU_SCENE)
+	get_tree().change_scene_to_packed(PLAYER_MENU)
 
 ## ID of 1 means connection to the server (authority)
 func _on_peer_connected(id: int) -> void:

@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://b4scbqjbo7wtn"]
+[gd_scene load_steps=5 format=3 uid="uid://b4scbqjbo7wtn"]
 
 [ext_resource type="Script" uid="uid://cewnhu2rh0e0t" path="res://scenes/core/player_menu.gd" id="1_vp4nb"]
 [ext_resource type="PackedScene" uid="uid://fj8aywus2k54" path="res://scenes/authentication/authentication.tscn" id="2_bhayt"]
 [ext_resource type="Script" uid="uid://c61vwloon4wkn" path="res://scenes/ui/menu_manager.gd" id="2_thu8f"]
+[ext_resource type="PackedScene" uid="uid://bs85sd7odwt6f" path="res://scenes/ui/item_display.tscn" id="4_s8rod"]
 
 [node name="PlayerMenu" type="Control"]
 layout_mode = 3
@@ -20,6 +21,7 @@ menu_paths = Array[NodePath]([NodePath("../Login"), NodePath("../Player")])
 starting_menu_name = "Login"
 
 [node name="Label" type="Label" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -35,6 +37,7 @@ grow_vertical = 2
 text = "Dummy Text for Login and Player Menu :)))"
 
 [node name="Login" type="Control" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -54,3 +57,81 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+
+[node name="PlayGame" type="Button" parent="Player"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -85.5
+offset_top = -103.0
+offset_right = 85.5
+offset_bottom = -50.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 32
+text = "Play Game"
+
+[node name="PlayerInfo" type="VBoxContainer" parent="Player"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -101.0
+offset_top = 16.0
+offset_right = 101.0
+offset_bottom = 110.0
+grow_horizontal = 2
+
+[node name="Name" type="Label" parent="Player/PlayerInfo"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Name: Name"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Level" type="Label" parent="Player/PlayerInfo"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Level: 1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Stash" type="GridContainer" parent="Player"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -24.0
+offset_top = -24.0
+offset_right = 24.0
+offset_bottom = 24.0
+grow_horizontal = 2
+grow_vertical = 2
+columns = 8
+
+[node name="ItemDisplay" parent="Player/Stash" instance=ExtResource("4_s8rod")]
+layout_mode = 2
+
+[node name="Inventory" type="HBoxContainer" parent="Player"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -24.0
+offset_top = -193.0
+offset_right = 24.0
+offset_bottom = -145.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="ItemDisplay" parent="Player/Inventory" instance=ExtResource("4_s8rod")]
+layout_mode = 2
+
+[connection signal="pressed" from="Player/PlayGame" to="." method="_on_play_game_pressed"]

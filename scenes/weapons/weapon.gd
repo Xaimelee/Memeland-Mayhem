@@ -1,4 +1,4 @@
-extends Node2D
+extends Item
 class_name Weapon
 
 @export var damage: float = 10.0

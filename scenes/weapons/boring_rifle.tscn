@@ -13,6 +13,8 @@ y_sort_enabled = true
 script = ExtResource("1_llf0w")
 damage = 40.0
 projectile_texture = ExtResource("3_mgev2")
+item_name = "Boring Rifle"
+icon = ExtResource("2_mggiu")
 
 [node name="WeaponsSprite2D" type="Sprite2D" parent="."]
 show_behind_parent = true

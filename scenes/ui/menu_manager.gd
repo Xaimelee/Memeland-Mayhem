@@ -18,7 +18,6 @@ var current_menu: Control = null:
 		current_menu = value
 		if current_menu:
 			current_menu.visible = true
-			print(current_menu.name)
 		menu_changed.emit(prev_menu, current_menu)
 
 func _ready() -> void:

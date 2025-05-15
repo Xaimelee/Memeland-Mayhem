@@ -26,6 +26,7 @@ NetworkRollback="*res://addons/netfox/rollback/network-rollback.gd"
 NetworkEvents="*res://addons/netfox/network-events.gd"
 NetworkPerformance="*res://addons/netfox/network-performance.gd"
 Api="*res://scenes/core/api/api.tscn"
+Globals="*res://scenes/core/globals.tscn"
 
 [display]
 
