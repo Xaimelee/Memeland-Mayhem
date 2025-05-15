@@ -7,6 +7,7 @@ extends Node
 
 @onready var status_label := $Status
 @onready var wallet_adapter_ui : WalletAdapterUI = $WalletAdapterUI
+@onready var login_button: Button = $LoginButton
 
 func _ready() -> void:
 	wallet_adapter_ui.visible = false
@@ -16,6 +17,7 @@ func _ready() -> void:
 	SolanaService.wallet.on_login_finish.connect(confirm_login)
 	wallet_adapter_ui.on_provider_selected.connect(process_adapter_result)
 	wallet_adapter_ui.on_adapter_cancel.connect(cancel_login)
+	login_button.disabled = SolanaService.wallet.is_logged_in()
 	#Firebase.Auth.login_succeeded.connect(_on_login_succeeded)
 	#Firebase.Auth.login_failed.connect(_on_login_failed)
 	#var provider: AuthProvider = Firebase.Auth.get_GoogleProvider()
@@ -63,6 +65,7 @@ func _ready() -> void:
 
 func _on_login_button_pressed() -> void:
 	SolanaService.wallet.try_login()
+	login_button.disabled = true
 	#var provider: AuthProvider = Firebase.Auth.get_GoogleProvider()
 	#This needs to eventually be the site where the game will be hosted
 	#If we hosted on multiple sites then we'd need to somehow know on a per build basis
@@ -76,6 +79,7 @@ func _on_login_succeeded(auth_result) -> void:
 	
 func _on_login_failed(code, message) -> void:
 	status_label.text = "Status: Failed"
+	login_button.disabled = false
 	print("Failed")
 
 func pop_adapter()-> void:
@@ -87,7 +91,7 @@ func process_adapter_result(provider_id:int) -> void:
 
 func cancel_login()-> void:
 	wallet_adapter_ui.visible = false
-	
+
 func confirm_login(login_success:bool) -> void:
 	wallet_adapter_ui.visible = false
 	#if SolanaService.wallet.is_logged_in():

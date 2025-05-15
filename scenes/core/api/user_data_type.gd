@@ -4,7 +4,7 @@ class_name UserData
 var user_id: String = ""
 var wallet_address: String = ""
 var player_name: String = "Player"
-var level: int = 0
+var level: int = 1
 var inventory: Array = []
 var stash: Array = []
 
