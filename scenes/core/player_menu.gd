@@ -6,15 +6,17 @@ const MAIN_SCENE: PackedScene = preload("uid://c573o225twlil")
 
 func _ready() -> void:
 	SolanaService.wallet.on_login_finish.connect(_on_login_finished)
+	# We will need to fetch updated user data anyways, so player menu should have a state for "loading/waiting"...
+	#... until new data has been fetched.
 	if SolanaService.wallet.is_logged_in():
-		menu_manager.change_menu("player")
+		menu_manager.change_menu("Player")
 
 func _on_successful_response(response: ResponseType) -> void:
 	var user_data: UserData = response as UserData
 	UserManager.user_data = user_data
 	print(user_data.user_id)
 	print(user_data.wallet_address)
-	menu_manager.change_menu("player")
+	menu_manager.change_menu("Player")
 
 func _on_login_finished(login_success: bool) -> void:
 	if not login_success: return

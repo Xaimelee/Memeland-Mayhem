@@ -43,7 +43,10 @@ func add_item(new_item: Item, index: int) -> void:
 	items[index] = new_item
 	if new_item.get_parent():
 		new_item.get_parent().remove_child(new_item)
-	items_parent.add_child(new_item, true)
+	if items_parent:
+		items_parent.add_child(new_item, true)
+	else:
+		add_child(new_item, true)
 	new_item.visible = false
 	item_added.emit(new_item)
 
