@@ -11,6 +11,7 @@ func _ready() -> void:
 
 func _on_successful_response(response: ResponseType) -> void:
 	var user_data: UserData = response as UserData
+	UserManager.user_data = user_data
 	print(user_data.user_id)
 	print(user_data.wallet_address)
 	menu_manager.change_menu("player")

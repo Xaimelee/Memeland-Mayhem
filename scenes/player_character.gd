@@ -38,6 +38,10 @@ func _ready() -> void:
 	player_input.player_character = self
 	if is_multiplayer_authority():
 		MultiplayerManager.player_connected.connect(_on_player_connected)
+	# Hack for having weapons spawned in when local testing. Will need a better way in future.
+	if MultiplayerManager.is_local():
+		inventory.create_and_add_item("boring_rifle")
+		inventory.create_and_add_item("cyber_glock")
 
 # Using Netfox to implement CSP movement
 func _rollback_tick(delta, tick, is_fresh) -> void:
@@ -100,7 +104,9 @@ func _physics_process(delta: float) -> void:
 		# We run this locally so the player has instant visual feedback that they're shooting and hitting.
 		# This should be an acceptable hack unless someone has super high latency.
 		shoot()
-		rpc_id(1, "send_shoot")
+		# This check isn't super necessary but it prevents errors in console when doing local testing.
+		if not is_multiplayer_authority():
+			rpc_id(1, "send_shoot")
 	
 func shoot() -> void:
 	weapon.shoot()

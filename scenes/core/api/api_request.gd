@@ -14,8 +14,15 @@ func get_http_data(body: PackedByteArray) -> Variant:
 
 func _on_request_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray) -> void:
 	print(str(response_code) + " code on request completed.")
-	if request_id == Api.RequestId.TRY_LOGIN:
+	if request_id == 0 or request_id == 1:
 		var data: Dictionary = get_http_data(body)["userData"]
-		var user_data: UserData = UserData.new(data["userId"], data["walletAddress"])
+		var user_data: UserData = UserData.new(
+			data["userId"], 
+			data["walletAddress"], 
+			data["playerName"],
+			data["level"],
+			data["inventory"],
+			data["stash"]
+		)
 		successful_response.emit(user_data)
 	queue_free()

@@ -20,8 +20,9 @@ func _ready() -> void:
 		MultiplayerManager.player_connected.connect(_on_player_connected)
 
 @rpc("authority", "call_local")
-func create_and_add_item(item_name: String) -> void:
-	var index: int = get_free_index()
+func create_and_add_item(item_name: String, index: int = -1) -> void:
+	if index == -1:
+		index = get_free_index()
 	if index == -1: return
 	item_name = item_name.to_snake_case()  
 	if not ITEMS.has(item_name): return

@@ -1,21 +1,22 @@
 extends Node
 
-enum RequestId { TRY_LOGIN }
+enum RequestId { TRY_LOGIN, GET_USER }
 
 const API_REQUEST = preload("uid://dh6mbxvp4aurg")
 const HEADER = [ 
 	"Content-Type: application/json"
 ]
 const URL = [
-	"https://trylogin-2esjymujsa-uc.a.run.app"
+	"https://trylogin-2esjymujsa-uc.a.run.app",
+	"https://us-central1-memeland-mayhem-6e7a7.cloudfunctions.net/getUser"
 ]
 
-func _ready() -> void:
-	# Just trying syntax
-	var user_data: UserData = UserData.new("id", "address")
+#func _ready() -> void:
+	## Just trying syntax
+	#var user_data: UserData = UserData.new("id", "address")
 
 # Just doing a default body for now for testing purposes
-func post_request(request_id: RequestId, callable: Callable, body: String = JSON.new().stringify({"walletAddress": "DqD8ihQzuNyykK43WU2EEcTiVYAeJ8UVvaLdWey7YCCz"})) -> void:
+func post_request(request_id: RequestId, callable: Callable, body: String = JSON.stringify({"walletAddress": "DqD8ihQzuNyykK43WU2EEcTiVYAeJ8UVvaLdWey7YCCz"})) -> ApiRequest:
 	var api_request: ApiRequest = API_REQUEST.instantiate()
 	add_child(api_request)
 	api_request.request_id = request_id
@@ -28,3 +29,4 @@ func post_request(request_id: RequestId, callable: Callable, body: String = JSON
 		HTTPClient.Method.METHOD_POST,
 		body
 	)
+	return api_request
