@@ -16,13 +16,15 @@ func _on_request_completed(result: int, response_code: int, headers: PackedStrin
 	print(str(response_code) + " code on request completed.")
 	if request_id == 0 or request_id == 1:
 		var data: Dictionary = get_http_data(body)["userData"]
+		print(data)
 		var user_data: UserData = UserData.new(
-			data["userId"], 
-			data["walletAddress"], 
-			data["playerName"],
-			data["level"],
-			data["inventory"],
-			data["stash"]
+			data["userId"] as String, 
+			data["walletAddress"] as String, 
+			data["playerName"] as String,
+			data["level"] as int,
+			data["inventory"] as Array[Dictionary],
+			data["stash"] as Array[Dictionary]
 		)
+		print(user_data)
 		successful_response.emit(user_data)
 	queue_free()

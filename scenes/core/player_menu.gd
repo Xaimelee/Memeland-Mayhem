@@ -25,3 +25,8 @@ func _on_play_game_pressed() -> void:
 	MultiplayerManager.override_is_local = false
 	MultiplayerManager.server_ip = "52.63.141.232"
 	get_tree().change_scene_to_packed(MAIN_SCENE)
+
+func _on_play_local_server_pressed() -> void:
+	MultiplayerManager.override_is_local = false
+	MultiplayerManager.server_ip = "localhost"
+	get_tree().change_scene_to_packed(MAIN_SCENE)

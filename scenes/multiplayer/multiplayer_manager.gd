@@ -64,6 +64,8 @@ func start_network() -> void:
 @rpc("authority", "call_remote")
 func request_user_id() -> void:
 	if SolanaService.wallet.is_logged_in() and UserManager.user_data:
+		# This isn't secure, we will also need to require some unique session token from them logging in...
+		#... to make sure that even if user ids are leaked, people can't just log in as other users.
 		rpc_id(1, "send_user_id", UserManager.user_data.user_id)
 	else:
 		rpc_id(1, "send_user_id")
@@ -83,7 +85,7 @@ func send_user_id(user_id: String = "guest") -> void:
 	if connected_user.status == 1: return
 	connected_user.user_id = user_id
 	if user_id != "guest":
-		var body: String = JSON.stringify({ "userId": "user_id" })
+		var body: String = JSON.stringify({ "userId": user_id })
 		Api.post_request(1, _on_successful_response, body)
 	# Guest setup
 	else:

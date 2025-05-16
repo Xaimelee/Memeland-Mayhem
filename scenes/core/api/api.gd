@@ -8,7 +8,7 @@ const HEADER = [
 ]
 const URL = [
 	"https://trylogin-2esjymujsa-uc.a.run.app",
-	"https://us-central1-memeland-mayhem-6e7a7.cloudfunctions.net/getUser"
+	"https://getuser-2esjymujsa-uc.a.run.app"
 ]
 
 #func _ready() -> void:
