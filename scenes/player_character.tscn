@@ -196,6 +196,7 @@ texture = ExtResource("3_4h0vy")
 offset = Vector2(4.5, 0.5)
 
 [node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(1.5, 1.5)
 
 [node name="MovementCollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -4)
