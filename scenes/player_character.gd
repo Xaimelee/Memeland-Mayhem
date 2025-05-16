@@ -38,9 +38,6 @@ func _ready() -> void:
 	player_input.player_character = self
 	if is_multiplayer_authority():
 		MultiplayerManager.player_connected.connect(_on_player_connected)
-	# Testing syntax and flow
-	inventory.create_and_add_item("BoringRifle")
-	inventory.create_and_add_item("CyberGlock")
 
 # Using Netfox to implement CSP movement
 func _rollback_tick(delta, tick, is_fresh) -> void:
@@ -247,9 +244,10 @@ func _on_health_health_changed(health: float) -> void:
 		change_state(PlayerState.DEAD)
 
 # This is so we can sync server state with players who have joined later on
+# This might not be needed if we stop using the Godot spawner sync node
 func _on_player_connected(peer_id: int):
 	rpc_id(peer_id, "init_player", id, global_position)
-
+	rpc_id(peer_id, "update_equipment_slot", current_equipment_slot)
 
 func _on_inventory_item_added(item: Item) -> void:
 	# This makes the weapon visible if item was added to currently selected slot

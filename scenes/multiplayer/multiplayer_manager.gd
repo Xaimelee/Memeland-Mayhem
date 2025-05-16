@@ -69,7 +69,10 @@ func _on_peer_connected(id: int) -> void:
 		player.set_multiplayer_authority(1)
 		player.player_input.set_multiplayer_authority(id)
 		player.rpc("init_player", id, spawn_position + random_offset)
-		
+		# Testing syntax and flow, this has to be loaded via database at some point
+		player.inventory.rpc("create_and_add_item", "BoringRifle")
+		player.inventory.rpc("create_and_add_item", "CyberGlock")
+
 	## Need to properly check here if a connection attempt has succeeded or failed
 	print("Client connected: " + str(id))
 
