@@ -4,11 +4,11 @@ const ITEM_DISPLAY_SCENE: PackedScene = preload("uid://bs85sd7odwt6f")
 const MAX_INVENTORY = 7 # (is 8 but we already have 1 spawned in)
 const MAX_STASH = 23 # (is 24 but same story as above)
 
-@onready var user_id_label: Label = $PlayerInfo/UserId
-@onready var name_label: Label = $PlayerInfo/Name
-@onready var level_label: Label = $PlayerInfo/Level
+@onready var user_id_label: Label = %UserId
+@onready var name_label: Label = %Name
+@onready var level_label: Label = %Level
 @onready var stash_container: GridContainer = %StashContainer
-@onready var inventory_container: HBoxContainer = $InventoryContainer
+@onready var inventory_container: HBoxContainer = %InventoryContainer
 @onready var inventory: Inventory = $Inventory
 @onready var stash: Inventory = $Stash
 var inventory_displays: Array[ItemDisplay] = []
