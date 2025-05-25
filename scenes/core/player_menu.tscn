@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://b4scbqjbo7wtn"]
+[gd_scene load_steps=10 format=3 uid="uid://b4scbqjbo7wtn"]
 
 [ext_resource type="Script" uid="uid://cewnhu2rh0e0t" path="res://scenes/core/player_menu.gd" id="1_vp4nb"]
 [ext_resource type="PackedScene" uid="uid://fj8aywus2k54" path="res://scenes/authentication/authentication.tscn" id="2_bhayt"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://big6x6sbx85sq" path="res://scenes/ui/player_menu.gd" id="4_2ah4n"]
 [ext_resource type="PackedScene" uid="uid://bs85sd7odwt6f" path="res://scenes/ui/item_display.tscn" id="4_s8rod"]
 [ext_resource type="Texture2D" uid="uid://c6awj3vyf0r55" path="res://assets/stash-frame.png" id="6_gpvpi"]
+[ext_resource type="Texture2D" uid="uid://di5ptgue31ck2" path="res://assets/label-frame.png" id="6_ti82n"]
 [ext_resource type="Script" uid="uid://dmgbe3sqm4g8a" path="res://scenes/components/inventory.gd" id="6_uhn2d"]
 
 [node name="PlayerMenu" type="Control"]
@@ -119,7 +120,7 @@ text = "Level:"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="StashFrameContainer" type="MarginContainer" parent="Player"]
+[node name="StashContainers" type="VBoxContainer" parent="Player"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -127,13 +128,46 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -116.0
-offset_top = -78.0
+offset_top = -93.5
 offset_right = 116.0
-offset_bottom = 78.0
+offset_bottom = 93.5
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/separation = 0
 
-[node name="StashFrame" type="NinePatchRect" parent="Player/StashFrameContainer"]
+[node name="StashLabelContainer" type="MarginContainer" parent="Player/StashContainers"]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_constants/margin_left = 6
+
+[node name="StashLabelBg" type="NinePatchRect" parent="Player/StashContainers/StashLabelContainer"]
+layout_mode = 2
+texture = ExtResource("6_ti82n")
+region_rect = Rect2(0, 0, 14, 14)
+patch_margin_left = 4
+patch_margin_top = 4
+patch_margin_right = 5
+patch_margin_bottom = 5
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="Player/StashContainers/StashLabelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 4
+
+[node name="Label" type="Label" parent="Player/StashContainers/StashLabelContainer/MarginContainer"]
+layout_mode = 2
+text = "Stash"
+
+[node name="StashFrameContainer" type="MarginContainer" parent="Player/StashContainers"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="StashFrameBg" type="NinePatchRect" parent="Player/StashContainers/StashFrameContainer"]
 layout_mode = 2
 texture = ExtResource("6_gpvpi")
 region_rect = Rect2(0, 0, 42, 42)
@@ -144,97 +178,97 @@ patch_margin_bottom = 2
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
 
-[node name="MarginContainer" type="MarginContainer" parent="Player/StashFrameContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="Player/StashContainers/StashFrameContainer"]
 layout_mode = 2
 theme_override_constants/margin_left = 5
 theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
 
-[node name="StashContainer" type="GridContainer" parent="Player/StashFrameContainer/MarginContainer"]
+[node name="StashContainer" type="GridContainer" parent="Player/StashContainers/StashFrameContainer/MarginContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/h_separation = 6
 theme_override_constants/v_separation = 6
 columns = 6
 
-[node name="ItemDisplay" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 item = 1
 quantity = 1
 
-[node name="ItemDisplay2" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay2" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 item = 2
 quantity = 3
 
-[node name="ItemDisplay3" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay3" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay4" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay4" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay5" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay5" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay6" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay6" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay7" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay7" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay8" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay8" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay9" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay9" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay10" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay10" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay11" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay11" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay12" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay12" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay13" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay13" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay14" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay14" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay15" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay15" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay16" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay16" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay17" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay17" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay18" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay18" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay19" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay19" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay20" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay20" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay21" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay21" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay22" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay22" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay23" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay23" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay24" parent="Player/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay24" parent="Player/StashContainers/StashFrameContainer/MarginContainer/StashContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="InventoryFrameContainer" type="MarginContainer" parent="Player"]
+[node name="InventoryContainers" type="VBoxContainer" parent="Player"]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -242,13 +276,44 @@ anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -116.0
-offset_top = 115.0
+offset_top = 123.5
 offset_right = 116.0
-offset_bottom = 157.0
+offset_bottom = 196.5
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/separation = 0
 
-[node name="StashFrame" type="NinePatchRect" parent="Player/InventoryFrameContainer"]
+[node name="InventoryLabelContainer" type="MarginContainer" parent="Player/InventoryContainers"]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_constants/margin_left = 6
+
+[node name="InventoryLabelBg" type="NinePatchRect" parent="Player/InventoryContainers/InventoryLabelContainer"]
+layout_mode = 2
+texture = ExtResource("6_ti82n")
+region_rect = Rect2(0, 0, 14, 14)
+patch_margin_left = 4
+patch_margin_top = 4
+patch_margin_right = 5
+patch_margin_bottom = 5
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="Player/InventoryContainers/InventoryLabelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 4
+
+[node name="Label" type="Label" parent="Player/InventoryContainers/InventoryLabelContainer/MarginContainer"]
+layout_mode = 2
+text = "Inventory"
+
+[node name="InventoryFrameContainer" type="MarginContainer" parent="Player/InventoryContainers"]
+layout_mode = 2
+
+[node name="StashFrame" type="NinePatchRect" parent="Player/InventoryContainers/InventoryFrameContainer"]
 layout_mode = 2
 texture = ExtResource("6_gpvpi")
 region_rect = Rect2(0, 0, 42, 42)
@@ -259,35 +324,35 @@ patch_margin_bottom = 2
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
 
-[node name="MarginContainer" type="MarginContainer" parent="Player/InventoryFrameContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="Player/InventoryContainers/InventoryFrameContainer"]
 layout_mode = 2
 theme_override_constants/margin_left = 5
 theme_override_constants/margin_top = 5
 theme_override_constants/margin_right = 5
 theme_override_constants/margin_bottom = 5
 
-[node name="InventoryContainer" type="HBoxContainer" parent="Player/InventoryFrameContainer/MarginContainer"]
+[node name="InventoryContainer" type="HBoxContainer" parent="Player/InventoryContainers/InventoryFrameContainer/MarginContainer"]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="ItemDisplay" parent="Player/InventoryFrameContainer/MarginContainer/InventoryContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay" parent="Player/InventoryContainers/InventoryFrameContainer/MarginContainer/InventoryContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 item = 2
 quantity = 1
 
-[node name="ItemDisplay2" parent="Player/InventoryFrameContainer/MarginContainer/InventoryContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay2" parent="Player/InventoryContainers/InventoryFrameContainer/MarginContainer/InventoryContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay3" parent="Player/InventoryFrameContainer/MarginContainer/InventoryContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay3" parent="Player/InventoryContainers/InventoryFrameContainer/MarginContainer/InventoryContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay4" parent="Player/InventoryFrameContainer/MarginContainer/InventoryContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay4" parent="Player/InventoryContainers/InventoryFrameContainer/MarginContainer/InventoryContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay5" parent="Player/InventoryFrameContainer/MarginContainer/InventoryContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay5" parent="Player/InventoryContainers/InventoryFrameContainer/MarginContainer/InventoryContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
-[node name="ItemDisplay6" parent="Player/InventoryFrameContainer/MarginContainer/InventoryContainer" instance=ExtResource("4_s8rod")]
+[node name="ItemDisplay6" parent="Player/InventoryContainers/InventoryFrameContainer/MarginContainer/InventoryContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
 
 [node name="Inventory" type="Node" parent="Player"]
