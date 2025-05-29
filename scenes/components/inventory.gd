@@ -1,10 +1,10 @@
 extends Node
 class_name Inventory
 
-const ITEMS: Dictionary = {
-	"boring_rifle": preload("uid://c8vj3yqnvys4p"),
-	"cyber_glock": preload("uid://bqnxqvdmyj5xt")
-}
+# NOTE: We dynamically populate this dictionary at runtime based on scenes in the runtime items folder.
+# The schema is "item_name": PackedScene
+# This var and func are static so its loaded once for the class, rather than multiple times per instance.
+static var item_scenes: Dictionary = {}
 
 # NOTE: This will need to be synced. This is the players equipment and also potentially NPC loot.
 
@@ -16,6 +16,7 @@ signal item_removed(item: Item)
 var items: Array[Item] = [null, null, null, null, null, null, null, null]
 
 func _ready() -> void:
+	Inventory.load_items()
 	if is_multiplayer_authority():
 		MultiplayerManager.player_connected.connect(_on_player_connected)
 
@@ -25,8 +26,8 @@ func create_and_add_item(item_name: String, index: int = -1) -> void:
 		index = get_free_index()
 	if index == -1: return
 	item_name = item_name.to_snake_case()  
-	if not ITEMS.has(item_name): return
-	var item: Item = ITEMS[item_name].instantiate() as Item
+	if not item_scenes.has(item_name): return
+	var item: Item = item_scenes[item_name].instantiate() as Item
 	if not item: return
 	add_item(item, index)
 
@@ -64,3 +65,22 @@ func get_free_index() -> int:
 func _on_player_connected(id: int):
 	for item in items:
 		rpc_id(id, "create_and_add_item", item.item_name.to_snake_case())
+
+static func load_items():
+	if item_scenes.is_empty():
+		var items_dir_path: String = "res://scenes/items/runtime_items"
+		var dir: DirAccess = DirAccess.open(items_dir_path)
+		if dir:
+			dir.list_dir_begin()
+			var file_name: String = dir.get_next()
+			while file_name != "":
+				if not dir.current_is_dir():
+					if file_name.ends_with(".tscn.remap"):
+						# Call twice to get rid of both extensions
+						var item_name: String = file_name.get_basename().get_basename()
+						var real_file_name: String = file_name.get_basename()
+						item_scenes[item_name] = load(items_dir_path + "/" + real_file_name)
+				file_name = dir.get_next()
+			dir.list_dir_end()
+		else:
+			print("Could not open directory: ", items_dir_path)

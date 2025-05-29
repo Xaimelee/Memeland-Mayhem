@@ -1,25 +1,25 @@
 [gd_scene load_steps=5 format=3 uid="uid://df7bvuymd1rae"]
 
-[ext_resource type="Script" uid="uid://1kmr3fp72sdl" path="res://scenes/weapons/weapon.gd" id="1_8crbk"]
-[ext_resource type="Texture2D" uid="uid://bwuvj5axcqu76" path="res://assets/sorrow.png" id="2_8crbk"]
-[ext_resource type="Texture2D" uid="uid://drixv6pqwje1k" path="res://assets/under-taker.png" id="3_8w77b"]
-[ext_resource type="PackedScene" uid="uid://cx85rvdlejuhv" path="res://scenes/weapons/muzzle_flash.tscn" id="4_cqqjk"]
+[ext_resource type="Script" uid="uid://1kmr3fp72sdl" path="res://scenes/items/weapon.gd" id="1_fx6l6"]
+[ext_resource type="Texture2D" uid="uid://bwuvj5axcqu76" path="res://assets/sorrow.png" id="2_htu12"]
+[ext_resource type="Texture2D" uid="uid://drixv6pqwje1k" path="res://assets/under-taker.png" id="3_eoiet"]
+[ext_resource type="PackedScene" uid="uid://cx85rvdlejuhv" path="res://scenes/items/muzzle_flash.tscn" id="4_fydyp"]
 
 [node name="UnderTaker" type="Node2D"]
 show_behind_parent = true
 z_index = 1
 z_as_relative = false
 y_sort_enabled = true
-script = ExtResource("1_8crbk")
+script = ExtResource("1_fx6l6")
 damage = 0.0
-projectile_texture = ExtResource("2_8crbk")
+projectile_texture = ExtResource("2_htu12")
 
 [node name="WeaponsSprite2D" type="Sprite2D" parent="."]
 show_behind_parent = true
 z_index = 1
 z_as_relative = false
 position = Vector2(16, -2)
-texture = ExtResource("3_8w77b")
+texture = ExtResource("3_eoiet")
 
 [node name="WeaponMuzzle" type="Marker2D" parent="WeaponsSprite2D"]
 position = Vector2(12, -2)
@@ -29,7 +29,7 @@ target_position = Vector2(100, 0)
 collision_mask = 3
 collide_with_areas = true
 
-[node name="MuzzleFlash" parent="WeaponsSprite2D/WeaponMuzzle" instance=ExtResource("4_cqqjk")]
+[node name="MuzzleFlash" parent="WeaponsSprite2D/WeaponMuzzle" instance=ExtResource("4_fydyp")]
 z_index = 1
 z_as_relative = false
 y_sort_enabled = true
