@@ -61,6 +61,13 @@ func remove_item(index: int) -> void:
 		remove_child(item)
 	item_removed.emit(item, index)
 
+func delete_item(index: int) -> void:
+	var item: Item = items[index]
+	if not item: return
+	items[index] = null
+	item_removed.emit(item, index)
+	item.queue_free()
+
 func move_item(current_index: int, new_index: int) -> void:
 	var current_item: Item = get_item_at_index(current_index)
 	if not current_item: return

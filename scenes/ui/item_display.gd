@@ -2,6 +2,8 @@
 extends Control
 class_name ItemDisplay
 
+signal clicked(item_display: ItemDisplay)
+
 @onready var icon: TextureRect = $Icon
 @onready var quantity_label: Label = $QuantityContainer/QuantityLabel
 
