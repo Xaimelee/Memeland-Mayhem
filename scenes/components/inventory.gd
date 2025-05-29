@@ -8,8 +8,8 @@ static var item_scenes: Dictionary = {}
 
 # NOTE: This will need to be synced. This is the players equipment and also potentially NPC loot.
 
-signal item_added(item: Item)
-signal item_removed(item: Item)
+signal item_added(item: Item, index: int)
+signal item_removed(item: Item, index: int)
 
 @export var items_parent: Node2D
 
@@ -29,6 +29,12 @@ func create_and_add_item(item_name: String, index: int = -1) -> void:
 	if not item_scenes.has(item_name): return
 	var item: Item = item_scenes[item_name].instantiate() as Item
 	if not item: return
+	if item.get_parent():
+		item.get_parent().remove_child(item)
+	if items_parent:
+		items_parent.add_child(item, true)
+	else:
+		add_child(item, true)
 	add_item(item, index)
 
 # Node path must be absolute to root scene for this to work and it assumes the client...
@@ -42,14 +48,28 @@ func add_item_with_path(new_item_path: String, index: int) -> void:
 func add_item(new_item: Item, index: int) -> void:
 	if not new_item: return
 	items[index] = new_item
-	if new_item.get_parent():
-		new_item.get_parent().remove_child(new_item)
-	if items_parent:
-		items_parent.add_child(new_item, true)
-	else:
-		add_child(new_item, true)
 	new_item.visible = false
 	item_added.emit(new_item)
+
+func remove_item(index: int) -> void:
+	var item: Item = items[index]
+	if not item: return
+	items[index] = null
+	if items_parent:
+		items_parent.remove_child(item)
+	else:
+		remove_child(item)
+	item_removed.emit(item, index)
+
+func move_item(current_index: int, new_index: int) -> void:
+	var current_item: Item = get_item_at_index(current_index)
+	if not current_item: return
+	var item_at_new_slot: Item = get_item_at_index(new_index)
+	# Swaps items if there was one in the slot
+	items[current_index] = item_at_new_slot
+	item_added.emit(item_at_new_slot, current_index)
+	items[new_index] = current_item
+	item_added.emit(current_item, new_index)
 
 func get_item_at_index(index: int) -> Item:
 	if index < 0 or index > items.size(): return null
