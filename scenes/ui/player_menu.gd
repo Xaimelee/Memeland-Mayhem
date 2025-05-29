@@ -1,27 +1,34 @@
 extends Menu
 
 const ITEM_DISPLAY_SCENE: PackedScene = preload("uid://bs85sd7odwt6f")
-const MAX_INVENTORY = 7 # (is 8 but we already have 1 spawned in)
-const MAX_STASH = 23 # (is 24 but same story as above)
+const MAX_INVENTORY = 6
+const MAX_STASH = 24
 
 @onready var user_id_label: Label = %UserId
 @onready var name_label: Label = %Name
 @onready var level_label: Label = %Level
 @onready var stash_container: GridContainer = %StashContainer
 @onready var inventory_container: HBoxContainer = %InventoryContainer
-@onready var inventory: Inventory = $Inventory
-@onready var stash: Inventory = $Stash
+@onready var inventory: Inventory = %Inventory
+@onready var stash: Inventory = %Stash
 var inventory_displays: Array[ItemDisplay] = []
 var stash_displays: Array[ItemDisplay] = []
 
 func _ready() -> void:
-	inventory_displays.append(inventory_container.get_child(0))
-	stash_displays.append(stash_container.get_child(0))
-	for n in MAX_STASH:
+	for n in inventory_container.get_child_count():
+		var item_display: ItemDisplay = inventory_container.get_child(n)
+		if item_display == null: continue
+		inventory_displays.append(item_display)
+	for n in stash_container.get_child_count():
+		var item_display: ItemDisplay = stash_container.get_child(n)
+		if item_display == null: continue
+		stash_displays.append(item_display)
+	#If our mockup UI has less slots than we want then we spawn more here
+	for n in MAX_STASH - stash_displays.size():
 		var item_display: ItemDisplay = ITEM_DISPLAY_SCENE.instantiate() as ItemDisplay
 		stash_container.add_child(item_display)
 		stash_displays.append(item_display)
-	for n in MAX_INVENTORY:
+	for n in MAX_INVENTORY - inventory_displays.size():
 		var item_display: ItemDisplay = ITEM_DISPLAY_SCENE.instantiate() as ItemDisplay
 		inventory_container.add_child(item_display)
 		inventory_displays.append(item_display)
