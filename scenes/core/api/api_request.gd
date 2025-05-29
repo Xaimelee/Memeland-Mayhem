@@ -27,4 +27,10 @@ func _on_request_completed(result: int, response_code: int, headers: PackedStrin
 		)
 		print(user_data)
 		successful_response.emit(user_data)
+	elif result == HTTPRequest.RESULT_SUCCESS:
+		var response_type: ResponseType = ResponseType.new()
+		# We can do generic successes here which don't require any response types
+		successful_response.emit(response_type)
+	else:
+		successful_response.emit(null)
 	queue_free()

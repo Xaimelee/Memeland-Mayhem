@@ -1,6 +1,6 @@
 extends Node
 
-enum RequestId { TRY_LOGIN, GET_USER }
+enum RequestId { TRY_LOGIN, GET_USER, SEND_LOADOUT }
 
 const API_REQUEST = preload("uid://dh6mbxvp4aurg")
 const HEADER = [ 
@@ -8,7 +8,8 @@ const HEADER = [
 ]
 const URL = [
 	"https://trylogin-2esjymujsa-uc.a.run.app",
-	"https://getuser-2esjymujsa-uc.a.run.app"
+	"https://getuser-2esjymujsa-uc.a.run.app",
+	"https://sendloadout-2esjymujsa-uc.a.run.app"
 ]
 
 #func _ready() -> void:

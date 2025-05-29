@@ -465,6 +465,7 @@ offset_right = 128.0
 offset_bottom = 64.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("4_2ah4n")
 
 [node name="Bg" type="NinePatchRect" parent="Loading/Window"]
 layout_mode = 2

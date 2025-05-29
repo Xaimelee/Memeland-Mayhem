@@ -48,7 +48,7 @@ func add_item_with_path(new_item_path: String, index: int) -> void:
 
 # This can't be directly synced since it relies on a node reference
 func add_item(new_item: Item, index: int, assign_parent: bool = true) -> void:
-	if not new_item: return
+	if new_item == null: return
 	items[index] = new_item
 	if assign_parent:
 		if new_item.get_parent():
@@ -64,12 +64,12 @@ func add_item(new_item: Item, index: int, assign_parent: bool = true) -> void:
 
 func remove_item(index: int, remove_parent: bool = true) -> void:
 	var item: Item = items[index]
-	if not item: return
+	if item == null: return
 	items[index] = null
 	if remove_parent:
 		if items_parent:
 			items_parent.remove_child(item)
-		else:
+		elif item.get_parent() == self:
 			remove_child(item)
 	print("Removed: " + item.item_name)
 	item_removed.emit(item)
