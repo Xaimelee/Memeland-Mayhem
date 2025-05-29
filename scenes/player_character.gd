@@ -255,7 +255,7 @@ func _on_player_connected(peer_id: int):
 	rpc_id(peer_id, "init_player", id, global_position)
 	rpc_id(peer_id, "update_equipment_slot", current_equipment_slot)
 
-func _on_inventory_item_added(item: Item, index: int) -> void:
+func _on_inventory_item_added(item: Item) -> void:
 	# This makes the weapon visible if item was added to currently selected slot
 	if inventory.items.find(item) == current_equipment_slot:
 		change_equipment_slot(current_equipment_slot)

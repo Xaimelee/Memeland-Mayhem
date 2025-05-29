@@ -55,3 +55,9 @@ func _set_quantity(new_quantity: int) -> void:
 	if quantity_label == null:
 		return
 	quantity_label.text = str(quantity) if quantity > 1 else ""
+
+func _on_gui_input(event: InputEvent) -> void:
+	var mouse_event: InputEventMouseButton = event as InputEventMouseButton
+	if not mouse_event: return
+	if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		clicked.emit(self)

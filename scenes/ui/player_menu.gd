@@ -11,6 +11,8 @@ const MAX_STASH = 24
 @onready var inventory_container: HBoxContainer = %InventoryContainer
 @onready var inventory: Inventory = %Inventory
 @onready var stash: Inventory = %Stash
+@onready var selected_item_display: ItemDisplay = %SelectedItemDisplay
+
 var inventory_displays: Array[ItemDisplay] = []
 var stash_displays: Array[ItemDisplay] = []
 var selected_item: SelectedItem = null
@@ -37,6 +39,19 @@ func _ready() -> void:
 		inventory_container.add_child(item_display)
 		inventory_displays.append(item_display)
 		item_display.clicked.connect(_on_item_display_clicked)
+	# Avoids us needing to manually make sure the displays update when items get moved around.
+	inventory.index_updated.connect(_on_inventory_index_updated)
+	stash.index_updated.connect(_on_stash_index_updated)
+
+func _process(delta: float) -> void:
+	update_selected_item_display()
+
+func _input(event: InputEvent) -> void:
+	var mouse_event: InputEventMouseButton = event as InputEventMouseButton
+	if not mouse_event: return
+	# Cancel current selection
+	if event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+		selected_item = null
 
 # Overriding
 func enabled() -> void: 
@@ -57,18 +72,37 @@ func enabled() -> void:
 		var item_name: String = user_item["item_name"]
 		var slot: int = user_item["slot"]
 		inventory.create_and_add_item(item_name, slot)
-		var item: Item = inventory.get_item_at_index(slot)
-		inventory_displays[slot].set_icon_and_quantity(item.icon, item.stack)
+		#var item: Item = inventory.get_item_at_index(slot)
+		#inventory_displays[slot].set_icon_and_quantity(item.icon, item.stack)
 	for user_item in user_data.stash:
 		var item_name: String = user_item["item_name"]
 		var slot: int = user_item["slot"]
 		stash.create_and_add_item(item_name, slot)
-		var item: Item = stash.get_item_at_index(slot)
-		stash_displays[slot].set_icon_and_quantity(item.icon, item.stack)
+		#var item: Item = stash.get_item_at_index(slot)
+		#stash_displays[slot].set_icon_and_quantity(item.icon, item.stack)
 
 # Overriding
 func disabled() -> void:
 	pass
+
+func update_selected_item_display() -> void:
+	selected_item_display.visible = selected_item != null
+	if not selected_item_display.visible: return
+	var mouse_pos: Vector2 = get_global_mouse_position()
+	var item_size: Vector2 = selected_item_display.size * 0.5
+	selected_item_display.global_position = mouse_pos
+
+func _on_inventory_index_updated(item: Item, index: int) -> void:
+	if not item == null:
+		inventory_displays[index].set_icon_and_quantity(item.icon, item.stack)
+	else:
+		inventory_displays[index].set_icon_and_quantity(null, 0)
+
+func _on_stash_index_updated(item: Item, index: int) -> void:
+	if not item == null:
+		stash_displays[index].set_icon_and_quantity(item.icon, item.stack)
+	else:
+		stash_displays[index].set_icon_and_quantity(null, 0)
 
 func _on_item_display_clicked(item_display: ItemDisplay) -> void:
 	# Naming is alittle confusing but both stash + inventory are of type inventory
@@ -79,7 +113,7 @@ func _on_item_display_clicked(item_display: ItemDisplay) -> void:
 			# Cancel selection if we click ourself
 			if clicked_index == selected_item.index: return
 			# Move here
-			clicked_inventory.move_item(clicked_index, selected_item.index)
+			clicked_inventory.move_item(selected_item.index, clicked_index)
 		else:
 			# Move item from different inventory, will also swap if valid
 			var item_in_slot: Item = clicked_inventory.get_item_at_index(clicked_index)
@@ -87,6 +121,7 @@ func _on_item_display_clicked(item_display: ItemDisplay) -> void:
 			selected_item.inventory.remove_item(selected_item.index)
 			clicked_inventory.add_item(selected_item.item, clicked_index)
 			selected_item.inventory.add_item(item_in_slot, selected_item.index)
+		selected_item = null
 	else:
 		var clicked_item: Item = clicked_inventory.get_item_at_index(clicked_index)
 		if not clicked_item: return
@@ -95,3 +130,4 @@ func _on_item_display_clicked(item_display: ItemDisplay) -> void:
 			clicked_index,
 			clicked_inventory
 		)
+		selected_item_display.set_icon_and_quantity(clicked_item.icon, clicked_item.stack)
