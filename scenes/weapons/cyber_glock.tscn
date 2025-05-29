@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3 uid="uid://bqnxqvdmyj5xt"]
+[gd_scene load_steps=6 format=3 uid="uid://bqnxqvdmyj5xt"]
 
 [ext_resource type="Script" uid="uid://1kmr3fp72sdl" path="res://scenes/weapons/weapon.gd" id="1_yywsb"]
 [ext_resource type="Texture2D" uid="uid://bhp2el5a4cwq7" path="res://assets/cyber-glock.png" id="2_5hncr"]
+[ext_resource type="Texture2D" uid="uid://5jiej8uin00g" path="res://assets/cyber-glock-icon.png" id="3_nsh4s"]
 [ext_resource type="Texture2D" uid="uid://cfsvybqixlpo6" path="res://assets/cyber-bullet.png" id="3_p6qp1"]
 [ext_resource type="PackedScene" uid="uid://cx85rvdlejuhv" path="res://scenes/weapons/muzzle_flash.tscn" id="5_bs3jk"]
 
@@ -11,7 +12,7 @@ script = ExtResource("1_yywsb")
 projectile_texture = ExtResource("3_p6qp1")
 impact_particles_lifetime = 0.2
 item_name = "Cyber Glock"
-icon = ExtResource("2_5hncr")
+icon = ExtResource("3_nsh4s")
 
 [node name="WeaponsSprite2D" type="Sprite2D" parent="."]
 show_behind_parent = true

@@ -39,24 +39,24 @@ func enabled() -> void:
 	for child in inventory_container.get_children():
 		var item_display: ItemDisplay = child as ItemDisplay
 		if not item_display: continue
-		item_display.init(null, 0)
+		item_display.set_icon_and_quantity(null, 0)
 	for child in stash_container.get_children():
 		var item_display: ItemDisplay = child as ItemDisplay
 		if not item_display: continue
-		item_display.init(null, 0)
+		item_display.set_icon_and_quantity(null, 0)
 	# Here we update the item displays with the user data inventory and stash data
 	for user_item in user_data.inventory:
 		var item_name: String = user_item["item_name"]
 		var slot: int = user_item["slot"]
 		inventory.create_and_add_item(item_name, slot)
 		var item: Item = inventory.get_item_at_index(slot)
-		inventory_displays[slot].init(item.icon, item.stack)
+		inventory_displays[slot].set_icon_and_quantity(item.icon, item.stack)
 	for user_item in user_data.stash:
 		var item_name: String = user_item["item_name"]
 		var slot: int = user_item["slot"]
 		stash.create_and_add_item(item_name, slot)
 		var item: Item = stash.get_item_at_index(slot)
-		stash_displays[slot].init(item.icon, item.stack)
+		stash_displays[slot].set_icon_and_quantity(item.icon, item.stack)
 
 # Overriding
 func disabled() -> void:

@@ -24,6 +24,14 @@ func _ready() -> void:
 	_set_item(item)
 	_set_quantity(quantity)
 
+# NOTE: I've added this back because we are generating an inventory based on...
+#... the backend and when we make the item objects, we know the quantity and icon...
+#... to use already so it nullifies needing the local item enum for display logic.
+#... Basically this overrides the local display logic.
+func set_icon_and_quantity(_icon: Texture2D, _quantity: int) -> void:
+	icon.texture = _icon
+	quantity_label.text = str(_quantity) if _quantity > 1 else ""
+
 func _set_item(new_item: ItemDisplay.Item) -> void:
 	item = new_item
 	if item == Item.NONE:
