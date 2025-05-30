@@ -35,10 +35,6 @@ window/size/viewport_height=720
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
-[editor]
-
-run/main_run_args="local"
-
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/SolanaSDK/plugin.cfg", "res://addons/http-sse-client/plugin.cfg", "res://addons/netfox.internals/plugin.cfg", "res://addons/netfox/plugin.cfg")

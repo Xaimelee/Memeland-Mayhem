@@ -39,7 +39,10 @@ func _ready() -> void:
 	if is_multiplayer_authority():
 		MultiplayerManager.player_connected.connect(_on_player_connected)
 	# Hack for having weapons spawned in when local testing. Will need a better way in future.
+	# NOTE: In future should just be running the init player function, which would load guest data for items
+	# We can also add support in future for loading items that are children of inventory node at runtime
 	if MultiplayerManager.is_local():
+		Globals.player_spawned.emit(self)
 		inventory.create_and_add_item("boring_rifle")
 		inventory.create_and_add_item("cyber_glock")
 
@@ -229,6 +232,8 @@ func init_player(new_id: int, spawn_position: Vector2) -> void:
 	global_position = spawn_position
 	player_input.set_multiplayer_authority(new_id)
 	rollback_synchronizer.process_settings()
+	if id == multiplayer.multiplayer_peer.get_unique_id():
+		Globals.player_spawned.emit(self)
 	if not has_ownership() and healthbar:
 		healthbar.progress_bar.add_theme_stylebox_override("fill", not_owned_healthbar_style)
 

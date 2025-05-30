@@ -30,9 +30,7 @@ func _on_successful_response(response: ResponseType) -> void:
 
 func _on_successful_response_loadout(response: ResponseType) -> void:
 	if response:
-		MultiplayerManager.override_is_local = false
-		MultiplayerManager.server_ip = "52.63.141.232"
-		get_tree().change_scene_to_packed(MAIN_SCENE)
+		Globals.start_online_game()
 	# Failed to send loadout
 	else:
 		menu_manager.change_menu("Player")
@@ -70,10 +68,11 @@ func _on_play_game_pressed() -> void:
 	#get_tree().change_scene_to_packed(MAIN_SCENE)
 
 func _on_play_local_server_pressed() -> void:
-	MultiplayerManager.override_is_local = false
-	MultiplayerManager.server_ip = "localhost"
-	get_tree().change_scene_to_packed(MAIN_SCENE)
+	Globals.start_local_game()
 
 func _on_play_offline_pressed() -> void:
-	MultiplayerManager.override_is_local = true
-	get_tree().change_scene_to_packed(MAIN_SCENE)
+	Globals.start_offline_game()
+
+func _on_play_as_guest_pressed() -> void:
+	UserManager.user_data = MultiplayerManager.guest_data
+	Globals.start_online_game()

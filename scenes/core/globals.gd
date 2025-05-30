@@ -1,5 +1,11 @@
 extends Node
 
+const MAIN_SCENE: PackedScene = preload("uid://c573o225twlil")
+
+signal game_started()
+# This is contextual to just the player belonging to the client
+signal player_spawned(player: PlayerCharacter)
+
 # NOTE: We dynamically populate this dictionary at runtime based on scenes in the runtime items folder.
 # The schema is "item_name": PackedScene
 var item_scenes: Dictionary = {}
@@ -28,3 +34,17 @@ func load_item_scenes():
 			dir.list_dir_end()
 		else:
 			print("Could not open directory: ", items_dir_path)
+
+func start_online_game():
+	MultiplayerManager.override_is_local = false
+	MultiplayerManager.server_ip = "52.63.141.232"
+	get_tree().change_scene_to_packed(MAIN_SCENE)
+
+func start_local_game():
+	MultiplayerManager.override_is_local = false
+	MultiplayerManager.server_ip = "localhost"
+	get_tree().change_scene_to_packed(MAIN_SCENE)
+
+func start_offline_game():
+	MultiplayerManager.override_is_local = true
+	get_tree().change_scene_to_packed(MAIN_SCENE)

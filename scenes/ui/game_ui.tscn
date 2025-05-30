@@ -1,0 +1,62 @@
+[gd_scene load_steps=3 format=3 uid="uid://bqh4273mwl0c2"]
+
+[ext_resource type="Script" uid="uid://3s3ye3muk4ih" path="res://scenes/ui/game_ui.gd" id="1_bma8u"]
+[ext_resource type="Texture2D" uid="uid://b11nv6xl4ydwl" path="res://assets/window.png" id="2_bma8u"]
+
+[node name="GameUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_bma8u")
+
+[node name="Message" type="ColorRect" parent="."]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.215686)
+
+[node name="Window" type="MarginContainer" parent="Message"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -128.0
+offset_top = -64.0
+offset_right = 128.0
+offset_bottom = 64.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Bg" type="NinePatchRect" parent="Message/Window"]
+layout_mode = 2
+texture = ExtResource("2_bma8u")
+region_rect = Rect2(0, 0, 19, 24)
+patch_margin_left = 4
+patch_margin_top = 4
+patch_margin_right = 4
+patch_margin_bottom = 9
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="MessageLabel" type="Label" parent="Message/Window"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Waiting for server..."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PlayerUI" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+anchors_preset = 0
+offset_right = 1280.0
+offset_bottom = 720.0
