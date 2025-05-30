@@ -17,7 +17,7 @@ const URL = [
 	#var user_data: UserData = UserData.new("id", "address")
 
 # Just doing a default body for now for testing purposes
-func post_request(request_id: RequestId, callable: Callable, body: String = JSON.stringify({"walletAddress": "DqD8ihQzuNyykK43WU2EEcTiVYAeJ8UVvaLdWey7YCCz"})) -> ApiRequest:
+func post_request(request_id: RequestId, callable: Callable, body: String) -> ApiRequest:
 	var api_request: ApiRequest = API_REQUEST.instantiate()
 	add_child(api_request)
 	api_request.request_id = request_id

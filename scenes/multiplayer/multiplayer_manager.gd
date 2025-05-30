@@ -39,7 +39,6 @@ var guest_data: UserData = UserData.new(
 func _ready() -> void:
 	 #Should allow for local menu testing
 	if OS.has_feature("editor"):
-		print("calls")
 		UserManager.user_data = guest_data
 
 func start_network() -> void:

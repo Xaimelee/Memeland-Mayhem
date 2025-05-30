@@ -413,12 +413,19 @@ theme_override_styles/normal = ExtResource("11_p0rsb")
 text = "Enter the Mayhem"
 
 [node name="PlayLocalServer" type="Button" parent="Player/PlayerWindow/ParentContainer/ButtonContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+theme_override_styles/pressed = ExtResource("10_ambu1")
+theme_override_styles/normal = ExtResource("11_p0rsb")
+text = "Play Localhost"
+
+[node name="PlayOffline" type="Button" parent="Player/PlayerWindow/ParentContainer/ButtonContainer"]
 visible = false
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 theme_override_styles/pressed = ExtResource("10_ambu1")
 theme_override_styles/normal = ExtResource("11_p0rsb")
-text = "Play Local Server"
+text = "Play Offline"
 
 [node name="Inventory" type="Node" parent="Player/PlayerWindow"]
 unique_name_in_owner = true
@@ -491,5 +498,6 @@ starting_menu_name = "Player"
 
 [connection signal="pressed" from="Player/PlayerWindow/ParentContainer/ButtonContainer/PlayGame" to="." method="_on_play_game_pressed"]
 [connection signal="pressed" from="Player/PlayerWindow/ParentContainer/ButtonContainer/PlayLocalServer" to="." method="_on_play_local_server_pressed"]
+[connection signal="pressed" from="Player/PlayerWindow/ParentContainer/ButtonContainer/PlayOffline" to="." method="_on_play_offline_pressed"]
 
 [editable path="Player/SelectedItemDisplay"]
