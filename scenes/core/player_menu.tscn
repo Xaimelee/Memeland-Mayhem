@@ -484,7 +484,8 @@ patch_margin_bottom = 9
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
 
-[node name="Label" type="Label" parent="Loading/Window"]
+[node name="LoadingLabel" type="Label" parent="Loading/Window"]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Loading User Data"
 horizontal_alignment = 1

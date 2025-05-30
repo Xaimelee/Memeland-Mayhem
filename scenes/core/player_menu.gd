@@ -5,6 +5,7 @@ const MAIN_SCENE: PackedScene = preload("uid://c573o225twlil")
 @onready var menu_manager: MenuManager = $MenuManager
 @onready var inventory: Inventory = %Inventory
 @onready var stash: Inventory = %Stash
+@onready var loading_label: Label = %LoadingLabel
 
 func _ready() -> void:
 	SolanaService.wallet.on_login_finish.connect(_on_login_finished)
@@ -15,6 +16,7 @@ func _ready() -> void:
 		var body: String = JSON.stringify({"walletAddress": SolanaService.wallet.get_pubkey().to_string()})
 		Api.post_request(0, _on_successful_response, body)
 		menu_manager.change_menu("Loading")
+		loading_label.text = "Loading User Data"
 		#menu_manager.change_menu("Player")
 	elif not OS.has_feature("editor"):
 		menu_manager.change_menu("Login")
@@ -41,6 +43,7 @@ func _on_login_finished(login_success: bool) -> void:
 	var body: String = JSON.stringify({"walletAddress": SolanaService.wallet.get_pubkey().to_string()})
 	Api.post_request(0, _on_successful_response, body)
 	menu_manager.change_menu("Loading")
+	loading_label.text = "Loading User Data"
 
 func _on_play_game_pressed() -> void:
 	# NOTE: We go back to load menu here and wait for successful api before we join.
@@ -62,6 +65,7 @@ func _on_play_game_pressed() -> void:
 	var json_body = JSON.stringify(data)
 	Api.post_request(2, _on_successful_response_loadout, json_body)
 	menu_manager.change_menu("Loading")
+	loading_label.text = "Saving User Data"
 	#MultiplayerManager.server_ip = "52.63.141.232"
 	#get_tree().change_scene_to_packed(MAIN_SCENE)
 
