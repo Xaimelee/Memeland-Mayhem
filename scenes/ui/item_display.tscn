@@ -8,6 +8,17 @@ layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_63bw0")
 
+[node name="Selected" type="ColorRect" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 1, 1, 0.215686)
+
 [node name="Icon" type="TextureRect" parent="."]
 custom_minimum_size = Vector2(32, 32)
 layout_mode = 0

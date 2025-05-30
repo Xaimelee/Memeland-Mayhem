@@ -6,6 +6,7 @@ signal clicked(item_display: ItemDisplay)
 
 @onready var icon: TextureRect = $Icon
 @onready var quantity_label: Label = $QuantityContainer/QuantityLabel
+@onready var selected: ColorRect = %Selected
 
 @export var item: ItemDisplay.Item = Item.NONE: set = _set_item
 @export var quantity: int = 0: set = _set_quantity

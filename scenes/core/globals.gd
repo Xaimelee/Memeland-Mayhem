@@ -8,6 +8,7 @@ signal game_started()
 # These are contextual to the player belonging to the client
 signal player_spawned(player: PlayerCharacter)
 signal player_died(player: PlayerCharacter)
+signal player_extracted(player: PlayerCharacter)
 
 # NOTE: We dynamically populate this dictionary at runtime based on scenes in the runtime items folder.
 # The schema is "item_name": PackedScene

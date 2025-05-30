@@ -1,8 +1,9 @@
 class_name PlayerCharacter extends CharacterBody2D
 
 signal health_changed(new_health: float)
+signal equipment_slot_changed(slot: int)
 
-enum PlayerState {ALIVE, DEAD}
+enum PlayerState {ALIVE, DEAD, EXTRACT}
 enum ArmState {LEFT, RIGHT}
 enum EquipmentSlot {ONE, TWO, THREE, FOUR, FIVE, SIX}
 
@@ -66,7 +67,7 @@ func _physics_process(delta: float) -> void:
 		# because we don't currently have a pre game state and have a player...
 		# already in the map for easy testing
 		camera.enabled = false
-	if current_state == PlayerState.DEAD: return
+	if current_state == PlayerState.DEAD or current_state == PlayerState.EXTRACT : return
 
 	# Probably replace with some synced bool if moving which can be client authority if...
 	# it is purely for visuals
@@ -91,15 +92,17 @@ func _physics_process(delta: float) -> void:
 
 	if not has_ownership(): return
 	# REMOVE LATER AFTER TESTING DEATH WIPES
-	if Input.is_action_pressed("ui_filedialog_refresh"):
+	if Input.is_action_just_pressed("ui_filedialog_refresh"):
+		rpc("test_extract")
+	elif Input.is_action_just_pressed("ui_graph_delete"):
 		rpc("change_state", PlayerState.DEAD)
 	# Equipment swapping
-	for i in range(4):
+	for i in inventory.slots:
 		var action_name: String = "equipment_{0}".format([i + 1])
 		if Input.is_action_just_pressed(action_name):
-			var slot: EquipmentSlot = EquipmentSlot.values()[i]
+			#var slot: EquipmentSlot = EquipmentSlot.values()[i]
 			#if not inventory.items[slot]: return
-			change_equipment_slot(slot)
+			change_equipment_slot(i)
 			rpc_id(1, "send_equipment_slot", current_equipment_slot)
 			break;
 	# Handle shooting
@@ -157,9 +160,20 @@ func die() -> void:
 	# Start decay timer
 	#decay_timer.start()
 
+@rpc("any_peer", "call_local")
+func test_extract() -> void:
+	if has_ownership():
+		Globals.player_extracted.emit(self)
+	change_state(PlayerState.EXTRACT)
+	if not is_multiplayer_authority(): return
+	MultiplayerManager.player_extracted(self)
+
 # TESTING REMOVE LATER
 @rpc("any_peer", "call_local")
 func change_state(new_state: PlayerState) -> void:
+	# Bandaid fix for now to make sure if a player is extracted that they can't get killed
+	# In future we should probably immediately delete player or smthing
+	if new_state == PlayerState.DEAD and current_state == PlayerState.EXTRACT: return
 	current_state = new_state
 	match current_state:
 		PlayerState.DEAD:
@@ -189,6 +203,7 @@ func change_arm_state(new_arm_state: ArmState) -> void:
 
 func change_equipment_slot(equipment_slot: EquipmentSlot) -> void:
 	current_equipment_slot = equipment_slot
+	equipment_slot_changed.emit(current_equipment_slot)
 	if weapon:
 		weapon.visible = false
 	var new_weapon: Weapon = inventory.items[equipment_slot] as Weapon

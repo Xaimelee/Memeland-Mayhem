@@ -15,7 +15,7 @@ signal item_removed(item: Item)
 # I thought this would make more sense for visual updating instead of relying on added/removed signals...
 #... which don't really work/make sense to use if we're just moving items around local to this inventory.
 # Maybe this is unnecessary but I do like making sure signals have clear purposes.
-signal index_updated(current_item: Item, index: int)
+signal index_updated(item: Item, index: int)
 
 @export var items_parent: Node2D
 @export var slots: int = 6
