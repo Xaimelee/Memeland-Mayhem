@@ -4,7 +4,7 @@ signal health_changed(new_health: float)
 
 enum PlayerState {ALIVE, DEAD}
 enum ArmState {LEFT, RIGHT}
-enum EquipmentSlot {ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT}
+enum EquipmentSlot {ONE, TWO, THREE, FOUR, FIVE, SIX}
 
 @export var speed: float = 300.0
 @export var acceleration: float = 2000.0
@@ -92,7 +92,7 @@ func _physics_process(delta: float) -> void:
 		var action_name: String = "equipment_{0}".format([i + 1])
 		if Input.is_action_just_pressed(action_name):
 			var slot: EquipmentSlot = EquipmentSlot.values()[i]
-			if not inventory.items[slot]: return
+			#if not inventory.items[slot]: return
 			change_equipment_slot(slot)
 			rpc_id(1, "send_equipment_slot", current_equipment_slot)
 			break;
@@ -173,13 +173,13 @@ func change_arm_state(new_arm_state: ArmState) -> void:
 				weapon.flip(false)
 
 func change_equipment_slot(equipment_slot: EquipmentSlot) -> void:
-	var new_weapon: Weapon = inventory.items[equipment_slot] as Weapon
-	if not new_weapon: return
+	current_equipment_slot = equipment_slot
 	if weapon:
 		weapon.visible = false
+	var new_weapon: Weapon = inventory.items[equipment_slot] as Weapon
+	if not new_weapon: return
 	weapon = new_weapon
 	weapon.visible = true
-	current_equipment_slot = equipment_slot
 
 # Fix this later to respect client-server authority, likely need to be done in the weapon script?
 @rpc("any_peer", "call_remote")
