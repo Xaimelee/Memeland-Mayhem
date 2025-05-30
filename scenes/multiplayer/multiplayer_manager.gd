@@ -6,7 +6,6 @@ signal player_disconnected(id: int)
 
 const SERVER_PORT: int = 8080
 const PLAYER_SCENE: PackedScene = preload("uid://dxk1jvimm72ti")
-const PLAYER_MENU: PackedScene = preload("uid://b4scbqjbo7wtn")
 
 @onready var peer = WebSocketMultiplayerPeer.new()
 
@@ -83,13 +82,13 @@ func send_user_id(user_id: String = "guest") -> void:
 	# This means this user wasn't added to the connected users dictionary when they...
 	#... joined and should be made to rejoin.
 	if not connected_users.has(peer_id):
-		peer.disconnect_peer(peer_id, true)
+		disconnect_user(peer_id)
 		return
 	var connected_user: ConnectedUser = connected_users[peer_id]
 	# This means we already have approved the user id of this user
 	if connected_user.status == 1: return
 	connected_user.user_id = user_id
-	if user_id != "guest":
+	if not user_id.contains("guest"):
 		var body: String = JSON.stringify({ "userId": user_id })
 		Api.post_request(1, _on_successful_response, body)
 	# Guest setup
@@ -116,6 +115,77 @@ func spawn_player(peer_id: int, user_data: UserData) -> void:
 	#player.inventory.rpc("create_and_add_item", "BoringRifle")
 	#player.inventory.rpc("create_and_add_item", "CyberGlock")
 
+func disconnect_user(peer_id: int) -> void:
+	peer.disconnect_peer(peer_id)
+	connected_users.erase(peer_id)
+
+func player_extracted(player: PlayerCharacter) -> void:
+	if is_local(): 
+		Globals.return_to_menu()
+		return
+	# If the server somehow owns a player and it extracts, we probably shouldn't run this
+	if player.id == 1: return
+	if connected_users.has(player.id):
+		var user: ConnectedUser = connected_users[player.id]
+		user.status = 3
+		if not user.user_id.contains("guest"):
+			# Update inventory
+			save_loadout(player, user)
+			await get_tree().create_timer(3).timeout
+			print(str(player.id) + ": Updated Inventory after Extraction")
+	disconnect_user(player.id)
+
+# We wipe inventory in backend here and disconnect user
+func player_died(player: PlayerCharacter) -> void:
+	# No real reason to run this logic if it's local/offline testing
+	if is_local(): 
+		Globals.return_to_menu()
+		return
+	# If the server somehow owns a player and it dies, we probably shouldn't run this
+	if player.id == 1: return
+	if connected_users.has(player.id):
+		var user: ConnectedUser = connected_users[player.id]
+		user.status = 2
+		if not user.user_id.contains("guest"):
+			# Wipe inventory
+			# We'll wait 3 seconds just to give the api time to run, which wipes their loadout
+			# or we use api request response, provided we can match up to dead player id
+			wipe_loadout(user)
+			await get_tree().create_timer(3).timeout
+			print(str(player.id) + ": Wiped Inventory after Death")
+	disconnect_user(player.id)
+
+func wipe_loadout(user: ConnectedUser) -> void:
+	var data = {
+		"walletAddress": user.user_data.wallet_address,
+		"inventory": []
+	}
+	var json_body = JSON.stringify(data)
+	Api.post_request(3, _on_successful_response_loadout, json_body)
+
+func save_loadout(player: PlayerCharacter, user: ConnectedUser) -> void:
+	var data = {
+		"walletAddress": user.user_data.wallet_address,
+		"inventory": []
+	}
+	# We have to make sure either inventory is saved and sent when player dies OR this is called before...
+	# items drop on ground on the server
+	for n in player.inventory.items.size():
+		var item: Item = player.inventory.get_item_at_index(n)
+		if item:
+			data["inventory"].append({ "item_name": item.item_name.to_snake_case(), "slot": n})
+	var json_body = JSON.stringify(data)
+	Api.post_request(3, _on_successful_response_loadout, json_body)
+
+# Do disconnects or whatever after this response is called in future, for now we just use 3 second timer
+func _on_successful_response_loadout(response: ResponseType) -> void:
+	if response != null:
+		print("Successful Update of Inventory")
+	else:
+		print("Error Updating Inventory")
+
+# NOTE: Lets change the response type to wrap user data response type with the peer id its intended for.
+# or we have apirequest send itself so we can have a local dictionary here to match requests to peer ids
 func _on_successful_response(response: ResponseType) -> void:
 	var user_data: UserData = response as UserData
 	if not user_data: return
@@ -137,12 +207,12 @@ func _on_connected_to_server() -> void:
 func _on_connection_failed() -> void:
 	print("Client Failed to Connect")
 	# Return to menu if failed to connect
-	get_tree().change_scene_to_packed(PLAYER_MENU)
+	Globals.return_to_menu()
 
 func _on_server_disconnected() -> void:
 	print("Client Disconnected from Server")
 	# Return to menu if disconnected
-	get_tree().change_scene_to_packed(PLAYER_MENU)
+	Globals.return_to_menu()
 
 ## ID of 1 means connection to the server (authority)
 func _on_peer_connected(id: int) -> void:
@@ -171,6 +241,13 @@ func _on_peer_connected(id: int) -> void:
 func _on_peer_disconnected(id: int) -> void:
 	print("Client disconnected: " + str(id))
 	if is_server():
+		if connected_users.has(id):
+			var user: ConnectedUser = connected_users[id]
+			# Disconnected while playing
+			if user.status == 1 and not user.user_id.contains("guest"):
+				print(str(user.user_id) + ": Wiped Inventory after Disconnect")
+				# Wipe inventory
+				wipe_loadout(user)
 		connected_users.erase(id)
 		for character in characters.get_children() as Array[CharacterBody2D]:
 			var player: PlayerCharacter = character as PlayerCharacter

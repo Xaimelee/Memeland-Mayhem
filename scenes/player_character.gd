@@ -90,6 +90,9 @@ func _physics_process(delta: float) -> void:
 	arm_sprite.look_at(player_input.mouse_position)
 
 	if not has_ownership(): return
+	# REMOVE LATER AFTER TESTING DEATH WIPES
+	if Input.is_action_pressed("ui_filedialog_refresh"):
+		rpc("change_state", PlayerState.DEAD)
 	# Equipment swapping
 	for i in range(4):
 		var action_name: String = "equipment_{0}".format([i + 1])
@@ -141,12 +144,21 @@ func die() -> void:
 	# Remove the weapon holding arm
 	arm_sprite.queue_free()
 	
+	if has_ownership():
+		# Sucks to be you :)
+		Globals.player_died.emit(self)
+
+	if MultiplayerManager.is_server():
+		MultiplayerManager.player_died(self)
+
 	# Emit signal before freeing
 	#enemy_died.emit()
 	
 	# Start decay timer
 	#decay_timer.start()
 
+# TESTING REMOVE LATER
+@rpc("any_peer", "call_local")
 func change_state(new_state: PlayerState) -> void:
 	current_state = new_state
 	match current_state:
@@ -232,7 +244,7 @@ func init_player(new_id: int, spawn_position: Vector2) -> void:
 	global_position = spawn_position
 	player_input.set_multiplayer_authority(new_id)
 	rollback_synchronizer.process_settings()
-	if id == multiplayer.multiplayer_peer.get_unique_id():
+	if has_ownership():
 		Globals.player_spawned.emit(self)
 	if not has_ownership() and healthbar:
 		healthbar.progress_bar.add_theme_stylebox_override("fill", not_owned_healthbar_style)

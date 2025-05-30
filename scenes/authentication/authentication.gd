@@ -91,6 +91,7 @@ func process_adapter_result(provider_id:int) -> void:
 
 func cancel_login()-> void:
 	wallet_adapter_ui.visible = false
+	login_button.disabled = true
 
 func confirm_login(login_success:bool) -> void:
 	wallet_adapter_ui.visible = false

@@ -1,10 +1,13 @@
 extends Node
 
 const MAIN_SCENE: PackedScene = preload("uid://c573o225twlil")
+const PLAYER_MENU: PackedScene = preload("uid://b4scbqjbo7wtn")
+const MAIN_MENU: PackedScene = preload("uid://wa40guwp27ql")
 
 signal game_started()
-# This is contextual to just the player belonging to the client
+# These are contextual to the player belonging to the client
 signal player_spawned(player: PlayerCharacter)
+signal player_died(player: PlayerCharacter)
 
 # NOTE: We dynamically populate this dictionary at runtime based on scenes in the runtime items folder.
 # The schema is "item_name": PackedScene
@@ -48,3 +51,9 @@ func start_local_game():
 func start_offline_game():
 	MultiplayerManager.override_is_local = true
 	get_tree().change_scene_to_packed(MAIN_SCENE)
+
+func return_to_menu():
+	if not MultiplayerManager.is_local():
+		get_tree().change_scene_to_packed(PLAYER_MENU)
+	else:
+		get_tree().change_scene_to_packed(MAIN_MENU)

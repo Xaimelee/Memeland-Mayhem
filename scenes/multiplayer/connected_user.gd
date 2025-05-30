@@ -1,7 +1,7 @@
 extends Node
 class_name ConnectedUser
 
-enum UserStatus { WAITING, PLAYING }
+enum UserStatus { WAITING, PLAYING, DEAD, EXTRACTED }
 
 var user_id: String = ""
 var status: UserStatus = 0

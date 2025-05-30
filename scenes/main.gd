@@ -8,6 +8,7 @@ var mission_area: Rect2i = Rect2i(200, 0, 100, 100)
 func _ready() -> void:
 	MultiplayerManager.start_network()
 	init_astar()
+	# Might need to be before start network not 100%
 	Globals.game_started.emit()
 
 func init_astar() -> void:

@@ -36,10 +36,8 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("3_eunye")
 
-[node name="Authentication" parent="Login" instance=ExtResource("2_bhayt")]
-layout_mode = 1
-
-[node name="Play as Guest" type="Button" parent="Login"]
+[node name="PlayGuest" type="Button" parent="Login"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(128, 32)
 layout_mode = 1
 anchors_preset = 8
@@ -54,6 +52,9 @@ offset_bottom = 53.0
 grow_horizontal = 2
 grow_vertical = 2
 text = "Play as Guest"
+
+[node name="Authentication" parent="Login" instance=ExtResource("2_bhayt")]
+layout_mode = 1
 
 [node name="Player" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -496,9 +497,10 @@ script = ExtResource("2_thu8f")
 menu_paths = Array[NodePath]([NodePath("../Login"), NodePath("../Player"), NodePath("../Loading")])
 starting_menu_name = "Player"
 
-[connection signal="pressed" from="Login/Play as Guest" to="." method="_on_play_as_guest_pressed"]
+[connection signal="pressed" from="Login/PlayGuest" to="." method="_on_play_as_guest_pressed"]
 [connection signal="pressed" from="Player/PlayerWindow/ParentContainer/ButtonContainer/PlayGame" to="." method="_on_play_game_pressed"]
 [connection signal="pressed" from="Player/PlayerWindow/ParentContainer/ButtonContainer/PlayLocalServer" to="." method="_on_play_local_server_pressed"]
 [connection signal="pressed" from="Player/PlayerWindow/ParentContainer/ButtonContainer/PlayOffline" to="." method="_on_play_offline_pressed"]
 
+[editable path="Login/Authentication"]
 [editable path="Player/SelectedItemDisplay"]
