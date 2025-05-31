@@ -1,0 +1,8 @@
+[gd_resource type="Theme" load_steps=3 format=3 uid="uid://b7r4g35yykbja"]
+
+[ext_resource type="StyleBox" uid="uid://dp5whcl4y0l63" path="res://scenes/resources/button.tres" id="1_oyi6f"]
+[ext_resource type="StyleBox" uid="uid://cvfx4myqgwuvq" path="res://scenes/resources/button-pressed.tres" id="2_y2f2v"]
+
+[resource]
+Button/styles/normal = ExtResource("1_oyi6f")
+Button/styles/pressed = ExtResource("2_y2f2v")
