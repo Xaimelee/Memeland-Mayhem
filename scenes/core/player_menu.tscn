@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3 uid="uid://b4scbqjbo7wtn"]
+[gd_scene load_steps=21 format=3 uid="uid://b4scbqjbo7wtn"]
 
 [ext_resource type="Script" uid="uid://cewnhu2rh0e0t" path="res://scenes/core/player_menu.gd" id="1_vp4nb"]
 [ext_resource type="PackedScene" uid="uid://fj8aywus2k54" path="res://scenes/authentication/authentication.tscn" id="2_bhayt"]
@@ -15,9 +15,12 @@
 [ext_resource type="Texture2D" uid="uid://onbtm5b461gq" path="res://assets/text-area.png" id="7_oiium"]
 [ext_resource type="Texture2D" uid="uid://c8qofkwe75jfi" path="res://assets/bar-bg.png" id="8_rr0js"]
 [ext_resource type="Texture2D" uid="uid://dedhcc3vfsf25" path="res://assets/bar.png" id="9_xoxmh"]
+[ext_resource type="Script" uid="uid://023scg4b3ali" path="res://addons/SolanaSDK/Scripts/Utility/Input/input_field.gd" id="9_xseq2"]
 [ext_resource type="Texture2D" uid="uid://dll67couj0qnu" path="res://assets/level.png" id="10_xseq2"]
 [ext_resource type="StyleBox" uid="uid://dp5whcl4y0l63" path="res://scenes/resources/button.tres" id="11_p0rsb"]
 [ext_resource type="StyleBox" uid="uid://crwgs3vnrb5js" path="res://scenes/resources/button-hover.tres" id="14_rr0js"]
+
+[sub_resource type="SystemFont" id="SystemFont_xseq2"]
 
 [node name="PlayerMenu" type="Control"]
 layout_mode = 3
@@ -108,10 +111,13 @@ theme_override_constants/margin_bottom = 16
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="PlayerInfoContainer" type="MarginContainer" parent="Player/PlayerWindow/ParentContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Player/PlayerWindow/ParentContainer"]
 layout_mode = 2
 
-[node name="PlayerInfoBg" type="NinePatchRect" parent="Player/PlayerWindow/ParentContainer/PlayerInfoContainer"]
+[node name="PlayerNameContainer" type="MarginContainer" parent="Player/PlayerWindow/ParentContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="PlayerInfoBg" type="NinePatchRect" parent="Player/PlayerWindow/ParentContainer/VBoxContainer/PlayerNameContainer"]
 layout_mode = 2
 texture = ExtResource("7_oiium")
 region_rect = Rect2(0, 0, 103, 58)
@@ -122,24 +128,78 @@ patch_margin_bottom = 8
 axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
 
-[node name="NameIdContainer" type="MarginContainer" parent="Player/PlayerWindow/ParentContainer/PlayerInfoContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="Player/PlayerWindow/ParentContainer/VBoxContainer/PlayerNameContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 8
+
+[node name="NameLabelEdit" type="HBoxContainer" parent="Player/PlayerWindow/ParentContainer/VBoxContainer/PlayerNameContainer/MarginContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="Name" type="Label" parent="Player/PlayerWindow/ParentContainer/VBoxContainer/PlayerNameContainer/MarginContainer/NameLabelEdit"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 24
+text = "ZoltanKosina"
+vertical_alignment = 1
+
+[node name="EditNameButton" type="Button" parent="Player/PlayerWindow/ParentContainer/VBoxContainer/PlayerNameContainer/MarginContainer/NameLabelEdit"]
+layout_mode = 2
+size_flags_vertical = 4
+theme = ExtResource("3_rr0js")
+theme_override_fonts/font = SubResource("SystemFont_xseq2")
+text = "✎"
+
+[node name="NameInputSaveCancel" type="HBoxContainer" parent="Player/PlayerWindow/ParentContainer/VBoxContainer/PlayerNameContainer/MarginContainer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+
+[node name="NameInputField" type="LineEdit" parent="Player/PlayerWindow/ParentContainer/VBoxContainer/PlayerNameContainer/MarginContainer/NameInputSaveCancel"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("9_xseq2")
+metadata/_custom_type_script = "uid://023scg4b3ali"
+
+[node name="SaveNameButton" type="Button" parent="Player/PlayerWindow/ParentContainer/VBoxContainer/PlayerNameContainer/MarginContainer/NameInputSaveCancel"]
+layout_mode = 2
+size_flags_vertical = 4
+theme = ExtResource("3_rr0js")
+text = "✓"
+
+[node name="CancelNameButton" type="Button" parent="Player/PlayerWindow/ParentContainer/VBoxContainer/PlayerNameContainer/MarginContainer/NameInputSaveCancel"]
+layout_mode = 2
+size_flags_vertical = 4
+theme = ExtResource("3_rr0js")
+text = "✕"
+
+[node name="WalletIdContainer" type="MarginContainer" parent="Player/PlayerWindow/ParentContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="PlayerInfoBg" type="NinePatchRect" parent="Player/PlayerWindow/ParentContainer/VBoxContainer/WalletIdContainer"]
+layout_mode = 2
+texture = ExtResource("7_oiium")
+region_rect = Rect2(0, 0, 103, 58)
+patch_margin_left = 8
+patch_margin_top = 7
+patch_margin_right = 8
+patch_margin_bottom = 8
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="Player/PlayerWindow/ParentContainer/VBoxContainer/WalletIdContainer"]
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 8
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Player/PlayerWindow/ParentContainer/PlayerInfoContainer/NameIdContainer"]
-layout_mode = 2
-
-[node name="Name" type="Label" parent="Player/PlayerWindow/ParentContainer/PlayerInfoContainer/NameIdContainer/VBoxContainer"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "ZoltanKosina"
-vertical_alignment = 1
-
-[node name="UserId" type="Label" parent="Player/PlayerWindow/ParentContainer/PlayerInfoContainer/NameIdContainer/VBoxContainer"]
+[node name="UserId" type="Label" parent="Player/PlayerWindow/ParentContainer/VBoxContainer/WalletIdContainer/MarginContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "2Xr...tMx"
@@ -513,6 +573,9 @@ menu_paths = Array[NodePath]([NodePath("../Login"), NodePath("../Player"), NodeP
 starting_menu_name = "Player"
 
 [connection signal="pressed" from="Login/PlayGuest" to="." method="_on_play_as_guest_pressed"]
+[connection signal="pressed" from="Player/PlayerWindow/ParentContainer/VBoxContainer/PlayerNameContainer/MarginContainer/NameLabelEdit/EditNameButton" to="Player" method="_on_edit_name_button_pressed"]
+[connection signal="pressed" from="Player/PlayerWindow/ParentContainer/VBoxContainer/PlayerNameContainer/MarginContainer/NameInputSaveCancel/SaveNameButton" to="Player" method="_on_save_name_button_pressed"]
+[connection signal="pressed" from="Player/PlayerWindow/ParentContainer/VBoxContainer/PlayerNameContainer/MarginContainer/NameInputSaveCancel/CancelNameButton" to="Player" method="_on_cancel_name_button_pressed"]
 [connection signal="pressed" from="Player/PlayerWindow/ParentContainer/ButtonContainer/PlayGame" to="." method="_on_play_game_pressed"]
 [connection signal="pressed" from="Player/PlayerWindow/ParentContainer/ButtonContainer/PlayLocalServer" to="." method="_on_play_local_server_pressed"]
 [connection signal="pressed" from="Player/PlayerWindow/ParentContainer/ButtonContainer/PlayOffline" to="." method="_on_play_offline_pressed"]

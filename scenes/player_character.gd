@@ -117,6 +117,7 @@ func _physics_process(delta: float) -> void:
 			#if not inventory.items[slot]: return
 			change_equipment_slot(i)
 			rpc_id(1, "send_equipment_slot", current_equipment_slot)
+			print(current_equipment_slot)
 			break;
 	# Handle shooting
 	var shooting = false
@@ -224,7 +225,12 @@ func change_equipment_slot(equipment_slot: EquipmentSlot) -> void:
 	if weapon:
 		weapon.visible = false
 	var new_weapon: Weapon = inventory.items[equipment_slot] as Weapon
-	if not new_weapon: return
+	if not new_weapon: 
+		weapon = null
+		arm_sprite.frame = 1
+		return
+	else:
+		arm_sprite.frame = 0
 	weapon = new_weapon
 	weapon.visible = true
 

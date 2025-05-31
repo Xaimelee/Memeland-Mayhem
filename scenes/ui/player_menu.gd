@@ -5,7 +5,10 @@ const MAX_INVENTORY = 6
 const MAX_STASH = 24
 
 @onready var user_id_label: Label = %UserId
+@onready var name_label_edit: HBoxContainer = %NameLabelEdit
 @onready var name_label: Label = %Name
+@onready var name_input_save_cancel: HBoxContainer = %NameInputSaveCancel
+@onready var name_input_field: InputField = %NameInputField
 @onready var level_label: Label = %Level
 @onready var stash_container: GridContainer = %StashContainer
 @onready var inventory_container: HBoxContainer = %InventoryContainer
@@ -131,3 +134,18 @@ func _on_item_display_clicked(item_display: ItemDisplay) -> void:
 			clicked_inventory
 		)
 		selected_item_display.set_icon_and_quantity(clicked_item.icon, clicked_item.stack)
+
+
+func _on_edit_name_button_pressed() -> void:
+	name_label_edit.hide()
+	name_input_save_cancel.show()
+
+
+func _on_save_name_button_pressed() -> void:
+	name_label_edit.show()
+	name_input_save_cancel.hide()
+	name_label.text = name_input_field.text
+
+func _on_cancel_name_button_pressed() -> void:
+	name_label_edit.show()
+	name_input_save_cancel.hide()

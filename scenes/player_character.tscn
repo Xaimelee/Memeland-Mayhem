@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3 uid="uid://dxk1jvimm72ti"]
+[gd_scene load_steps=36 format=3 uid="uid://dxk1jvimm72ti"]
 
 [ext_resource type="Script" uid="uid://ceedsgkf30k30" path="res://scenes/player_character.gd" id="1_6r27q"]
 [ext_resource type="Texture2D" uid="uid://cpgffeu6no6yu" path="res://assets/brett-arm.png" id="3_4h0vy"]
@@ -158,6 +158,9 @@ animations = [{
 "speed": 10.0
 }]
 
+[sub_resource type="AnimatedTexture" id="AnimatedTexture_herhr"]
+frame_0/texture = ExtResource("3_4h0vy")
+
 [sub_resource type="CircleShape2D" id="CircleShape2D_kww55"]
 radius = 6.0
 
@@ -194,8 +197,9 @@ show_behind_parent = true
 z_index = 1
 z_as_relative = false
 position = Vector2(5, 2)
-texture = ExtResource("3_4h0vy")
+texture = SubResource("AnimatedTexture_herhr")
 offset = Vector2(4.5, 0.5)
+vframes = 2
 
 [node name="Camera2D" type="Camera2D" parent="."]
 zoom = Vector2(1.5, 1.5)

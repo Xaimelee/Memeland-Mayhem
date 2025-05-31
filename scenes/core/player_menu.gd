@@ -99,3 +99,11 @@ func _on_play_offline_pressed() -> void:
 func _on_play_as_guest_pressed() -> void:
 	UserManager.user_data = MultiplayerManager.guest_data
 	Globals.start_online_game()
+
+
+func _on_edit_name_button_pressed() -> void:
+	pass # Replace with function body.
+
+
+func _on_cancel_name_button_pressed() -> void:
+	pass # Replace with function body.
