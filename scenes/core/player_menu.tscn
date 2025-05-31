@@ -1,8 +1,9 @@
-[gd_scene load_steps=18 format=3 uid="uid://b4scbqjbo7wtn"]
+[gd_scene load_steps=19 format=3 uid="uid://b4scbqjbo7wtn"]
 
 [ext_resource type="Script" uid="uid://cewnhu2rh0e0t" path="res://scenes/core/player_menu.gd" id="1_vp4nb"]
 [ext_resource type="PackedScene" uid="uid://fj8aywus2k54" path="res://scenes/authentication/authentication.tscn" id="2_bhayt"]
 [ext_resource type="Script" uid="uid://c61vwloon4wkn" path="res://scenes/ui/menu_manager.gd" id="2_thu8f"]
+[ext_resource type="Texture2D" uid="uid://dut5r731jngfs" path="res://assets/bg.png" id="2_xoxmh"]
 [ext_resource type="Script" uid="uid://od4pn8270p8w" path="res://scenes/ui/menu.gd" id="3_eunye"]
 [ext_resource type="Theme" uid="uid://b7r4g35yykbja" path="res://scenes/resources/theme.tres" id="3_rr0js"]
 [ext_resource type="Script" uid="uid://big6x6sbx85sq" path="res://scenes/ui/player_menu.gd" id="4_2ah4n"]
@@ -26,6 +27,17 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_vp4nb")
+
+[node name="Bg" type="TextureRect" parent="."]
+modulate = Color(0.144063, 0.144063, 0.144063, 1)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_xoxmh")
+expand_mode = 5
 
 [node name="Login" type="Control" parent="."]
 layout_mode = 1
@@ -389,6 +401,8 @@ quantity = 1
 
 [node name="ItemDisplay2" parent="Player/PlayerWindow/ParentContainer/InventoryContainers/InventoryFrameContainer/MarginContainer/InventoryContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2
+item = 3
+quantity = 1
 
 [node name="ItemDisplay3" parent="Player/PlayerWindow/ParentContainer/InventoryContainers/InventoryFrameContainer/MarginContainer/InventoryContainer" instance=ExtResource("4_s8rod")]
 layout_mode = 2

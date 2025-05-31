@@ -1,7 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://wa40guwp27ql"]
+[gd_scene load_steps=5 format=3 uid="uid://wa40guwp27ql"]
 
 [ext_resource type="Script" uid="uid://befvs00n7xl0e" path="res://scenes/core/main_menu.gd" id="1_l6cm7"]
+[ext_resource type="Texture2D" uid="uid://dut5r731jngfs" path="res://assets/bg.png" id="2_c7ldt"]
 [ext_resource type="Theme" uid="uid://b7r4g35yykbja" path="res://scenes/resources/theme.tres" id="2_r6wqj"]
+[ext_resource type="Texture2D" uid="uid://daasi20f7igwb" path="res://assets/logo.png" id="3_wdlpg"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -12,6 +14,17 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_l6cm7")
 
+[node name="Bg" type="TextureRect" parent="."]
+modulate = Color(0.144063, 0.144063, 0.144063, 1)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_c7ldt")
+expand_mode = 5
+
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 8
@@ -19,28 +32,36 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -69.0
-offset_top = -50.5
-offset_right = 69.0
-offset_bottom = 50.5
+offset_left = -250.0
+offset_top = -311.0
+offset_right = 250.0
+offset_bottom = 312.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="MainServerButton" type="Button" parent="VBoxContainer"]
+[node name="Logo" type="TextureRect" parent="VBoxContainer"]
+layout_mode = 2
+texture = ExtResource("3_wdlpg")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="MainServerButton" type="Button" parent="VBoxContainer/VBoxContainer"]
 layout_mode = 2
 theme = ExtResource("2_r6wqj")
 text = "Main Server"
 
-[node name="LocalHostButton" type="Button" parent="VBoxContainer"]
+[node name="LocalHostButton" type="Button" parent="VBoxContainer/VBoxContainer"]
 layout_mode = 2
 theme = ExtResource("2_r6wqj")
 text = "Local Host Server"
 
-[node name="LocalButton" type="Button" parent="VBoxContainer"]
+[node name="LocalButton" type="Button" parent="VBoxContainer/VBoxContainer"]
 layout_mode = 2
 theme = ExtResource("2_r6wqj")
 text = "Local Testing"
 
-[connection signal="pressed" from="VBoxContainer/MainServerButton" to="." method="_on_main_server_button_pressed"]
-[connection signal="pressed" from="VBoxContainer/LocalHostButton" to="." method="_on_local_host_button_pressed"]
-[connection signal="pressed" from="VBoxContainer/LocalButton" to="." method="_on_local_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/VBoxContainer/MainServerButton" to="." method="_on_main_server_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/VBoxContainer/LocalHostButton" to="." method="_on_local_host_button_pressed"]
+[connection signal="pressed" from="VBoxContainer/VBoxContainer/LocalButton" to="." method="_on_local_button_pressed"]

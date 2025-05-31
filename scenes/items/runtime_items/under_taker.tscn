@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://df7bvuymd1rae"]
+[gd_scene load_steps=8 format=3 uid="uid://df7bvuymd1rae"]
 
 [ext_resource type="Script" uid="uid://1kmr3fp72sdl" path="res://scenes/items/weapon.gd" id="1_fx6l6"]
 [ext_resource type="Texture2D" uid="uid://bwuvj5axcqu76" path="res://assets/sorrow.png" id="2_htu12"]
 [ext_resource type="Texture2D" uid="uid://drixv6pqwje1k" path="res://assets/under-taker.png" id="3_eoiet"]
+[ext_resource type="Texture2D" uid="uid://cax1sng2060l6" path="res://assets/under-taker-icon.png" id="3_fydyp"]
 [ext_resource type="PackedScene" uid="uid://cx85rvdlejuhv" path="res://scenes/items/muzzle_flash.tscn" id="4_fydyp"]
 [ext_resource type="PackedScene" uid="uid://1svx5pr38l8o" path="res://scenes/items/pickup_area.tscn" id="5_htu12"]
 
@@ -19,7 +20,7 @@ script = ExtResource("1_fx6l6")
 damage = 5.0
 projectile_texture = ExtResource("2_htu12")
 item_name = "Under Taker"
-icon = ExtResource("3_eoiet")
+icon = ExtResource("3_fydyp")
 
 [node name="WeaponsSprite2D" type="Sprite2D" parent="."]
 show_behind_parent = true

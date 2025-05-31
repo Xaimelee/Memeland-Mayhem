@@ -15,12 +15,14 @@ enum Item {
 	NONE, 
 	BORING_RIFLE,
 	CYBER_GLOCK,
+	UNDER_TAKER,
 }
 
 var _ITEM_NAMES: Array = [
 	null,
 	"boring-rifle",
 	"cyber-glock",
+	"under-taker",
 ]
 
 func _ready() -> void:
