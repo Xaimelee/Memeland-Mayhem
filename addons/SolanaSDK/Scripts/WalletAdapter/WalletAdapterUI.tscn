@@ -1,8 +1,10 @@
-[gd_scene load_steps=4 format=3 uid="uid://be2rmdwqrqiw0"]
+[gd_scene load_steps=6 format=3 uid="uid://be2rmdwqrqiw0"]
 
 [ext_resource type="Script" uid="uid://dyshtmnkb4nrl" path="res://addons/SolanaSDK/Scripts/WalletAdapter/wallet_adapter_ui.gd" id="1_pslxa"]
 [ext_resource type="PackedScene" uid="uid://w27yxay7tghj" path="res://addons/SolanaSDK/Scripts/WalletAdapter/WalletSelectButton.tscn" id="2_8yesu"]
-[ext_resource type="Texture2D" uid="uid://b3003ar1uxa77" path="res://addons/SolanaSDK/Textures/closebutton.jpg.png" id="7_nuaxe"]
+[ext_resource type="Texture2D" uid="uid://b11nv6xl4ydwl" path="res://assets/window.png" id="3_ky7ja"]
+[ext_resource type="Texture2D" uid="uid://dxinhxf5a57lv" path="res://assets/window-title.png" id="3_ppfuh"]
+[ext_resource type="Theme" uid="uid://b7r4g35yykbja" path="res://scenes/resources/theme.tres" id="4_ky7ja"]
 
 [node name="WalletAdapterUI" type="Control" node_paths=PackedStringArray("cancel_button", "selection_spawn")]
 layout_mode = 3
@@ -21,56 +23,73 @@ script = ExtResource("1_pslxa")
 provider_button_scn = ExtResource("2_8yesu")
 provider_names = Array[String](["Phantom", "Solflare", "Backpack", "Ultimate"])
 provider_images = Array[Texture]([null, null, null, null])
-cancel_button = NodePath("Backround/CancelButton")
-selection_spawn = NodePath("PanelContainer/VBoxContainer")
+cancel_button = NodePath("")
+selection_spawn = NodePath("VBoxContainer/Content/PanelContainer/VBoxContainer")
 
-[node name="Backround" type="Panel" parent="."]
-layout_mode = 0
-offset_right = 422.0
-offset_bottom = 444.0
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 0
 
-[node name="Label" type="Label" parent="Backround"]
-layout_mode = 0
-offset_right = 317.0
-offset_bottom = 69.0
+[node name="Title" type="MarginContainer" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Backround" type="NinePatchRect" parent="VBoxContainer/Title"]
+layout_mode = 2
+texture = ExtResource("3_ppfuh")
+region_rect = Rect2(0, 0, 36, 31)
+patch_margin_left = 8
+patch_margin_top = 10
+patch_margin_right = 8
+patch_margin_bottom = 9
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/Title"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/Title/MarginContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/Title/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 21
-text = "Select Your Wallet Provider:"
+text = "Select Your Wallet Provider"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="CancelButton" type="TextureButton" parent="Backround"]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -50.5
-offset_top = 7.0
-offset_right = -10.5
-offset_bottom = 47.0
-grow_horizontal = 0
-texture_normal = ExtResource("7_nuaxe")
-texture_pressed = ExtResource("7_nuaxe")
-texture_hover = ExtResource("7_nuaxe")
-texture_disabled = ExtResource("7_nuaxe")
-texture_focused = ExtResource("7_nuaxe")
-ignore_texture_size = true
-stretch_mode = 4
+[node name="CloseButton" type="Button" parent="VBoxContainer/Title/MarginContainer/HBoxContainer"]
+layout_mode = 2
+theme = ExtResource("4_ky7ja")
+text = "✕"
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -210.5
-offset_top = -123.0
-offset_right = 210.5
-offset_bottom = 252.0
-grow_horizontal = 2
-grow_vertical = 2
+[node name="Content" type="MarginContainer" parent="VBoxContainer"]
+layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+[node name="Backround" type="NinePatchRect" parent="VBoxContainer/Content"]
+layout_mode = 2
+texture = ExtResource("3_ky7ja")
+region_rect = Rect2(0, 0, 19, 24)
+patch_margin_left = 5
+patch_margin_top = 5
+patch_margin_right = 5
+patch_margin_bottom = 10
+axis_stretch_horizontal = 1
+axis_stretch_vertical = 1
+
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/Content"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/Content/PanelContainer"]
 layout_mode = 2
 alignment = 1
 

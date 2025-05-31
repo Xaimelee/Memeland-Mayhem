@@ -14,9 +14,9 @@
 [ext_resource type="Texture2D" uid="uid://onbtm5b461gq" path="res://assets/text-area.png" id="7_oiium"]
 [ext_resource type="Texture2D" uid="uid://c8qofkwe75jfi" path="res://assets/bar-bg.png" id="8_rr0js"]
 [ext_resource type="Texture2D" uid="uid://dedhcc3vfsf25" path="res://assets/bar.png" id="9_xoxmh"]
-[ext_resource type="StyleBox" uid="uid://cvfx4myqgwuvq" path="res://scenes/resources/button-pressed.tres" id="10_ambu1"]
 [ext_resource type="Texture2D" uid="uid://dll67couj0qnu" path="res://assets/level.png" id="10_xseq2"]
 [ext_resource type="StyleBox" uid="uid://dp5whcl4y0l63" path="res://scenes/resources/button.tres" id="11_p0rsb"]
+[ext_resource type="StyleBox" uid="uid://crwgs3vnrb5js" path="res://scenes/resources/button-hover.tres" id="14_rr0js"]
 
 [node name="PlayerMenu" type="Control"]
 layout_mode = 3
@@ -57,9 +57,6 @@ text = "Play as Guest"
 
 [node name="Authentication" parent="Login" instance=ExtResource("2_bhayt")]
 layout_mode = 1
-
-[node name="LoginButton" parent="Login/Authentication" index="1"]
-theme = ExtResource("3_rr0js")
 
 [node name="Player" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -412,23 +409,22 @@ size_flags_vertical = 4
 
 [node name="PlayGame" type="Button" parent="Player/PlayerWindow/ParentContainer/ButtonContainer"]
 layout_mode = 2
+theme = ExtResource("3_rr0js")
 theme_override_font_sizes/font_size = 18
-theme_override_styles/pressed = ExtResource("10_ambu1")
-theme_override_styles/normal = ExtResource("11_p0rsb")
 text = "Enter the Mayhem"
 
 [node name="PlayLocalServer" type="Button" parent="Player/PlayerWindow/ParentContainer/ButtonContainer"]
+visible = false
 layout_mode = 2
+theme = ExtResource("3_rr0js")
 theme_override_font_sizes/font_size = 18
-theme_override_styles/pressed = ExtResource("10_ambu1")
-theme_override_styles/normal = ExtResource("11_p0rsb")
 text = "Play Localhost"
 
 [node name="PlayOffline" type="Button" parent="Player/PlayerWindow/ParentContainer/ButtonContainer"]
 visible = false
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
-theme_override_styles/pressed = ExtResource("10_ambu1")
+theme_override_styles/pressed = ExtResource("14_rr0js")
 theme_override_styles/normal = ExtResource("11_p0rsb")
 text = "Play Offline"
 

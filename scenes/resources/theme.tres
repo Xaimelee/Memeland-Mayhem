@@ -1,8 +1,9 @@
 [gd_resource type="Theme" load_steps=3 format=3 uid="uid://b7r4g35yykbja"]
 
 [ext_resource type="StyleBox" uid="uid://dp5whcl4y0l63" path="res://scenes/resources/button.tres" id="1_oyi6f"]
-[ext_resource type="StyleBox" uid="uid://cvfx4myqgwuvq" path="res://scenes/resources/button-pressed.tres" id="2_y2f2v"]
+[ext_resource type="StyleBox" uid="uid://crwgs3vnrb5js" path="res://scenes/resources/button-hover.tres" id="1_y2f2v"]
 
 [resource]
+Button/styles/hover = ExtResource("1_y2f2v")
 Button/styles/normal = ExtResource("1_oyi6f")
-Button/styles/pressed = ExtResource("2_y2f2v")
+Button/styles/pressed = ExtResource("1_y2f2v")

@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://wa40guwp27ql"]
+[gd_scene load_steps=3 format=3 uid="uid://wa40guwp27ql"]
 
 [ext_resource type="Script" uid="uid://befvs00n7xl0e" path="res://scenes/core/main_menu.gd" id="1_l6cm7"]
+[ext_resource type="Theme" uid="uid://b7r4g35yykbja" path="res://scenes/resources/theme.tres" id="2_r6wqj"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -27,14 +28,17 @@ grow_vertical = 2
 
 [node name="MainServerButton" type="Button" parent="VBoxContainer"]
 layout_mode = 2
+theme = ExtResource("2_r6wqj")
 text = "Main Server"
 
 [node name="LocalHostButton" type="Button" parent="VBoxContainer"]
 layout_mode = 2
+theme = ExtResource("2_r6wqj")
 text = "Local Host Server"
 
 [node name="LocalButton" type="Button" parent="VBoxContainer"]
 layout_mode = 2
+theme = ExtResource("2_r6wqj")
 text = "Local Testing"
 
 [connection signal="pressed" from="VBoxContainer/MainServerButton" to="." method="_on_main_server_button_pressed"]
