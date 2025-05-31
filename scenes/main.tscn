@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://c573o225twlil"]
+[gd_scene load_steps=7 format=3 uid="uid://c573o225twlil"]
 
 [ext_resource type="Script" uid="uid://dk8pbw8oy11em" path="res://scenes/main.gd" id="1_o5qli"]
 [ext_resource type="PackedScene" uid="uid://dxk1jvimm72ti" path="res://scenes/player_character.tscn" id="2_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://cg637s8evw1pe" path="res://scenes/map.tscn" id="3_sugp2"]
 [ext_resource type="PackedScene" uid="uid://qxnqtyeg4ue0" path="res://scenes/enemy_character.tscn" id="4_jyhfs"]
 [ext_resource type="PackedScene" uid="uid://bqh4273mwl0c2" path="res://scenes/ui/game_ui.tscn" id="5_tbgi4"]
+[ext_resource type="PackedScene" uid="uid://blh7l2m6foyvb" path="res://scenes/extraction.tscn" id="6_tefeu"]
 
 [node name="Main" type="Node2D"]
 z_as_relative = false
@@ -43,6 +44,26 @@ position = Vector2(4578, 363)
 position = Vector2(4531, 1204)
 
 [node name="Dynamic" type="Node2D" parent="."]
+
+[node name="Extraction" parent="." instance=ExtResource("6_tefeu")]
+z_index = 1
+position = Vector2(3327, 787)
+rotation = -1.56755
+
+[node name="Extraction2" parent="." instance=ExtResource("6_tefeu")]
+z_index = 1
+position = Vector2(4672, 791)
+rotation = -1.56755
+
+[node name="Extraction3" parent="." instance=ExtResource("6_tefeu")]
+z_index = 1
+position = Vector2(4000, 1465)
+rotation = 0.0337785
+
+[node name="Extraction4" parent="." instance=ExtResource("6_tefeu")]
+z_index = 1
+position = Vector2(4000, 132)
+rotation = 0.0337785
 
 [node name="CharacterSpawner" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("uid://dxk1jvimm72ti", "uid://qxnqtyeg4ue0")

@@ -53,6 +53,7 @@ func _ready() -> void:
 # Using Netfox to implement CSP movement
 func _rollback_tick(delta, tick, is_fresh) -> void:
 	if current_state == PlayerState.DEAD: return
+	if current_state == PlayerState.EXTRACT: return
 	# We do this because other clients just get synced the global transform
 	if not has_ownership() and not MultiplayerManager.is_server(): return
 	if current_state == PlayerState.DEAD: return
@@ -95,9 +96,9 @@ func _physics_process(delta: float) -> void:
 
 	if not has_ownership(): return
 	# REMOVE LATER AFTER TESTING DEATH WIPES
-	if Input.is_action_just_pressed("ui_filedialog_refresh"):
-		rpc("test_extract")
-	elif Input.is_action_just_pressed("ui_graph_delete"):
+	#if Input.is_action_just_pressed("ui_filedialog_refresh"):
+		#rpc("test_extract")
+	if Input.is_action_just_pressed("ui_graph_delete"):
 		rpc("change_state", PlayerState.DEAD)
 	# END OF TEST
 	if Input.is_action_just_pressed("drop"):
@@ -172,8 +173,8 @@ func die() -> void:
 	# Start decay timer
 	#decay_timer.start()
 
-@rpc("any_peer", "call_local")
-func test_extract() -> void:
+@rpc("authority", "call_local")
+func extract() -> void:
 	if has_ownership():
 		Globals.player_extracted.emit(self)
 	change_state(PlayerState.EXTRACT)
@@ -191,6 +192,10 @@ func change_state(new_state: PlayerState) -> void:
 		PlayerState.DEAD:
 			player_name.visible = false
 			die()
+		PlayerState.EXTRACT:
+			damage_area.collision_layer = 0
+			collision_layer = 0
+			collision_mask = 0
 		_:
 			player_name.visible = true
 			return
