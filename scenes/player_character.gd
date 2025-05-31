@@ -18,6 +18,7 @@ var target_position: Vector2 = Vector2.ZERO
 var current_arm_state: ArmState = ArmState.LEFT
 var current_state: PlayerState = PlayerState.ALIVE
 var current_equipment_slot: EquipmentSlot = EquipmentSlot.ONE
+var nearby_items: Array[Item] = []
 #var equipment: Array[Weapon] = [null, null, null, null]
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -46,6 +47,8 @@ func _ready() -> void:
 		Globals.player_spawned.emit(self)
 		inventory.create_and_add_item("boring_rifle")
 		inventory.create_and_add_item("cyber_glock")
+		# TEST
+		#inventory.rpc("drop_item", 0)
 
 # Using Netfox to implement CSP movement
 func _rollback_tick(delta, tick, is_fresh) -> void:
@@ -96,6 +99,15 @@ func _physics_process(delta: float) -> void:
 		rpc("test_extract")
 	elif Input.is_action_just_pressed("ui_graph_delete"):
 		rpc("change_state", PlayerState.DEAD)
+	# END OF TEST
+	if Input.is_action_just_pressed("drop"):
+		rpc("send_drop_item", current_equipment_slot)
+	elif Input.is_action_just_pressed("pickup") and not nearby_items.is_empty() and not inventory.get_free_index() == -1:
+		nearby_items.sort_custom(sort_by_distance)
+		var item: Item = nearby_items[0]
+		var item_path: String = item.get_path()
+		rpc_id(1, "send_pickup_item", item_path)
+		
 	# Equipment swapping
 	for i in inventory.slots:
 		var action_name: String = "equipment_{0}".format([i + 1])
@@ -227,6 +239,24 @@ func send_equipment_slot(new_equipment_slot: EquipmentSlot) -> void:
 	if not validate_user_rpc("Possible equipment slot manipulation"): return
 	rpc("update_equipment_slot", new_equipment_slot)
 
+@rpc("any_peer", "call_local")
+func send_drop_item(index: EquipmentSlot) -> void:
+	if not validate_user_rpc("Possible drop item manipulation"): return
+	inventory.rpc("drop_item", index)
+
+@rpc("any_peer", "call_local")
+func send_pickup_item(item_node_path: String) -> void:
+	if not validate_user_rpc("Possible pick up item manipulation"): return
+	var item: Item = get_tree().root.get_node_or_null(item_node_path)
+	if item == null: 
+		print("Tried to pickup item with invalid path on server")
+		return
+	var index: int = inventory.get_free_index()
+	if index == -1:
+		print("Tried to pickup item with no inventory space")
+		return
+	inventory.rpc("add_item_with_path", item_node_path, index)
+
 @rpc("authority", "call_local")
 func update_shoot() -> void:
 	# We locally show shoot visuals as soon as the request is sent to the server
@@ -277,6 +307,11 @@ func validate_user_rpc(error_message: String) -> bool:
 func has_ownership() -> bool:
 	return id == multiplayer.get_unique_id()
 
+func sort_by_distance(a: Node2D, b: Node2D) -> bool:
+	var dist_a = global_position.distance_to(a.global_position)
+	var dist_b = global_position.distance_to(b.global_position)
+	return dist_a < dist_b
+
 func _on_health_health_changed(health: float) -> void:
 	if health <= 0:
 		change_state(PlayerState.DEAD)
@@ -291,3 +326,19 @@ func _on_inventory_item_added(item: Item) -> void:
 	# This makes the weapon visible if item was added to currently selected slot
 	if inventory.items.find(item) == current_equipment_slot:
 		change_equipment_slot(current_equipment_slot)
+
+func _on_inventory_item_removed(item: Item) -> void:
+	if weapon == item:
+		weapon = null
+
+func _on_detect_area_2d_area_entered(area: Area2D) -> void:
+	print("Enter")
+	var item: Item = area.get_parent() as Item
+	if item == null: return
+	nearby_items.append(item)
+
+func _on_detect_area_2d_area_exited(area: Area2D) -> void:
+	print("Exit")
+	var item: Item = area.get_parent() as Item
+	if item == null: return
+	nearby_items.erase(item)

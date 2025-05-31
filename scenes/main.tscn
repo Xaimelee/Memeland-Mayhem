@@ -42,6 +42,8 @@ position = Vector2(4578, 363)
 [node name="EnemyCharacter5" parent="Characters" instance=ExtResource("4_jyhfs")]
 position = Vector2(4531, 1204)
 
+[node name="Dynamic" type="Node2D" parent="."]
+
 [node name="CharacterSpawner" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("uid://dxk1jvimm72ti", "uid://qxnqtyeg4ue0")
 spawn_path = NodePath("../Characters")

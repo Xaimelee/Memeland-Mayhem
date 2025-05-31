@@ -1,10 +1,15 @@
-[gd_scene load_steps=6 format=3 uid="uid://bqnxqvdmyj5xt"]
+[gd_scene load_steps=8 format=3 uid="uid://bqnxqvdmyj5xt"]
 
 [ext_resource type="Script" uid="uid://1kmr3fp72sdl" path="res://scenes/items/weapon.gd" id="1_yywsb"]
 [ext_resource type="Texture2D" uid="uid://bhp2el5a4cwq7" path="res://assets/cyber-glock.png" id="2_5hncr"]
 [ext_resource type="Texture2D" uid="uid://5jiej8uin00g" path="res://assets/cyber-glock-icon.png" id="3_nsh4s"]
 [ext_resource type="Texture2D" uid="uid://cfsvybqixlpo6" path="res://assets/cyber-bullet.png" id="3_p6qp1"]
 [ext_resource type="PackedScene" uid="uid://cx85rvdlejuhv" path="res://scenes/items/muzzle_flash.tscn" id="5_bs3jk"]
+[ext_resource type="PackedScene" uid="uid://1svx5pr38l8o" path="res://scenes/items/pickup_area.tscn" id="6_cm25r"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_cm25r"]
+resource_local_to_scene = true
+size = Vector2(21, 12)
 
 [node name="CyberGlock" type="Node2D"]
 show_behind_parent = true
@@ -39,4 +44,13 @@ lifetime = 0.3
 wait_time = 0.2
 one_shot = true
 
+[node name="PickupArea" parent="." instance=ExtResource("6_cm25r")]
+position = Vector2(12, 0)
+
+[node name="CollisionShape2D" parent="PickupArea" index="0"]
+position = Vector2(0.5, 0)
+shape = SubResource("RectangleShape2D_cm25r")
+
 [connection signal="timeout" from="FireTimer" to="." method="_on_fire_timer_timeout"]
+
+[editable path="PickupArea"]

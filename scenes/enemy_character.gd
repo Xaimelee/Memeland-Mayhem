@@ -16,18 +16,24 @@ var next_position: Vector2 = position
 #var current_state: State = State.IDLE
 var ready_to_attack: bool = true
 var target_position: Vector2 = Vector2.ZERO
+var weapon: Weapon
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var arm_sprite: Sprite2D = $AnimatedSprite2D/ArmSprite2D
-@onready var weapon: Weapon = $AnimatedSprite2D/ArmSprite2D/UnderTaker
 @onready var damage_area: Area2D = $DamageArea2D
 @onready var attack_timer: Timer = $AttackTimer
 @onready var health: Health = $Health
 @onready var enemy_states: StateMachine = $EnemyStates
+@onready var inventory: Inventory = $Inventory
 
 func _ready() -> void:
 	if is_multiplayer_authority():
 		MultiplayerManager.player_connected.connect(_on_player_connected)
+	# NOTE: This is for TESTING and will need a proper system in future to determine both weapon...
+	#... and loot for AI.
+	inventory.create_and_add_item("under_taker")
+	weapon = inventory.items[0]
+	weapon.visible = true
 
 func _process(delta: float) -> void:
 	# We only want to calculate physic interactions on the server so we need to lerp the player movement on clients...
@@ -192,7 +198,10 @@ func die() -> void:
 	
 	# Emit signal before freeing
 	enemy_died.emit()
-	
+	# NOTE: This is just for TESTING will need proper loot dropping with different positions...
+	#... for each item. This also isn't authoritatively synced, which it might need to be in future?
+	weapon = null
+	inventory.drop_item(0)
 	# Start decay timer
 	#decay_timer.start()
 

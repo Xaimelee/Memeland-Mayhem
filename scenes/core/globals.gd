@@ -54,7 +54,7 @@ func start_offline_game():
 	get_tree().change_scene_to_packed(MAIN_SCENE)
 
 func return_to_menu():
-	if not MultiplayerManager.is_local():
+	if not MultiplayerManager.is_local() and not UserManager.user_data == MultiplayerManager.guest_data:
 		get_tree().change_scene_to_packed(PLAYER_MENU)
 	else:
 		get_tree().change_scene_to_packed(MAIN_MENU)

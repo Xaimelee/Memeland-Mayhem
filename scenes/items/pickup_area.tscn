@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://1svx5pr38l8o"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mjb82"]
+resource_local_to_scene = true
+size = Vector2(12, 12)
+
+[node name="PickupArea" type="Area2D"]
+collision_layer = 8
+collision_mask = 2
+monitoring = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_mjb82")

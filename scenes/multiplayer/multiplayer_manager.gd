@@ -39,6 +39,11 @@ func _ready() -> void:
 	 #Should allow for local menu testing
 	if OS.has_feature("editor"):
 		UserManager.user_data = guest_data
+	multiplayer.peer_connected.connect(_on_peer_connected)
+	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
+	multiplayer.connected_to_server.connect(_on_connected_to_server)
+	multiplayer.connection_failed.connect(_on_connection_failed)
+	multiplayer.server_disconnected.connect(_on_server_disconnected)
 
 func start_network() -> void:
 	if not is_local():
@@ -49,8 +54,8 @@ func start_network() -> void:
 	characters = get_node("/root/Main/Characters")
 	player_spawn = get_node("/root/Main/PlayerSpawnPoint")
 	var err: Error
-	multiplayer.peer_connected.connect(_on_peer_connected)
-	multiplayer.peer_disconnected.connect(_on_peer_disconnected)
+	#multiplayer.peer_connected.connect(_on_peer_connected)
+	#multiplayer.peer_disconnected.connect(_on_peer_disconnected)
 	if is_server():
 		err = peer.create_server(SERVER_PORT)
 		if err == 0:
@@ -59,9 +64,9 @@ func start_network() -> void:
 	else:
 		err = peer.create_client("ws://" + server_ip + ":" + str(SERVER_PORT))
 		if err == 0:
-			multiplayer.connected_to_server.connect(_on_connected_to_server)
-			multiplayer.connection_failed.connect(_on_connection_failed)
-			multiplayer.server_disconnected.connect(_on_server_disconnected)
+			#multiplayer.connected_to_server.connect(_on_connected_to_server)
+			#multiplayer.connection_failed.connect(_on_connection_failed)
+			#multiplayer.server_disconnected.connect(_on_server_disconnected)
 			multiplayer.multiplayer_peer = peer
 			print("Client Created")
 
@@ -241,20 +246,23 @@ func _on_peer_connected(id: int) -> void:
 func _on_peer_disconnected(id: int) -> void:
 	print("Client disconnected: " + str(id))
 	if is_server():
+		var was_killed: bool = false
 		if connected_users.has(id):
 			var user: ConnectedUser = connected_users[id]
 			# Disconnected while playing
+			was_killed = user.status == 2
 			if user.status == 1 and not user.user_id.contains("guest"):
 				print(str(user.user_id) + ": Wiped Inventory after Disconnect")
 				# Wipe inventory
 				wipe_loadout(user)
 		connected_users.erase(id)
-		for character in characters.get_children() as Array[CharacterBody2D]:
-			var player: PlayerCharacter = character as PlayerCharacter
-			if player is not PlayerCharacter: continue
-			if player.id == id:
-				player.queue_free()
-				break
+		if not was_killed:
+			for character in characters.get_children() as Array[CharacterBody2D]:
+				var player: PlayerCharacter = character as PlayerCharacter
+				if player is not PlayerCharacter: continue
+				if player.id == id:
+					player.queue_free()
+					break
 		player_disconnected.emit(id)
 
 func is_server() -> bool:

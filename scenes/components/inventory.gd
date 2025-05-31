@@ -46,6 +46,22 @@ func add_item_with_path(new_item_path: String, index: int) -> void:
 	var new_item: Item = get_tree().root.get_node(new_item_path)
 	add_item(new_item, index)
 
+@rpc("authority", "call_local")
+func drop_item(index: int) -> void:
+	var item: Item = items[index]
+	if item == null: return
+	items[index] = null
+	var new_parent: Node2D = get_tree().root.get_node("Main/Dynamic")
+	if item.get_parent():
+		item.get_parent().remove_child(item)
+	new_parent.add_child(item)
+	print("Dropped: " + item.item_name)
+	item.visible = true
+	item.set_is_dropped(true)
+	item.global_position = get_parent().global_position
+	item_removed.emit(item)
+	index_updated.emit(null, index)
+
 # This can't be directly synced since it relies on a node reference
 func add_item(new_item: Item, index: int, assign_parent: bool = true) -> void:
 	if new_item == null: return
@@ -58,6 +74,8 @@ func add_item(new_item: Item, index: int, assign_parent: bool = true) -> void:
 		else:
 			add_child(new_item, true)
 	new_item.visible = false
+	new_item.set_is_dropped(false)
+	new_item.position = Vector2.ZERO
 	print("Added: " + new_item.item_name)
 	item_added.emit(new_item)
 	index_updated.emit(new_item, index)
@@ -66,11 +84,8 @@ func remove_item(index: int, remove_parent: bool = true) -> void:
 	var item: Item = items[index]
 	if item == null: return
 	items[index] = null
-	if remove_parent:
-		if items_parent:
-			items_parent.remove_child(item)
-		elif item.get_parent() == self:
-			remove_child(item)
+	if remove_parent and item.get_parent():
+		item.get_parent().remove_child(item)
 	print("Removed: " + item.item_name)
 	item_removed.emit(item)
 	# We set to null here so visuals know its now empty

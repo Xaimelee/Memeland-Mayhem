@@ -1,9 +1,14 @@
-[gd_scene load_steps=5 format=3 uid="uid://df7bvuymd1rae"]
+[gd_scene load_steps=7 format=3 uid="uid://df7bvuymd1rae"]
 
 [ext_resource type="Script" uid="uid://1kmr3fp72sdl" path="res://scenes/items/weapon.gd" id="1_fx6l6"]
 [ext_resource type="Texture2D" uid="uid://bwuvj5axcqu76" path="res://assets/sorrow.png" id="2_htu12"]
 [ext_resource type="Texture2D" uid="uid://drixv6pqwje1k" path="res://assets/under-taker.png" id="3_eoiet"]
 [ext_resource type="PackedScene" uid="uid://cx85rvdlejuhv" path="res://scenes/items/muzzle_flash.tscn" id="4_fydyp"]
+[ext_resource type="PackedScene" uid="uid://1svx5pr38l8o" path="res://scenes/items/pickup_area.tscn" id="5_htu12"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_htu12"]
+resource_local_to_scene = true
+size = Vector2(26, 12)
 
 [node name="UnderTaker" type="Node2D"]
 show_behind_parent = true
@@ -11,8 +16,10 @@ z_index = 1
 z_as_relative = false
 y_sort_enabled = true
 script = ExtResource("1_fx6l6")
-damage = 0.0
+damage = 5.0
 projectile_texture = ExtResource("2_htu12")
+item_name = "Under Taker"
+icon = ExtResource("3_eoiet")
 
 [node name="WeaponsSprite2D" type="Sprite2D" parent="."]
 show_behind_parent = true
@@ -38,4 +45,12 @@ y_sort_enabled = true
 wait_time = 0.6
 one_shot = true
 
+[node name="PickupArea" parent="." instance=ExtResource("5_htu12")]
+position = Vector2(16, -2)
+
+[node name="CollisionShape2D" parent="PickupArea" index="0"]
+shape = SubResource("RectangleShape2D_htu12")
+
 [connection signal="timeout" from="FireTimer" to="." method="_on_fire_timer_timeout"]
+
+[editable path="PickupArea"]
