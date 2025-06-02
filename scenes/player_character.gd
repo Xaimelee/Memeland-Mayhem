@@ -13,7 +13,10 @@ enum EquipmentSlot {ONE, TWO, THREE, FOUR, FIVE, SIX}
 @export var id: int = 1
 @export var player_input: PlayerInput
 @export var not_owned_healthbar_style: StyleBoxFlat
+@export var synced_velocity: Vector2
+@export var synced_global_position: Vector2
 
+var prev_position: Vector2 = Vector2.ZERO
 var target_position: Vector2 = Vector2.ZERO
 var current_arm_state: ArmState = ArmState.LEFT
 var current_state: PlayerState = PlayerState.ALIVE
@@ -52,9 +55,10 @@ func _ready() -> void:
 		#inventory.rpc("drop_item", 0)
 
 func _process(delta: float) -> void:
-	return
 	if not MultiplayerManager.is_server() and not has_ownership():
+		global_position = prev_position
 		global_position = global_position.lerp(target_position, 30.0 * delta)
+		prev_position = global_position
 
 # Using Netfox to implement CSP movement
 func _rollback_tick(delta, tick, is_fresh) -> void:
@@ -62,7 +66,6 @@ func _rollback_tick(delta, tick, is_fresh) -> void:
 	if current_state == PlayerState.EXTRACT: return
 	# We do this because other clients just get synced the global transform
 	if not has_ownership() and not MultiplayerManager.is_server(): return
-	if current_state == PlayerState.DEAD: return
 	if player_input.input_direction != Vector2.ZERO:
 		velocity = velocity.move_toward(player_input.input_direction * speed, acceleration * delta)
 	else:
@@ -302,14 +305,19 @@ func update_target_position(new_target_position: Vector2) -> void:
 @rpc("authority", "call_local")
 func init_player(new_id: int, spawn_position: Vector2) -> void:
 	id = new_id
+	prev_position = spawn_position
 	target_position = spawn_position
 	global_position = spawn_position
 	player_input.set_multiplayer_authority(new_id)
+	# NOTE: if prev pos doesnt work then next thing to try is editing rollback sync script
+	# to use a bool to stop rpcs doing anything if not set to be allowed so we can just lerp
+	# positions
 	rollback_synchronizer.process_settings()
 	if has_ownership():
 		Globals.player_spawned.emit(self)
-	elif not has_ownership():
-		tick_interpolator.enabled = false
+	#else:
+	#	tick_interpolator.queue_free()
+		#tick_interpolator.enabled = false
 	if not has_ownership() and healthbar:
 		healthbar.progress_bar.add_theme_stylebox_override("fill", not_owned_healthbar_style)
 
