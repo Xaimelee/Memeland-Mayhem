@@ -21,6 +21,7 @@
 [ext_resource type="StyleBox" uid="uid://crwgs3vnrb5js" path="res://scenes/resources/button-hover.tres" id="14_rr0js"]
 
 [sub_resource type="SystemFont" id="SystemFont_xseq2"]
+subpixel_positioning = 0
 
 [node name="PlayerMenu" type="Control"]
 layout_mode = 3

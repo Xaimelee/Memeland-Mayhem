@@ -33,6 +33,7 @@ var nearby_items: Array[Item] = []
 @onready var healthbar: Healthbar = $Healthbar
 @onready var player_name: Label = $PlayerName
 @onready var inventory: Inventory = $Inventory
+@onready var tick_interpolator: TickInterpolator = $TickInterpolator
 
 func _ready() -> void:
 	#equipment[0] = primary_weapon
@@ -49,6 +50,11 @@ func _ready() -> void:
 		inventory.create_and_add_item("cyber_glock")
 		# TEST
 		#inventory.rpc("drop_item", 0)
+
+func _process(delta: float) -> void:
+	return
+	if not MultiplayerManager.is_server() and not has_ownership():
+		global_position = global_position.lerp(target_position, 30.0 * delta)
 
 # Using Netfox to implement CSP movement
 func _rollback_tick(delta, tick, is_fresh) -> void:
@@ -82,8 +88,8 @@ func _physics_process(delta: float) -> void:
 		# Play idle animation
 		sprite.play("idle")
 
-	#if MultiplayerManager.is_server():
-		#rpc("update_target_position", global_position)
+	if MultiplayerManager.is_server():
+		rpc("update_target_position", global_position)
 
 	# Flip towards mouse
 	if current_arm_state == ArmState.LEFT and player_input.mouse_position.x >= position.x:
@@ -288,10 +294,10 @@ func update_equipment_slot(new_equipment_slot: EquipmentSlot) -> void:
 	#if health <= 0:
 		#change_state(State.DEAD)
 
-#@rpc("authority", "call_remote")
-#func update_target_position(new_target_position: Vector2) -> void:
-	## We just update target position on clients
-	#target_position = new_target_position
+@rpc("authority", "call_remote")
+func update_target_position(new_target_position: Vector2) -> void:
+	# We just update target position on clients
+	target_position = new_target_position
 
 @rpc("authority", "call_local")
 func init_player(new_id: int, spawn_position: Vector2) -> void:
@@ -302,6 +308,8 @@ func init_player(new_id: int, spawn_position: Vector2) -> void:
 	rollback_synchronizer.process_settings()
 	if has_ownership():
 		Globals.player_spawned.emit(self)
+	elif not has_ownership():
+		tick_interpolator.enabled = false
 	if not has_ownership() and healthbar:
 		healthbar.progress_bar.add_theme_stylebox_override("fill", not_owned_healthbar_style)
 
