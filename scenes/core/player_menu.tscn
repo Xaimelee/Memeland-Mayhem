@@ -15,7 +15,7 @@
 [ext_resource type="Texture2D" uid="uid://onbtm5b461gq" path="res://assets/text-area.png" id="7_oiium"]
 [ext_resource type="Texture2D" uid="uid://c8qofkwe75jfi" path="res://assets/bar-bg.png" id="8_rr0js"]
 [ext_resource type="Texture2D" uid="uid://dedhcc3vfsf25" path="res://assets/bar.png" id="9_xoxmh"]
-[ext_resource type="Script" uid="uid://023scg4b3ali" path="res://addons/SolanaSDK/Scripts/Utility/Input/input_field.gd" id="9_xseq2"]
+[ext_resource type="Script" uid="uid://cja6e8dxjd81x" path="res://addons/SolanaSDK/Scripts/Utility/Input/input_field.gd" id="9_xseq2"]
 [ext_resource type="Texture2D" uid="uid://dll67couj0qnu" path="res://assets/level.png" id="10_xseq2"]
 [ext_resource type="StyleBox" uid="uid://dp5whcl4y0l63" path="res://scenes/resources/button.tres" id="11_p0rsb"]
 [ext_resource type="StyleBox" uid="uid://crwgs3vnrb5js" path="res://scenes/resources/button-hover.tres" id="14_rr0js"]
@@ -73,6 +73,7 @@ text = "Play as Guest"
 
 [node name="Authentication" parent="Login" instance=ExtResource("2_bhayt")]
 layout_mode = 1
+mouse_filter = 2
 
 [node name="Player" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -165,7 +166,6 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 script = ExtResource("9_xseq2")
-metadata/_custom_type_script = "uid://023scg4b3ali"
 
 [node name="SaveNameButton" type="Button" parent="Player/PlayerWindow/ParentContainer/VBoxContainer/PlayerNameContainer/MarginContainer/NameInputSaveCancel"]
 layout_mode = 2

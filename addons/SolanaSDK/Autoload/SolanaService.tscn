@@ -1,15 +1,20 @@
-[gd_scene load_steps=11 format=3 uid="uid://b2dmsrk6j12y4"]
+[gd_scene load_steps=16 format=3 uid="uid://b2dmsrk6j12y4"]
 
-[ext_resource type="Script" uid="uid://bhjuhptkdkha8" path="res://addons/SolanaSDK/Scripts/Managers/solana_service.gd" id="1_hwc3u"]
-[ext_resource type="Script" uid="uid://2kpgo0rk23s8" path="res://addons/SolanaSDK/Scripts/TransactionManager/transaction_manager.gd" id="2_v3adq"]
-[ext_resource type="Script" uid="uid://dst36wlyspm82" path="res://addons/SolanaSDK/Scripts/Managers/wallet_service.gd" id="5_f327g"]
-[ext_resource type="Script" uid="uid://c77jtnt3xll7m" path="res://addons/SolanaSDK/Scripts/ThirdPartyTools/Helius/helius_api.gd" id="6_jo0rl"]
-[ext_resource type="Script" uid="uid://qrjr4m2xv81x" path="res://addons/SolanaSDK/Scripts/Utility/account_inspector.gd" id="6_mv3j8"]
-[ext_resource type="Script" uid="uid://ny5bfqgemxnw" path="res://addons/SolanaSDK/Scripts/Utility/file_loader.gd" id="7_4sv1b"]
-[ext_resource type="Script" uid="uid://djerkd01iw3b" path="res://addons/SolanaSDK/Scripts/Managers/asset_manager.gd" id="8_4oy84"]
-[ext_resource type="Script" uid="uid://ctswa5ly3naks" path="res://addons/SolanaSDK/Scripts/Utility/shdwdrive_creator.gd" id="9_m6qd0"]
-[ext_resource type="Texture2D" uid="uid://dkyfoudbohuqq" path="res://addons/SolanaSDK/Textures/missingicon.png" id="9_oi842"]
-[ext_resource type="Script" uid="uid://dbvp2enovxs8a" path="res://addons/SolanaSDK/Scripts/Managers/candy_machine_manager.gd" id="9_pob61"]
+[ext_resource type="Script" uid="uid://ditj5e2daevt8" path="res://addons/SolanaSDK/Scripts/Managers/solana_service.gd" id="1_hwc3u"]
+[ext_resource type="Script" uid="uid://67dkrftyxy86" path="res://addons/SolanaSDK/Scripts/TransactionManager/transaction_manager.gd" id="2_v3adq"]
+[ext_resource type="PackedScene" uid="uid://clveiq3atvwet" path="res://addons/SolanaSDK/Scripts/WalletAdapter/WalletAdapterUI.tscn" id="3_4222r"]
+[ext_resource type="Texture2D" uid="uid://dkyfoudbohuqq" path="res://addons/SolanaSDK/Textures/missingicon.png" id="4_s5tc6"]
+[ext_resource type="Script" uid="uid://be77h1ww1quiy" path="res://addons/SolanaSDK/Scripts/Managers/wallet_service.gd" id="5_f327g"]
+[ext_resource type="Script" uid="uid://73ttw7wqmnr" path="res://addons/SolanaSDK/Scripts/ThirdPartyTools/Helius/helius_api.gd" id="6_jo0rl"]
+[ext_resource type="Script" uid="uid://byrctw8tril6i" path="res://addons/SolanaSDK/Scripts/Utility/account_inspector.gd" id="6_mv3j8"]
+[ext_resource type="Script" uid="uid://bgkhmfehcfj2e" path="res://addons/SolanaSDK/Scripts/Utility/file_loader.gd" id="7_4sv1b"]
+[ext_resource type="Script" uid="uid://dfliotvqj2v0k" path="res://addons/SolanaSDK/Scripts/Managers/asset_manager.gd" id="8_4oy84"]
+[ext_resource type="Script" uid="uid://deqdbyk7446q3" path="res://addons/SolanaSDK/Scripts/Utility/shdwdrive_creator.gd" id="9_m6qd0"]
+[ext_resource type="Script" uid="uid://bd8lgfhd3ttrs" path="res://addons/SolanaSDK/Scripts/Managers/candy_machine_manager.gd" id="9_pob61"]
+[ext_resource type="Script" uid="uid://rpm720dhln8u" path="res://addons/SolanaSDK/Scripts/CoreNFTs/core_manager.gd" id="12_ynxal"]
+[ext_resource type="Script" uid="uid://ctu1bsgkgt8qc" path="res://addons/SolanaSDK/Scripts/CoreNFTs/core_collection_manager.gd" id="13_3jvpm"]
+[ext_resource type="Script" uid="uid://c3q1j4esdrfhw" path="res://addons/SolanaSDK/Scripts/CoreNFTs/core_asset_manager.gd" id="14_6l0nt"]
+[ext_resource type="Script" uid="uid://bmfal3xr0yeo" path="res://addons/SolanaSDK/Scripts/Utility/oracle_signer.gd" id="15_r1qgx"]
 
 [node name="SolanaService" type="Node"]
 script = ExtResource("1_hwc3u")
@@ -21,6 +26,7 @@ honeycomb_rpc = "https://rpc.test.honeycombprotocol.com/"
 
 [node name="WalletService" type="Node" parent="."]
 script = ExtResource("5_f327g")
+wallet_adapter_scn = ExtResource("3_4222r")
 
 [node name="WalletAdapter" type="WalletAdapter" parent="WalletService"]
 
@@ -28,15 +34,18 @@ script = ExtResource("5_f327g")
 script = ExtResource("8_4oy84")
 load_token_balances = true
 log_loaded_assets = true
-missing_texture_visual = ExtResource("9_oi842")
+missing_texture_visual = ExtResource("4_s5tc6")
 
 [node name="TransactionManager" type="Node" parent="." node_paths=PackedStringArray("helius_api")]
 script = ExtResource("2_v3adq")
+use_custom_priority_fee = true
 helius_api = NodePath("../HeliusAPI")
-fallback_compute_unit_price = 80000
+fallback_compute_unit_limit = 200000
+fallback_compute_unit_price = 100000
 
 [node name="FileLoader" type="Node" parent="."]
 script = ExtResource("7_4sv1b")
+path_to_metadata_whitelist = "res://addons/SolanaSDK/Scripts/Utility/metadata_whitelist.json"
 
 [node name="AccountInspector" type="Node" parent="."]
 script = ExtResource("6_mv3j8")
@@ -50,7 +59,19 @@ selected_storage = "test storage"
 
 [node name="HeliusAPI" type="Node" parent="."]
 script = ExtResource("6_jo0rl")
-helius_api_key = "14091e35-f13b-4071-9578-410522205b40"
-using_paid_plan = true
-priority_fee_level = 3
-fee_to_consider_congested = 10001
+priority_fee_level = 4
+use_recommended_fee = false
+fee_to_consider_congested = 0
+
+[node name="CoreManager" type="Node" parent="."]
+script = ExtResource("12_ynxal")
+
+[node name="CoreCollectionManager" type="Node" parent="CoreManager"]
+script = ExtResource("13_3jvpm")
+
+[node name="CoreAssetManager" type="Node" parent="CoreManager"]
+script = ExtResource("14_6l0nt")
+
+[node name="AuthoritySigner" type="Node" parent="CoreManager"]
+script = ExtResource("15_r1qgx")
+use_localhost = true

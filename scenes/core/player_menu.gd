@@ -12,7 +12,7 @@ const MAIN_SCENE: PackedScene = preload("uid://c573o225twlil")
 var localhost: bool = false
 
 func _ready() -> void:
-	SolanaService.wallet.on_login_finish.connect(_on_login_finished)
+	SolanaService.wallet.on_login_success.connect(_on_login_success)
 	SolanaService.wallet.on_login_begin.connect(_on_login_begin)
 	# We will need to fetch updated user data anyways, so player menu should have a state for "loading/waiting"...
 	#... until new data has been fetched.
@@ -55,9 +55,8 @@ func _on_successful_response_loadout(response: ResponseType) -> void:
 func _on_login_begin() -> void:
 	play_guest_button.disabled = true
 
-func _on_login_finished(login_success: bool) -> void:
+func _on_login_success() -> void:
 	play_guest_button.disabled = false
-	if not login_success: return
 	if not SolanaService.wallet.is_logged_in(): return
 	var body: String = JSON.stringify({"walletAddress": SolanaService.wallet.get_pubkey().to_string()})
 	Api.post_request(0, _on_successful_response, body)

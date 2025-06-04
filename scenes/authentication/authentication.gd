@@ -14,7 +14,7 @@ func _ready() -> void:
 	#SolanaService.wallet.on_login_success.connect(_on_login_succeeded)
 	#SolanaService.wallet.on_login_fail.connect(_on_login_failed)
 	SolanaService.wallet.on_login_begin.connect(pop_adapter)
-	SolanaService.wallet.on_login_finish.connect(confirm_login)
+	SolanaService.wallet.on_login_success.connect(confirm_login)
 	wallet_adapter_ui.on_provider_selected.connect(process_adapter_result)
 	wallet_adapter_ui.on_adapter_cancel.connect(cancel_login)
 	login_button.disabled = SolanaService.wallet.is_logged_in()
@@ -93,7 +93,7 @@ func cancel_login()-> void:
 	wallet_adapter_ui.visible = false
 	login_button.disabled = true
 
-func confirm_login(login_success:bool) -> void:
+func confirm_login() -> void:
 	wallet_adapter_ui.visible = false
 	#if SolanaService.wallet.is_logged_in():
 		#SolanaService.transaction_manager.sign_message()

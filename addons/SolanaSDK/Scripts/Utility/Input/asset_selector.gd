@@ -2,8 +2,7 @@ extends Node
 class_name AssetSelector
 
 @export var displayable_asset:DisplayableAsset
-@export var display_system:AssetDisplaySystem
-
+@export var display_system_scn:PackedScene
 #set if you want for asset to be invisible before something is clicked
 @export var asset_content:Control
 @export var select_label:Label
@@ -14,8 +13,6 @@ signal on_selected(selected_asset:WalletAsset)
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	display_system.visible=false
-	display_system.on_asset_selected.connect(select_asset)
 	displayable_asset.on_selected.connect(show_display_system)
 	
 	if asset_content!=null:
@@ -25,7 +22,10 @@ func _ready() -> void:
 	pass # Replace with function body.
 
 func show_display_system(_selected_asset:DisplayableAsset) -> void:
-	display_system.visible=true
+	var display_system:AssetDisplaySystem = display_system_scn.instantiate()
+	get_tree().root.add_child(display_system)
+		
+	display_system.on_asset_selected.connect(select_asset)
 	display_system.load_all_owned_assets()
 
 func select_asset(display_selection:WalletAsset) -> void:
@@ -33,15 +33,14 @@ func select_asset(display_selection:WalletAsset) -> void:
 		select_label.visible= (display_selection==null)
 	if asset_content != null:
 		asset_content.visible= (display_selection!=null)
-		
-	if display_selection == null:
-		selected_asset = null
-		displayable_asset.set_default_visual()
-		on_selected.emit(null)
-		return
 	
 	selected_asset = display_selection
-	await displayable_asset.set_data(selected_asset)
+	
+	if selected_asset!=null:
+		await displayable_asset.set_data(selected_asset)
+	else:
+		displayable_asset.reset_to_default()
+		
 	on_selected.emit(selected_asset)
 	
 func is_valid() -> bool:
