@@ -257,7 +257,6 @@ script = ExtResource("6_6unfe")
 root = NodePath("..")
 state_properties = Array[String]([":global_position", ":velocity"])
 input_properties = Array[String](["PlayerInput:input_direction"])
-enable_input_broadcast = false
 metadata/_custom_type_script = "uid://d350u8evihs1u"
 
 [node name="TickInterpolator" type="Node" parent="." node_paths=PackedStringArray("root")]
