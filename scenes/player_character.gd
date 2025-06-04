@@ -56,8 +56,9 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	if not MultiplayerManager.is_server() and not has_ownership():
-		global_position = prev_position
-		global_position = global_position.lerp(target_position, 30.0 * delta)
+		global_position = global_position.lerp(target_position, 20.0 * delta)
+	if MultiplayerManager.is_server() and prev_position != global_position:
+		rpc("update_target_position", global_position)
 		prev_position = global_position
 
 # Using Netfox to implement CSP movement
@@ -91,8 +92,8 @@ func _physics_process(delta: float) -> void:
 		# Play idle animation
 		sprite.play("idle")
 
-	if MultiplayerManager.is_server():
-		rpc("update_target_position", global_position)
+	#if MultiplayerManager.is_server():
+		#rpc("update_target_position", global_position)
 
 	# Flip towards mouse
 	if current_arm_state == ArmState.LEFT and player_input.mouse_position.x >= position.x:
@@ -315,9 +316,10 @@ func init_player(new_id: int, spawn_position: Vector2) -> void:
 	rollback_synchronizer.process_settings()
 	if has_ownership():
 		Globals.player_spawned.emit(self)
-	#else:
-	#	tick_interpolator.queue_free()
-		#tick_interpolator.enabled = false
+	if not has_ownership() and not MultiplayerManager.is_server():
+		rollback_synchronizer.apply_states = false
+		# We have to get rid of this because otherwise it will keep wanting to interpolator default state.
+		tick_interpolator.queue_free()
 	if not has_ownership() and healthbar:
 		healthbar.progress_bar.add_theme_stylebox_override("fill", not_owned_healthbar_style)
 

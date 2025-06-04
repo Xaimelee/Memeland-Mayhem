@@ -255,7 +255,6 @@ metadata/_custom_type_script = "uid://bc87ii71ke3rg"
 [node name="RollbackSynchronizer" type="Node" parent="." node_paths=PackedStringArray("root")]
 script = ExtResource("6_6unfe")
 root = NodePath("..")
-enable_prediction = true
 state_properties = Array[String]([":global_position", ":velocity"])
 input_properties = Array[String](["PlayerInput:input_direction"])
 enable_input_broadcast = false

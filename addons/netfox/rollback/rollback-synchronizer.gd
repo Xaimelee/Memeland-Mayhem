@@ -64,6 +64,11 @@ var diff_ack_interval: int = 0
 ## bandwidth and reduce cheating risks.
 @export var enable_input_broadcast: bool = true
 
+# NOTE: Addition for MMM. This is because for now we just need the client to feel responsive movements.
+# Next I will prevent the rpcing to non root users completely to avoid pointless rpcing.
+## When false this will prevent states from being applied.
+@export var apply_states: bool = true
+
 var _record_state_property_entries: Array[PropertyEntry] = []
 var _record_input_property_entries: Array[PropertyEntry] = []
 var _auth_state_property_entries: Array[PropertyEntry] = []
@@ -358,8 +363,9 @@ func _prepare_tick(tick: int) -> void:
 	var state := _states.get_history(tick)
 	var input := _inputs.get_history(tick)
 
-	state.apply(_property_cache)
-	input.apply(_property_cache)
+	if apply_states:
+		state.apply(_property_cache)
+		input.apply(_property_cache)
 
 	# Save data for input prediction
 	_has_input = retrieved_tick != -1
@@ -504,12 +510,13 @@ func _record_tick(tick: int) -> void:
 
 func _after_loop() -> void:
 	_earliest_input_tick = NetworkTime.tick
-
+	if not apply_states: return
 	# Apply display state
 	var display_state := _states.get_history(NetworkRollback.display_tick)
 	display_state.apply(_property_cache)
 
 func _before_tick(_delta: float, tick: int) -> void:
+	if not apply_states: return
 	# Apply state for tick
 	var state = _states.get_history(tick)
 	state.apply(_property_cache)
