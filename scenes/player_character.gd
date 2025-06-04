@@ -323,12 +323,13 @@ func update_target_position(new_target_position: Vector2) -> void:
 	target_position = new_target_position
 
 @rpc("authority", "call_local")
-func init_player(new_id: int, spawn_position: Vector2) -> void:
+func init_player(new_id: int, spawn_position: Vector2, user_name: String) -> void:
 	id = new_id
 	prev_position = spawn_position
 	target_position = spawn_position
 	global_position = spawn_position
 	player_input.set_multiplayer_authority(new_id)
+	player_name.text = user_name
 	# NOTE: if prev pos doesnt work then next thing to try is editing rollback sync script
 	# to use a bool to stop rpcs doing anything if not set to be allowed so we can just lerp
 	# positions
@@ -367,7 +368,7 @@ func _on_health_health_changed(health: float) -> void:
 # This is so we can sync server state with players who have joined later on
 # This might not be needed if we stop using the Godot spawner sync node
 func _on_player_connected(peer_id: int):
-	rpc_id(peer_id, "init_player", id, global_position)
+	rpc_id(peer_id, "init_player", id, global_position, player_name.text)
 	rpc_id(peer_id, "update_equipment_slot", current_equipment_slot)
 
 func _on_inventory_item_added(item: Item) -> void:

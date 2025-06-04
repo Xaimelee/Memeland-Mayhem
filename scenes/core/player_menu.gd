@@ -25,6 +25,7 @@ func _ready() -> void:
 		#menu_manager.change_menu("Player")
 	elif not OS.has_feature("editor"):
 		menu_manager.change_menu("Login")
+	
 
 func _on_successful_response(response: ResponseType) -> void:
 	var user_data: UserData = response as UserData

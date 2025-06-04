@@ -76,12 +76,12 @@ func request_user_id() -> void:
 	if SolanaService.wallet.is_logged_in() and UserManager.user_data:
 		# This isn't secure, we will also need to require some unique session token from them logging in...
 		#... to make sure that even if user ids are leaked, people can't just log in as other users.
-		rpc_id(1, "send_user_id", UserManager.user_data.user_id)
+		rpc_id(1, "send_user_id", UserManager.user_data.user_id, UserManager.user_name)
 	else:
 		rpc_id(1, "send_user_id")
 
 @rpc("any_peer", "call_remote")
-func send_user_id(user_id: String = "guest") -> void:
+func send_user_id(user_id: String = "guest", user_name: String = "Player") -> void:
 	# Safeguard
 	if not is_server(): return
 	var peer_id: int = multiplayer.get_remote_sender_id()
@@ -94,6 +94,7 @@ func send_user_id(user_id: String = "guest") -> void:
 	# This means we already have approved the user id of this user
 	if connected_user.status == 1: return
 	connected_user.user_id = user_id
+	connected_user.user_name = user_name
 	if not user_id.contains("guest"):
 		var body: String = JSON.stringify({ "userId": user_id })
 		Api.post_request(1, _on_successful_response, body)
@@ -102,9 +103,9 @@ func send_user_id(user_id: String = "guest") -> void:
 		connected_user.user_data = guest_data
 		connected_user.status = 1
 		print("Loading peer: " + str(peer_id) + " as guest")
-		spawn_player(peer_id, connected_user.user_data)
+		spawn_player(peer_id, connected_user)
 
-func spawn_player(peer_id: int, user_data: UserData) -> void:
+func spawn_player(peer_id: int, connected_user: ConnectedUser) -> void:
 	player_connected.emit(peer_id)
 	var player: PlayerCharacter = PLAYER_SCENE.instantiate()
 	characters.add_child(player, true)
@@ -112,8 +113,8 @@ func spawn_player(peer_id: int, user_data: UserData) -> void:
 	var random_offset: Vector2 = Vector2(randf_range(-5, 5), randf_range(-5, 5))
 	player.set_multiplayer_authority(1)
 	player.player_input.set_multiplayer_authority(peer_id)
-	player.rpc("init_player", peer_id, spawn_position + random_offset)
-	for item in user_data.inventory:
+	player.rpc("init_player", peer_id, spawn_position + random_offset, connected_user.user_name)
+	for item in connected_user.user_data.inventory:
 		var item_name: String = item["item_name"]
 		var slot: int = item["slot"]
 		player.inventory.rpc("create_and_add_item", item_name, slot)
@@ -206,7 +207,7 @@ func _on_successful_response(response: ResponseType) -> void:
 		connected_user.status = 1
 		connected_user.user_data = user_data
 		print("Loading peer: " + str(peer_id) + " as user")
-		spawn_player(peer_id, user_data)
+		spawn_player(peer_id, connected_user)
 		break
 
 func _on_connected_to_server() -> void:

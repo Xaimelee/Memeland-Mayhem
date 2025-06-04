@@ -58,6 +58,8 @@ func _input(event: InputEvent) -> void:
 
 # Overriding
 func enabled() -> void: 
+	if UserManager.user_name != "Player":
+		name_label.text = UserManager.user_name
 	if not UserManager.user_data: return
 	var user_data: UserData = UserManager.user_data
 	user_id_label.text = user_data.user_id
@@ -145,6 +147,7 @@ func _on_save_name_button_pressed() -> void:
 	name_label_edit.show()
 	name_input_save_cancel.hide()
 	name_label.text = name_input_field.text
+	UserManager.user_name = name_label.text
 
 func _on_cancel_name_button_pressed() -> void:
 	name_label_edit.show()
