@@ -32,7 +32,8 @@ var guest_data: UserData = UserData.new(
 			"slot": 1
 		}
 	],
-	[]
+	[],
+	0
 )
 
 func _ready() -> void:
@@ -163,7 +164,8 @@ func player_died(player: PlayerCharacter) -> void:
 func wipe_loadout(user: ConnectedUser) -> void:
 	var data = {
 		"walletAddress": user.user_data.wallet_address,
-		"inventory": []
+		"inventory": [],
+		"xp": user.user_data.xp
 	}
 	var json_body = JSON.stringify(data)
 	Api.post_request(3, _on_successful_response_loadout, json_body)
@@ -171,7 +173,8 @@ func wipe_loadout(user: ConnectedUser) -> void:
 func save_loadout(player: PlayerCharacter, user: ConnectedUser) -> void:
 	var data = {
 		"walletAddress": user.user_data.wallet_address,
-		"inventory": []
+		"inventory": [],
+		"xp": user.user_data.xp + player.current_additive_xp
 	}
 	# We have to make sure either inventory is saved and sent when player dies OR this is called before...
 	# items drop on ground on the server
@@ -247,6 +250,7 @@ func _on_peer_disconnected(id: int) -> void:
 	print("Client disconnected: " + str(id))
 	if is_server():
 		var was_killed: bool = false
+		var player: PlayerCharacter = get_player_by_id(id)
 		if connected_users.has(id):
 			var user: ConnectedUser = connected_users[id]
 			# Disconnected while playing
@@ -256,13 +260,10 @@ func _on_peer_disconnected(id: int) -> void:
 				# Wipe inventory
 				wipe_loadout(user)
 		connected_users.erase(id)
-		if not was_killed:
-			for character in characters.get_children() as Array[CharacterBody2D]:
-				var player: PlayerCharacter = character as PlayerCharacter
-				if player is not PlayerCharacter: continue
-				if player.id == id:
-					player.queue_free()
-					break
+		# We will always delete for now until I add logic to deactivate stuff reliant on peer being connected
+		#if not was_killed:
+		if player != null:
+			player.queue_free()
 		player_disconnected.emit(id)
 
 func is_server() -> bool:
@@ -277,3 +278,11 @@ func is_local() -> bool:
 		if arg.contains("local"):
 			return true
 	return false;
+
+func get_player_by_id(peer_id: int) -> PlayerCharacter:
+	for character in characters.get_children() as Array[CharacterBody2D]:
+		var player: PlayerCharacter = character as PlayerCharacter
+		if player is not PlayerCharacter: continue
+		if player.id == peer_id:
+			return player
+	return null

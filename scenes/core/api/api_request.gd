@@ -23,7 +23,8 @@ func _on_request_completed(result: int, response_code: int, headers: PackedStrin
 			data["playerName"] as String,
 			data["level"] as int,
 			data["inventory"] as Array[Dictionary],
-			data["stash"] as Array[Dictionary]
+			data["stash"] as Array[Dictionary],
+			data["xp"] as int
 		)
 		print(user_data)
 		successful_response.emit(user_data)

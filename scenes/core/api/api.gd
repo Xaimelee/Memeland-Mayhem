@@ -13,10 +13,6 @@ const URL = [
 	"https://updateloadout-2esjymujsa-uc.a.run.app"
 ]
 
-#func _ready() -> void:
-	## Just trying syntax
-	#var user_data: UserData = UserData.new("id", "address")
-
 # Just doing a default body for now for testing purposes
 func post_request(request_id: RequestId, callable: Callable, body: String) -> ApiRequest:
 	var api_request: ApiRequest = API_REQUEST.instantiate()

@@ -1,0 +1,35 @@
+[gd_scene load_steps=4 format=3 uid="uid://di4r4cved5cic"]
+
+[ext_resource type="Script" uid="uid://cqxqyascy4knh" path="res://scenes/items/experience.gd" id="1_pkmxa"]
+[ext_resource type="PackedScene" uid="uid://1svx5pr38l8o" path="res://scenes/items/pickup_area.tscn" id="2_2se16"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_irdsm"]
+resource_local_to_scene = true
+size = Vector2(21, 14)
+
+[node name="Experience" type="Node2D"]
+script = ExtResource("1_pkmxa")
+metadata/_custom_type_script = "uid://cqxqyascy4knh"
+
+[node name="Label" type="Label" parent="."]
+z_index = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -10.0
+offset_top = -11.5
+offset_right = 10.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "XP"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PickupArea" parent="." instance=ExtResource("2_2se16")]
+
+[node name="CollisionShape2D" parent="PickupArea" index="0"]
+position = Vector2(-0.5, 1)
+shape = SubResource("RectangleShape2D_irdsm")
+
+[editable path="PickupArea"]

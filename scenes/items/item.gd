@@ -28,3 +28,7 @@ func set_is_dropped(_is_dropped: bool) -> void:
 
 func _on_player_connected(id: int):
 	rpc_id(id, "set_is_dropped", is_dropped)
+
+@rpc("authority", "call_local")
+func despawn():
+	queue_free()

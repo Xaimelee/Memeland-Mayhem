@@ -22,6 +22,7 @@ var current_arm_state: ArmState = ArmState.LEFT
 var current_state: PlayerState = PlayerState.ALIVE
 var current_equipment_slot: EquipmentSlot = EquipmentSlot.ONE
 var nearby_items: Array[Item] = []
+var current_additive_xp: int = 0
 #var equipment: Array[Weapon] = [null, null, null, null]
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -37,6 +38,7 @@ var nearby_items: Array[Item] = []
 @onready var player_name: Label = $PlayerName
 @onready var inventory: Inventory = $Inventory
 @onready var tick_interpolator: TickInterpolator = $TickInterpolator
+@onready var detect_area: Area2D = $DetectArea2D
 
 func _ready() -> void:
 	#equipment[0] = primary_weapon
@@ -116,6 +118,7 @@ func _physics_process(delta: float) -> void:
 	elif Input.is_action_just_pressed("pickup") and not nearby_items.is_empty() and not inventory.get_free_index() == -1:
 		nearby_items.sort_custom(sort_by_distance)
 		var item: Item = nearby_items[0]
+		if item is Experience: return
 		var item_path: String = item.get_path()
 		rpc_id(1, "send_pickup_item", item_path)
 		
@@ -175,7 +178,15 @@ func die() -> void:
 		# Sucks to be you :)
 		Globals.player_died.emit(self)
 
+	# NOTE: In future should probably be on server rpcing but doing this for now
+	#for n in inventory.slots:
+		#inventory.drop_item(n)
+
 	if MultiplayerManager.is_server():
+		for n in inventory.slots:
+			inventory.drop_item.rpc(n)
+		if current_additive_xp > 0:
+			drop_experience.rpc(current_additive_xp)
 		MultiplayerManager.player_died(self)
 
 	# Emit signal before freeing
@@ -183,6 +194,12 @@ func die() -> void:
 	
 	# Start decay timer
 	#decay_timer.start()
+
+@rpc("authority", "call_local")
+func drop_experience(amount: int) -> void:
+	var experience: Experience = inventory.create_item("experience")
+	experience.global_position = global_position
+	experience.amount = amount
 
 @rpc("authority", "call_local")
 func extract() -> void:
@@ -203,10 +220,12 @@ func change_state(new_state: PlayerState) -> void:
 		PlayerState.DEAD:
 			player_name.visible = false
 			die()
+			detect_area.monitoring = false
 		PlayerState.EXTRACT:
 			damage_area.collision_layer = 0
 			collision_layer = 0
 			collision_mask = 0
+			detect_area.monitoring = false
 		_:
 			player_name.visible = true
 			return
@@ -361,13 +380,20 @@ func _on_inventory_item_removed(item: Item) -> void:
 		weapon = null
 
 func _on_detect_area_2d_area_entered(area: Area2D) -> void:
-	print("Enter")
 	var item: Item = area.get_parent() as Item
 	if item == null: return
+	if MultiplayerManager.is_server():
+		var item_as_experience: Experience = item as Experience
+		if item_as_experience != null:
+			# Not synced to clients for now
+			current_additive_xp += item_as_experience.amount
+			# Incase anyone else tries to interact with it before it despawns
+			item_as_experience.amount = 0
+			item_as_experience.rpc("despawn")
+			return
 	nearby_items.append(item)
 
 func _on_detect_area_2d_area_exited(area: Area2D) -> void:
-	print("Exit")
 	var item: Item = area.get_parent() as Item
 	if item == null: return
 	nearby_items.erase(item)

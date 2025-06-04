@@ -10,6 +10,7 @@ enum State {IDLE, CHASE, ATTACK, DEAD}
 @export var friction: float = 1000.0
 @export var detection_range: float = 500.0
 @export var attack_range: float = 400.0
+@export var xp_drop: int = 5
 
 var target: CharacterBody2D = null
 var next_position: Vector2 = position
@@ -202,6 +203,7 @@ func die() -> void:
 	#... for each item. This also isn't authoritatively synced, which it might need to be in future?
 	weapon = null
 	inventory.drop_item(0)
+	drop_experience(xp_drop)
 	# Start decay timer
 	#decay_timer.start()
 
@@ -223,6 +225,12 @@ func update_target(new_target_node_path: String) -> void:
 		target = null
 		return
 	target = get_node(new_target_node_path)
+
+@rpc("authority", "call_local")
+func drop_experience(amount: int) -> void:
+	var experience: Experience = inventory.create_item("experience")
+	experience.global_position = global_position
+	experience.amount = amount
 
 #@rpc("authority", "call_local")
 #func update_state(new_state: State) -> void:

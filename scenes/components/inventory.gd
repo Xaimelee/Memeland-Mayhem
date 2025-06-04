@@ -28,6 +28,14 @@ func _ready() -> void:
 	for n in slots:
 		items.append(null)
 
+func create_item(item_name: String) -> Item:
+	item_name = item_name.to_snake_case()  
+	if not Globals.item_scenes.has(item_name): return null
+	var item: Item = Globals.item_scenes[item_name].instantiate() as Item
+	var new_parent: Node2D = get_tree().root.get_node("Main/Dynamic")
+	new_parent.add_child(item, true)
+	return item
+
 @rpc("authority", "call_local")
 func create_and_add_item(item_name: String, index: int = -1) -> void:
 	if index == -1:
@@ -54,11 +62,12 @@ func drop_item(index: int) -> void:
 	var new_parent: Node2D = get_tree().root.get_node("Main/Dynamic")
 	if item.get_parent():
 		item.get_parent().remove_child(item)
-	new_parent.add_child(item)
+	new_parent.add_child(item, true)
 	print("Dropped: " + item.item_name)
 	item.visible = true
 	item.set_is_dropped(true)
-	item.global_position = get_parent().global_position
+	# NOTE: This needs to be replaced with something proper and should be synced across clients
+	item.global_position = get_parent().global_position + Vector2(randf_range(0.05, 0.25), randf_range(0.05, 0.25))
 	item_removed.emit(item)
 	index_updated.emit(null, index)
 
