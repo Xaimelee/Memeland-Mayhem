@@ -20,6 +20,7 @@ func _process(delta: float) -> void:
 	#mouse_position = player_character.get_global_mouse_position()
 	#rpc_id(1, "send_mouse_position", mouse_position)
 	rpc("update_mouse_position", player_character.get_global_mouse_position())
+	rpc("update_player_input", input_direction)
 #
 #@rpc("authority", "call_remote")
 #func send_mouse_position(new_mouse_position: Vector2) -> void:
@@ -33,3 +34,8 @@ func update_mouse_position(new_mouse_position: Vector2) -> void:
 		target_mouse_position = mouse_position
 	else:
 		target_mouse_position = new_mouse_position
+
+@rpc("authority", "call_remote")
+func update_player_input(new_player_input: Vector2) -> void:
+	if MultiplayerManager.is_server(): return
+	input_direction = new_player_input
