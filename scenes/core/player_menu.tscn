@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://b4scbqjbo7wtn"]
+[gd_scene load_steps=22 format=3 uid="uid://b4scbqjbo7wtn"]
 
 [ext_resource type="Script" uid="uid://cewnhu2rh0e0t" path="res://scenes/core/player_menu.gd" id="1_vp4nb"]
 [ext_resource type="PackedScene" uid="uid://fj8aywus2k54" path="res://scenes/authentication/authentication.tscn" id="2_bhayt"]
@@ -19,6 +19,9 @@
 [ext_resource type="Texture2D" uid="uid://dll67couj0qnu" path="res://assets/level.png" id="10_xseq2"]
 [ext_resource type="StyleBox" uid="uid://dp5whcl4y0l63" path="res://scenes/resources/button.tres" id="11_p0rsb"]
 [ext_resource type="StyleBox" uid="uid://crwgs3vnrb5js" path="res://scenes/resources/button-hover.tres" id="14_rr0js"]
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_iannm"]
+size = Vector2(128, 128)
 
 [sub_resource type="SystemFont" id="SystemFont_xseq2"]
 subpixel_positioning = 0
@@ -74,6 +77,9 @@ text = "Play as Guest"
 [node name="Authentication" parent="Login" instance=ExtResource("2_bhayt")]
 layout_mode = 1
 mouse_filter = 2
+
+[node name="WalletAdapterUI" parent="Login/Authentication" index="2"]
+provider_images = Array[Texture]([SubResource("PlaceholderTexture2D_iannm")])
 
 [node name="Player" type="MarginContainer" parent="."]
 layout_mode = 1
