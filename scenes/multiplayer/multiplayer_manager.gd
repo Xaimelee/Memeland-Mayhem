@@ -63,6 +63,7 @@ func start_network() -> void:
 			multiplayer.multiplayer_peer = peer
 			print("Server created")
 	else:
+		# NOTE: We need a way to easily change what ip is used. For testing, I will still use EC2 since it's probably quicker and ip never changes.
 		err = peer.create_client("ws://" + server_ip + ":" + str(SERVER_PORT))
 		if err == 0:
 			#multiplayer.connected_to_server.connect(_on_connected_to_server)
