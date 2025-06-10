@@ -224,7 +224,7 @@ func update_target(new_target_node_path: String) -> void:
 	if new_target_node_path == "":
 		target = null
 		return
-	target = get_node(new_target_node_path)
+	target = get_node_or_null(new_target_node_path)
 
 @rpc("authority", "call_local")
 func drop_experience(amount: int) -> void:

@@ -96,6 +96,8 @@ func send_user_id(user_id: String = "guest", user_name: String = "Player") -> vo
 	if connected_user.status == 1: return
 	connected_user.user_id = user_id
 	connected_user.user_name = user_name
+	# Gonna try and send snapshot here:
+	MultiplayerSync.create_and_send_snapshot(peer_id)
 	if not user_id.contains("guest"):
 		var body: String = JSON.stringify({ "userId": user_id })
 		Api.post_request(1, _on_successful_response, body)
@@ -107,9 +109,11 @@ func send_user_id(user_id: String = "guest", user_name: String = "Player") -> vo
 		spawn_player(peer_id, connected_user)
 
 func spawn_player(peer_id: int, connected_user: ConnectedUser) -> void:
+	#In future we should probably check if snapshot is done being processed
 	player_connected.emit(peer_id)
-	var player: PlayerCharacter = PLAYER_SCENE.instantiate()
-	characters.add_child(player, true)
+	var player: PlayerCharacter = MultiplayerSync.create_and_spawn_node(PLAYER_SCENE, characters) as PlayerCharacter
+	#var player: PlayerCharacter = PLAYER_SCENE.instantiate()
+	#characters.add_child(player, true)
 	var spawn_position: Vector2 = player_spawn.global_position
 	var random_offset: Vector2 = Vector2(randf_range(-5, 5), randf_range(-5, 5))
 	player.set_multiplayer_authority(1)
@@ -265,7 +269,7 @@ func _on_peer_disconnected(id: int) -> void:
 		# We will always delete for now until I add logic to deactivate stuff reliant on peer being connected
 		#if not was_killed:
 		if player != null:
-			player.queue_free()
+			MultiplayerSync.delete_and_despawn_node(player)
 		player_disconnected.emit(id)
 
 func is_server() -> bool:

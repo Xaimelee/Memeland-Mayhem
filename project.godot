@@ -28,6 +28,7 @@ Api="*res://scenes/core/api/api.tscn"
 UserManager="*res://scenes/user_manager.tscn"
 Globals="*res://scenes/core/globals.tscn"
 HttpRequestHandler="*res://addons/SolanaSDK/Autoload/HttpRequestHandler.tscn"
+MultiplayerSync="*res://scenes/multiplayer/multiplayer_sync.tscn"
 
 [display]
 

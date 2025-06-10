@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c3kfnho6eojd5"]
+
+[ext_resource type="Script" uid="uid://c340fj0o2ib16" path="res://scenes/multiplayer/multiplayer_sync.gd" id="1_xdhvd"]
+
+[node name="MultiplayerSync" type="Node"]
+script = ExtResource("1_xdhvd")

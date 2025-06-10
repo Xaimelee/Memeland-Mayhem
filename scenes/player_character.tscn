@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://dour8fehaaugp" path="res://addons/netfox/tick-interpolator.gd" id="7_iadup"]
 [ext_resource type="Script" uid="uid://ehd18cbq0u5n" path="res://scenes/player_input.gd" id="7_pxja8"]
 [ext_resource type="Script" uid="uid://cbnhopyj7n0lf" path="res://scenes/components/damage.gd" id="10_herhr"]
+[ext_resource type="Script" uid="uid://f74ardnl26pd" path="res://scenes/multiplayer/sync_instance.gd" id="11_s7f3b"]
 [ext_resource type="PackedScene" uid="uid://dt8k73d284knj" path="res://scenes/hud/healthbar.tscn" id="11_xb3ya"]
 [ext_resource type="Script" uid="uid://dmgbe3sqm4g8a" path="res://scenes/components/inventory.gd" id="12_s7f3b"]
 
@@ -169,11 +170,6 @@ radius = 8.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_herhr"]
 
-[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_uj7mf"]
-properties/0/path = NodePath(".:id")
-properties/0/spawn = true
-properties/0/replication_mode = 2
-
 [node name="PlayerCharacter" type="CharacterBody2D" node_paths=PackedStringArray("player_input") groups=["players"]]
 z_index = 2
 z_as_relative = false
@@ -242,9 +238,6 @@ size_flags_vertical = 8
 text = "Player"
 horizontal_alignment = 1
 
-[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
-replication_config = SubResource("SceneReplicationConfig_uj7mf")
-
 [node name="PlayerInput" type="Node" parent="."]
 script = ExtResource("7_pxja8")
 
@@ -277,6 +270,10 @@ health = NodePath("../Health")
 script = ExtResource("12_s7f3b")
 items_parent = NodePath("../AnimatedSprite2D/ArmSprite2D")
 metadata/_custom_type_script = "uid://dmgbe3sqm4g8a"
+
+[node name="SyncInstance" type="Node" parent="."]
+script = ExtResource("11_s7f3b")
+metadata/_custom_type_script = "uid://f74ardnl26pd"
 
 [connection signal="area_entered" from="DetectArea2D" to="." method="_on_detect_area_2d_area_entered"]
 [connection signal="area_exited" from="DetectArea2D" to="." method="_on_detect_area_2d_area_exited"]
