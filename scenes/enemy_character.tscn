@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3 uid="uid://qxnqtyeg4ue0"]
+[gd_scene load_steps=36 format=3 uid="uid://qxnqtyeg4ue0"]
 
 [ext_resource type="Script" uid="uid://37hkap528bb6" path="res://scenes/enemy_character.gd" id="1_p2vio"]
 [ext_resource type="Texture2D" uid="uid://1442fxu03nny" path="res://assets/pepe-zombie.png" id="2_4vovm"]
@@ -12,6 +12,7 @@
 [ext_resource type="Script" uid="uid://cbnhopyj7n0lf" path="res://scenes/components/damage.gd" id="11_na0dc"]
 [ext_resource type="PackedScene" uid="uid://dt8k73d284knj" path="res://scenes/hud/healthbar.tscn" id="12_1r54h"]
 [ext_resource type="Script" uid="uid://dmgbe3sqm4g8a" path="res://scenes/components/inventory.gd" id="13_ldapt"]
+[ext_resource type="Script" uid="uid://f74ardnl26pd" path="res://scenes/multiplayer/sync_instance.gd" id="13_rjfk7"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_xgmuc"]
 atlas = ExtResource("2_4vovm")
@@ -248,6 +249,10 @@ theme_override_styles/fill = SubResource("StyleBoxFlat_1r54h")
 script = ExtResource("13_ldapt")
 items_parent = NodePath("../AnimatedSprite2D/ArmSprite2D")
 metadata/_custom_type_script = "uid://dmgbe3sqm4g8a"
+
+[node name="SyncInstance" type="Node" parent="."]
+script = ExtResource("13_rjfk7")
+metadata/_custom_type_script = "uid://f74ardnl26pd"
 
 [connection signal="timeout" from="AttackTimer" to="." method="_on_attack_timer_timeout"]
 
