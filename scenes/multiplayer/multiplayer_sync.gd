@@ -17,6 +17,25 @@ var despawn_queue: Array[int] = []
 var snapshot_queue: Array[Dictionary] = []
 var is_processing_snapshot: bool = false
 
+func _ready() -> void:
+	Globals.scene_changed.connect(_on_scene_changed)
+	get_tree().node_removed.connect(_on_node_removed)
+
+func _on_scene_changed(scene: String) -> void:
+	id_to_sync_instances.clear()
+	root_to_sync_instances.clear()
+	spawn_queue.clear()
+	despawn_queue.clear()
+	snapshot_queue.clear()
+	is_processing_snapshot = false
+
+func _on_node_removed(node: Node) -> void:
+	var sync_instance: SyncInstance = root_to_sync_instances.get(node)
+	if sync_instance == null: return
+	print("Cleared: " + sync_instance.root.name)
+	root_to_sync_instances.erase(sync_instance.root)
+	id_to_sync_instances.erase(sync_instance.network_id)
+
 # These are new connections to the server
 func create_and_send_snapshot(id: int) -> void:
 	var snapshot: Array[Dictionary] = []
@@ -64,19 +83,10 @@ func try_create_instance_from_values(instance_values: Dictionary) -> bool:
 #create node, will check child for synced node component
 func create_and_spawn_node(node_scene: PackedScene, parent: Node = null) -> Node:
 	var node: Node = node_scene.instantiate()
-	var network_parent: SyncInstance = null
 	# Here we are checking for a node higher in the chain which is also synced.
 	# We need this info for later when sending snapshots to new players to ensure.
 	# Dependencies are loaded in the correct order otherwise paths could get invalidated.
-	if parent != null:
-		var current_node = parent
-		while current_node != null:
-			current_node = current_node.get_parent()
-			if current_node != null:
-				for child in current_node.get_children():
-					if child is SyncInstance:
-						network_parent = child
-						break;
+	var network_parent: SyncInstance = find_parent_sync_instance(parent)
 	if network_parent != null and not id_to_sync_instances.has(network_parent.network_id):
 		node.queue_free()
 		printerr("Tried to spawn a synced node but the found network parent does not exist in the dictionary. I could just add it but this is likely an issue with setup needing addressing")
@@ -99,8 +109,10 @@ func setup_node(network_id: int, node: Node, parent: Node = null, network_parent
 		node.queue_free()
 		printerr("Tried to spawn a synced node that doesn't have a sync instance node as child.")
 		return
+	print("called: " + str(sync_instance.is_registered))
+	sync_instance.is_registered = true
 	# This ensures unique naming for both client and server
-	node.name = node.name + str(network_id)
+	node.name = node.name + "_ID" + str(network_id)
 	if parent != null:
 		parent.add_child(node)
 	sync_instance.network_id = network_id
@@ -112,6 +124,17 @@ func setup_node(network_id: int, node: Node, parent: Node = null, network_parent
 	#... and if clients are missing any sync instances compared to the server. If so, we could add a way to try and resync players. 
 	id_to_sync_instances[network_id] = sync_instance
 	root_to_sync_instances[node] = sync_instance
+	print("Spawned: " + node.name)
+
+func register_sync_instance(sync_instance: SyncInstance) -> void:
+	sync_instance.is_registered = true
+	sync_instance.network_id = next_network_id
+	sync_instance.root.name = sync_instance.root.name.rstrip("0123456789") + "_ID" + str(next_network_id)
+	next_network_id += 1
+	sync_instance.network_parent = find_parent_sync_instance(sync_instance.root.get_parent())
+	id_to_sync_instances[sync_instance.network_id] = sync_instance
+	root_to_sync_instances[sync_instance.root] = sync_instance
+	print("Registered: " + sync_instance.root.name)
 
 #spawn node for clients
 @rpc("authority", "call_remote")
@@ -140,3 +163,32 @@ func despawn_node(network_id: int) -> void:
 	root_to_sync_instances.erase(sync_instance.root)
 	id_to_sync_instances.erase(network_id)
 	sync_instance.root.queue_free()
+
+func change_parent_and_sync(root_node: Node, new_parent: Node) -> void:
+	var sync_instance: SyncInstance = root_to_sync_instances.get(root_node)
+	if sync_instance == null: return
+	root_node.reparent(new_parent)
+	# This can be null so remember that
+	var network_parent: SyncInstance = find_parent_sync_instance(new_parent)
+	sync_instance.network_parent = network_parent
+	var network_parent_id: int = -1 if network_parent == null else network_parent.network_id
+	change_parent.rpc(sync_instance.network_id, new_parent.get_path(), network_parent_id)
+
+@rpc("authority", "call_remote")
+func change_parent(network_id: int, parent_path: String, parent_network_id: int):
+	var parent: Node = get_tree().root.get_node_or_null(parent_path)
+	if parent == null: return
+	var sync_instance: SyncInstance = id_to_sync_instances.get(network_id)
+	if sync_instance == null: return
+	sync_instance.root.reparent(parent)
+	sync_instance.network_parent = id_to_sync_instances.get(parent_network_id)
+
+func find_parent_sync_instance(starting_node: Node) -> SyncInstance:
+	var current_node = starting_node
+	while current_node != null:
+		current_node = current_node.get_parent()
+		if current_node != null:
+			for child in current_node.get_children():
+				if child is SyncInstance:
+					return child
+	return null
