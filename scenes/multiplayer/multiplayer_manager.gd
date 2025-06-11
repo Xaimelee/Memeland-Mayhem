@@ -64,7 +64,9 @@ func start_network() -> void:
 			print("Server created")
 	else:
 		# NOTE: We need a way to easily change what ip is used. For testing, I will still use EC2 since it's probably quicker and ip never changes.
-		err = peer.create_client("ws://" + server_ip + ":" + str(SERVER_PORT))
+		var cloudflow_ip = "wss://connect.computeflow.cloud:8100"
+		var ip = "ws://" + server_ip + ":" + str(SERVER_PORT)
+		err = peer.create_client(cloudflow_ip)
 		if err == 0:
 			#multiplayer.connected_to_server.connect(_on_connected_to_server)
 			#multiplayer.connection_failed.connect(_on_connection_failed)
