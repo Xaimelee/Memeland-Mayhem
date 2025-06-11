@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3 uid="uid://b4scbqjbo7wtn"]
+[gd_scene load_steps=25 format=3 uid="uid://b4scbqjbo7wtn"]
 
 [ext_resource type="Script" uid="uid://cewnhu2rh0e0t" path="res://scenes/core/player_menu.gd" id="1_vp4nb"]
 [ext_resource type="PackedScene" uid="uid://fj8aywus2k54" path="res://scenes/authentication/authentication.tscn" id="2_bhayt"]
@@ -14,10 +14,13 @@
 [ext_resource type="Script" uid="uid://dmgbe3sqm4g8a" path="res://scenes/components/inventory.gd" id="6_uhn2d"]
 [ext_resource type="Texture2D" uid="uid://onbtm5b461gq" path="res://assets/text-area.png" id="7_oiium"]
 [ext_resource type="Texture2D" uid="uid://c8qofkwe75jfi" path="res://assets/bar-bg.png" id="8_rr0js"]
+[ext_resource type="Texture2D" uid="uid://cmxj064yxj6kx" path="res://assets/edit-icon.png" id="9_68its"]
 [ext_resource type="Texture2D" uid="uid://dedhcc3vfsf25" path="res://assets/bar.png" id="9_xoxmh"]
 [ext_resource type="Script" uid="uid://cja6e8dxjd81x" path="res://addons/SolanaSDK/Scripts/Utility/Input/input_field.gd" id="9_xseq2"]
 [ext_resource type="Texture2D" uid="uid://dll67couj0qnu" path="res://assets/level.png" id="10_xseq2"]
+[ext_resource type="Texture2D" uid="uid://v6voan6rrihf" path="res://assets/ok-icon.png" id="11_br5sc"]
 [ext_resource type="StyleBox" uid="uid://dp5whcl4y0l63" path="res://scenes/resources/button.tres" id="11_p0rsb"]
+[ext_resource type="Texture2D" uid="uid://doabxig6sq0y5" path="res://assets/close-icon.png" id="12_ke4oj"]
 [ext_resource type="StyleBox" uid="uid://crwgs3vnrb5js" path="res://scenes/resources/button-hover.tres" id="14_rr0js"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_iannm"]
@@ -108,6 +111,7 @@ axis_stretch_horizontal = 1
 axis_stretch_vertical = 1
 
 [node name="PlayerWindow" type="MarginContainer" parent="Player"]
+custom_minimum_size = Vector2(400, 0)
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 16
@@ -160,7 +164,7 @@ layout_mode = 2
 size_flags_vertical = 4
 theme = ExtResource("3_rr0js")
 theme_override_fonts/font = SubResource("SystemFont_xseq2")
-text = "✎"
+icon = ExtResource("9_68its")
 
 [node name="NameInputSaveCancel" type="HBoxContainer" parent="Player/PlayerWindow/ParentContainer/VBoxContainer/PlayerNameContainer/MarginContainer"]
 unique_name_in_owner = true
@@ -177,13 +181,13 @@ script = ExtResource("9_xseq2")
 layout_mode = 2
 size_flags_vertical = 4
 theme = ExtResource("3_rr0js")
-text = "✓"
+icon = ExtResource("11_br5sc")
 
 [node name="CancelNameButton" type="Button" parent="Player/PlayerWindow/ParentContainer/VBoxContainer/PlayerNameContainer/MarginContainer/NameInputSaveCancel"]
 layout_mode = 2
 size_flags_vertical = 4
 theme = ExtResource("3_rr0js")
-text = "✕"
+icon = ExtResource("12_ke4oj")
 
 [node name="WalletIdContainer" type="MarginContainer" parent="Player/PlayerWindow/ParentContainer/VBoxContainer"]
 layout_mode = 2

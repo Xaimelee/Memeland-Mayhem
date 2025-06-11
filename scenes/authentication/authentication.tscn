@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://rt1b2tpombsa" path="res://scenes/authentication/authentication.gd" id="1_3uq74"]
 [ext_resource type="Theme" uid="uid://b7r4g35yykbja" path="res://scenes/resources/theme.tres" id="2_awj0i"]
-[ext_resource type="PackedScene" uid="uid://be2rmdwqrqiw0" path="res://addons/SolanaSDK/Scripts/WalletAdapter/WalletAdapterUI.tscn" id="2_jp4ht"]
+[ext_resource type="PackedScene" uid="uid://clveiq3atvwet" path="res://addons/SolanaSDK/Scripts/WalletAdapter/WalletAdapterUI.tscn" id="2_jp4ht"]
 
 [node name="Authentication" type="Control"]
 layout_mode = 3
