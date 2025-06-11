@@ -47,8 +47,7 @@ position = Vector2(4531, 1204)
 
 [node name="Extraction" parent="." instance=ExtResource("6_tefeu")]
 z_index = 1
-position = Vector2(3327, 787)
-rotation = -1.56755
+position = Vector2(2384, 128)
 
 [node name="Extraction2" parent="." instance=ExtResource("6_tefeu")]
 z_index = 1
@@ -57,13 +56,11 @@ rotation = -1.56755
 
 [node name="Extraction3" parent="." instance=ExtResource("6_tefeu")]
 z_index = 1
-position = Vector2(4000, 1465)
-rotation = 0.0337785
+position = Vector2(1600, 3072)
 
 [node name="Extraction4" parent="." instance=ExtResource("6_tefeu")]
 z_index = 1
-position = Vector2(4000, 132)
-rotation = 0.0337785
+position = Vector2(3200, 3072)
 
 [connection signal="reached_next_position" from="Characters/EnemyCharacter" to="." method="_on_enemy_character_reached_next_position"]
 [connection signal="reached_next_position" from="Characters/EnemyCharacter2" to="." method="_on_enemy_character_reached_next_position"]
