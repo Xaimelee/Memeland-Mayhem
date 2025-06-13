@@ -21,7 +21,7 @@ var is_processing_snapshot: bool = false
 
 func _ready() -> void:
 	Globals.scene_changed.connect(_on_scene_changed)
-	get_tree().node_removed.connect(_on_node_removed)
+	#get_tree().node_removed.connect(_on_node_removed)
 
 func _on_scene_changed(scene: String) -> void:
 	id_to_sync_instances.clear()
@@ -31,13 +31,14 @@ func _on_scene_changed(scene: String) -> void:
 	snapshot_queue.clear()
 	is_processing_snapshot = false
 
-func _on_node_removed(node: Node) -> void:
-	var sync_instance: SyncInstance = root_to_sync_instances.get(node)
-	if sync_instance == null: return
-	if sync_instance.is_inside_tree(): return
-	print("Cleared: " + sync_instance.root.name)
-	root_to_sync_instances.erase(sync_instance.root)
-	id_to_sync_instances.erase(sync_instance.network_id)
+# This fires when reparenting which is fucking stupid
+#func _on_node_removed(node: Node) -> void:
+	#var sync_instance: SyncInstance = root_to_sync_instances.get(node)
+	#if sync_instance == null: return
+	#if sync_instance.is_inside_tree(): return
+	#print("Cleared: " + sync_instance.root.name)
+	#root_to_sync_instances.erase(sync_instance.root)
+	#id_to_sync_instances.erase(sync_instance.network_id)
 
 # These are new connections to the server
 func create_and_send_snapshot(id: int) -> void:
