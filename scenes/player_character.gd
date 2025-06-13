@@ -44,17 +44,15 @@ func _ready() -> void:
 	#equipment[0] = primary_weapon
 	#equipment[1] = secondary_weapon
 	player_input.player_character = self
-	if is_multiplayer_authority():
-		MultiplayerManager.player_connected.connect(_on_player_connected)
+	if MultiplayerManager.is_server():
+		MultiplayerSync.player_synced.connect(_on_player_synced)
 	# Hack for having weapons spawned in when local testing. Will need a better way in future.
 	# NOTE: In future should just be running the init player function, which would load guest data for items
 	# We can also add support in future for loading items that are children of inventory node at runtime
 	if MultiplayerManager.is_local():
 		Globals.player_spawned.emit(self)
-		inventory.create_and_add_item("boring_rifle")
-		inventory.create_and_add_item("cyber_glock")
-		# TEST
-		#inventory.rpc("drop_item", 0)
+		inventory.synced_create_and_add_item("boring_rifle")
+		inventory.synced_create_and_add_item("cyber_glock")
 
 func _process(delta: float) -> void:
 	if not MultiplayerManager.is_server() and not has_ownership():
@@ -184,9 +182,10 @@ func die() -> void:
 
 	if MultiplayerManager.is_server():
 		for n in inventory.slots:
-			inventory.drop_item.rpc(n)
+			inventory.synced_drop_item(n)
 		if current_additive_xp > 0:
-			drop_experience.rpc(current_additive_xp)
+			inventory.synced_create_item("experience", { "global_position": global_position, "amount": current_additive_xp})
+			#drop_experience.rpc(current_additive_xp)
 		MultiplayerManager.player_died(self)
 
 	# Emit signal before freeing
@@ -206,7 +205,7 @@ func extract() -> void:
 	if has_ownership():
 		Globals.player_extracted.emit(self)
 	change_state(PlayerState.EXTRACT)
-	if not is_multiplayer_authority(): return
+	if not MultiplayerManager.is_server(): return
 	MultiplayerManager.player_extracted(self)
 
 # TESTING REMOVE LATER
@@ -282,7 +281,8 @@ func send_equipment_slot(new_equipment_slot: EquipmentSlot) -> void:
 @rpc("any_peer", "call_local")
 func send_drop_item(index: EquipmentSlot) -> void:
 	if not validate_user_rpc("Possible drop item manipulation"): return
-	inventory.rpc("drop_item", index)
+	inventory.synced_drop_item(index)
+	#inventory.rpc("drop_item", index)
 
 @rpc("any_peer", "call_local")
 func send_pickup_item(item_node_path: String) -> void:
@@ -295,7 +295,8 @@ func send_pickup_item(item_node_path: String) -> void:
 	if index == -1:
 		print("Tried to pickup item with no inventory space")
 		return
-	inventory.rpc("add_item_with_path", item_node_path, index)
+	inventory.sync_item_pickup(item, index)
+	#inventory.rpc("add_item_with_path", item_node_path, index)
 
 @rpc("authority", "call_local")
 func update_shoot() -> void:
@@ -367,7 +368,7 @@ func _on_health_health_changed(health: float) -> void:
 
 # This is so we can sync server state with players who have joined later on
 # This might not be needed if we stop using the Godot spawner sync node
-func _on_player_connected(peer_id: int):
+func _on_player_synced(peer_id: int):
 	rpc_id(peer_id, "init_player", id, global_position, player_name.text)
 	rpc_id(peer_id, "update_equipment_slot", current_equipment_slot)
 
@@ -390,7 +391,8 @@ func _on_detect_area_2d_area_entered(area: Area2D) -> void:
 			current_additive_xp += item_as_experience.amount
 			# Incase anyone else tries to interact with it before it despawns
 			item_as_experience.amount = 0
-			item_as_experience.rpc("despawn")
+			MultiplayerSync.delete_and_despawn_node(item_as_experience)
+			#item_as_experience.rpc("despawn")
 			return
 	nearby_items.append(item)
 

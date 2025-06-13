@@ -28,13 +28,17 @@ var weapon: Weapon
 @onready var inventory: Inventory = $Inventory
 
 func _ready() -> void:
-	if is_multiplayer_authority():
-		MultiplayerManager.player_connected.connect(_on_player_connected)
+	if MultiplayerManager.is_server():
+		MultiplayerSync.player_synced.connect(_on_player_synced)
+		inventory.synced_create_and_add_item("under_taker")
 	# NOTE: This is for TESTING and will need a proper system in future to determine both weapon...
 	#... and loot for AI.
-	inventory.create_and_add_item("under_taker")
-	weapon = inventory.items[0]
-	weapon.visible = true
+	#inventory.create_and_add_item("under_taker")
+	if inventory.items[0] != null:
+		weapon = inventory.items[0]
+		weapon.visible = true
+	#weapon = inventory.items[0]
+	#weapon.visible = true
 
 func _process(delta: float) -> void:
 	# We only want to calculate physic interactions on the server so we need to lerp the player movement on clients...
@@ -115,6 +119,7 @@ func change_state() -> void:
 		#rpc("update_state", State.IDLE)
 
 func is_lined_up() -> bool:
+	if weapon == null: return false
 	weapon.update_line_of_fire()
 	return weapon.raycast.is_colliding() and weapon.raycast.get_collider().get_parent() == target
 #
@@ -202,8 +207,12 @@ func die() -> void:
 	# NOTE: This is just for TESTING will need proper loot dropping with different positions...
 	#... for each item. This also isn't authoritatively synced, which it might need to be in future?
 	weapon = null
-	inventory.drop_item(0)
-	drop_experience(xp_drop)
+	if MultiplayerManager.is_server():
+		inventory.synced_drop_item(0)
+		inventory.synced_create_item("experience", { "global_position": global_position, "amount": xp_drop })
+	
+	#inventory.drop_item(0)
+	#drop_experience(xp_drop)
 	# Start decay timer
 	#decay_timer.start()
 
@@ -213,6 +222,9 @@ func init_enemy(new_position: Vector2, new_target_node_path: String) -> void:
 	global_position = new_position
 	target_position = new_position
 	update_target(new_target_node_path)
+	if inventory.items[0] != null:
+		weapon = inventory.items[0]
+		weapon.visible = true
 	#update_state(new_state)
 
 @rpc("authority", "call_remote")
@@ -256,5 +268,5 @@ func _on_attack_timer_timeout() -> void:
 	ready_to_attack = true
 
 # This is so we can sync server state with players who have joined later on
-func _on_player_connected(id: int):
+func _on_player_synced(id: int):
 	rpc_id(id, "init_enemy", global_position, get_target_path())

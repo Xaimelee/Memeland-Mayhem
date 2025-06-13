@@ -16,12 +16,12 @@ var current_health: float = max_health:
 			health_changed.emit(current_health)
 
 func _ready() -> void:
-	if is_multiplayer_authority():
-		MultiplayerManager.player_connected.connect(_on_player_connected)
+	if MultiplayerManager.is_server():
+		MultiplayerSync.player_synced.connect(_on_player_synced)
 
 func change_health(new_health: float, should_replace: bool = false) -> void:
 	# This might be better than checking if is server? since authority id will always be 1
-	if not is_multiplayer_authority(): return
+	if not MultiplayerManager.is_server(): return
 	var prev_health = current_health
 	if should_replace:
 		current_health = new_health
@@ -39,5 +39,5 @@ func set_health(new_health: float) -> void:
 	current_health = new_health
 
 # This is so we can sync server state with players who have joined later on
-func _on_player_connected(id: int):
+func _on_player_synced(id: int):
 	rpc_id(id, "set_health", current_health)

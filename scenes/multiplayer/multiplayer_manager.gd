@@ -17,6 +17,7 @@ var override_is_local: bool = false
 var characters: Node2D
 var player_spawn: Node2D
 var connected_users: Dictionary = {}
+var players_to_spawn: Array[int]
 var guest_data: UserData = UserData.new(
 	"guest",
 	"",
@@ -45,6 +46,16 @@ func _ready() -> void:
 	multiplayer.connected_to_server.connect(_on_connected_to_server)
 	multiplayer.connection_failed.connect(_on_connection_failed)
 	multiplayer.server_disconnected.connect(_on_server_disconnected)
+	MultiplayerSync.player_synced.connect(_on_player_synced)
+
+func _process(delta: float) -> void:
+	for peer_id in players_to_spawn.duplicate():
+		var connected_user: ConnectedUser = connected_users[peer_id]
+		if connected_user.user_data == null: continue
+		if not connected_user.has_processed_snapshot: continue
+		print("Spawning player: " + str(peer_id))
+		spawn_player(peer_id, connected_user)
+		players_to_spawn.erase(peer_id)
 
 func start_network() -> void:
 	if not is_local():
@@ -64,9 +75,9 @@ func start_network() -> void:
 			print("Server created")
 	else:
 		# NOTE: We need a way to easily change what ip is used. For testing, I will still use EC2 since it's probably quicker and ip never changes.
-		var cloudflow_ip = "wss://connect.computeflow.cloud:8100"
+		var cloudflow_ip = "wss://connect.computeflow.cloud:8353"
 		var ip = "ws://" + server_ip + ":" + str(SERVER_PORT)
-		err = peer.create_client(cloudflow_ip)
+		err = peer.create_client(ip)
 		if err == 0:
 			#multiplayer.connected_to_server.connect(_on_connected_to_server)
 			#multiplayer.connection_failed.connect(_on_connection_failed)
@@ -108,7 +119,8 @@ func send_user_id(user_id: String = "guest", user_name: String = "Player") -> vo
 		connected_user.user_data = guest_data
 		connected_user.status = 1
 		print("Loading peer: " + str(peer_id) + " as guest")
-		spawn_player(peer_id, connected_user)
+		players_to_spawn.append(peer_id)
+		#spawn_player(peer_id, connected_user)
 
 func spawn_player(peer_id: int, connected_user: ConnectedUser) -> void:
 	#In future we should probably check if snapshot is done being processed
@@ -120,14 +132,14 @@ func spawn_player(peer_id: int, connected_user: ConnectedUser) -> void:
 	var random_offset: Vector2 = Vector2(randf_range(-5, 5), randf_range(-5, 5))
 	player.set_multiplayer_authority(1)
 	player.player_input.set_multiplayer_authority(peer_id)
-	player.rpc("init_player", peer_id, spawn_position + random_offset, connected_user.user_name)
 	for item in connected_user.user_data.inventory:
 		var item_name: String = item["item_name"]
 		var slot: int = item["slot"]
-		player.inventory.rpc("create_and_add_item", item_name, slot)
-	# Testing syntax and flow, this has to be loaded via database at some point
-	#player.inventory.rpc("create_and_add_item", "BoringRifle")
-	#player.inventory.rpc("create_and_add_item", "CyberGlock")
+		player.inventory.synced_create_and_add_item(item_name, slot)
+		#var item_node: Item = MultiplayerSync.create_and_spawn_node(Globals.item_scenes[item_name], player.inventory)
+		#player.inventory.rpc("add_item_with_path", item_node.get_path(), slot)
+		#player.inventory.rpc("create_and_add_item", item_name, slot)
+	player.rpc("init_player", peer_id, spawn_position + random_offset, connected_user.user_name)
 
 func disconnect_user(peer_id: int) -> void:
 	peer.disconnect_peer(peer_id)
@@ -214,7 +226,8 @@ func _on_successful_response(response: ResponseType) -> void:
 		connected_user.status = 1
 		connected_user.user_data = user_data
 		print("Loading peer: " + str(peer_id) + " as user")
-		spawn_player(peer_id, connected_user)
+		players_to_spawn.append(peer_id)
+		#spawn_player(peer_id, connected_user)
 		break
 
 func _on_connected_to_server() -> void:
@@ -273,6 +286,12 @@ func _on_peer_disconnected(id: int) -> void:
 		if player != null:
 			MultiplayerSync.delete_and_despawn_node(player)
 		player_disconnected.emit(id)
+		players_to_spawn.erase(id)
+
+func _on_player_synced(id: int) -> void:
+	var user: ConnectedUser = connected_users.get(id)
+	if user == null: return
+	user.has_processed_snapshot = true
 
 func is_server() -> bool:
 	if OS.has_feature("dedicated_server") and multiplayer.is_server(): return true

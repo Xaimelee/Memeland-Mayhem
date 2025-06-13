@@ -7,7 +7,7 @@ func enter() -> void:
 	enemy.sprite.play("run")
 
 func process(delta: float) -> void:
-	if not is_multiplayer_authority(): return
+	if not MultiplayerManager.is_server(): return
 	if not enemy.target: return
 	if not enemy.weapon.can_fire: return
 	if not enemy.ready_to_attack: return

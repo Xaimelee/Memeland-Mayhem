@@ -23,11 +23,12 @@ signal index_updated(item: Item, index: int)
 var items: Array[Item] = []
 
 func _ready() -> void:
-	if is_multiplayer_authority():
-		MultiplayerManager.player_connected.connect(_on_player_connected)
+	if MultiplayerManager.is_server():
+		MultiplayerSync.player_synced.connect(_on_player_synced)
 	for n in slots:
 		items.append(null)
 
+# Deprecated
 func create_item(item_name: String) -> Item:
 	item_name = item_name.to_snake_case()  
 	if not Globals.item_scenes.has(item_name): return null
@@ -36,7 +37,25 @@ func create_item(item_name: String) -> Item:
 	new_parent.add_child(item, true)
 	return item
 
-@rpc("authority", "call_local")
+func synced_create_item(item_name: String, data: Dictionary = {}) -> void:
+	item_name = item_name.to_snake_case()  
+	if not Globals.item_scenes.has(item_name): return
+	var item: Item = Globals.item_scenes[item_name].instantiate() as Item
+	var new_parent: Node2D = get_tree().root.get_node("Main/Dynamic")
+	MultiplayerSync.create_and_spawn_node(Globals.item_scenes[item_name], new_parent, data)
+
+# Should only be called by server
+func synced_create_and_add_item(item_name: String, index: int = -1, data: Dictionary = {}) -> void:
+	if index == -1:
+		index = get_free_index()
+	if index == -1: return
+	item_name = item_name.to_snake_case()
+	if not Globals.item_scenes.has(item_name): return
+	var parent: Node = items_parent if items_parent != null else self
+	var item: Item = MultiplayerSync.create_and_spawn_node(Globals.item_scenes[item_name], parent, data)
+	add_item_with_path.rpc(item.get_path(), index)
+
+# Used by Player Menu Inventory and local testing atm, should be deprecated at some point
 func create_and_add_item(item_name: String, index: int = -1) -> void:
 	if index == -1:
 		index = get_free_index()
@@ -45,43 +64,46 @@ func create_and_add_item(item_name: String, index: int = -1) -> void:
 	if not Globals.item_scenes.has(item_name): return
 	var item: Item = Globals.item_scenes[item_name].instantiate() as Item
 	if not item: return
-	add_item(item, index, true)
+	add_child(item)
+	add_item(item, index)
 
 # Node path must be absolute to root scene for this to work and it assumes the client...
 #... already has the item spawned.
 @rpc("authority", "call_local")
 func add_item_with_path(new_item_path: String, index: int) -> void:
-	var new_item: Item = get_tree().root.get_node(new_item_path)
+	var new_item: Item = get_tree().root.get_node_or_null(new_item_path)
 	add_item(new_item, index)
 
-@rpc("authority", "call_local")
-func drop_item(index: int) -> void:
+func sync_item_pickup(item: Item, index: int) -> void:
+	var parent: Node = items_parent if items_parent != null else self
+	MultiplayerSync.change_parent_and_sync(item, parent)
+	add_item_with_path.rpc(item.get_path(), index)
+
+func synced_drop_item(index: int) -> void:
 	var item: Item = items[index]
 	if item == null: return
 	items[index] = null
 	var new_parent: Node2D = get_tree().root.get_node("Main/Dynamic")
-	if item.get_parent():
-		item.get_parent().remove_child(item)
-	new_parent.add_child(item, true)
+	MultiplayerSync.change_parent_and_sync(item, new_parent)
+	var position: Vector2 = get_parent().global_position + Vector2(randf_range(0.05, 0.25), randf_range(0.05, 0.25))
+	drop_item.rpc(index, position)
+
+@rpc("authority", "call_local")
+func drop_item(index: int, position: Vector2) -> void:
+	var item: Item = items[index]
+	if item == null: return
+	items[index] = null
 	print("Dropped: " + item.item_name)
 	item.visible = true
 	item.set_is_dropped(true)
-	# NOTE: This needs to be replaced with something proper and should be synced across clients
-	item.global_position = get_parent().global_position + Vector2(randf_range(0.05, 0.25), randf_range(0.05, 0.25))
+	item.global_position = position
 	item_removed.emit(item)
 	index_updated.emit(null, index)
 
 # This can't be directly synced since it relies on a node reference
-func add_item(new_item: Item, index: int, assign_parent: bool = true) -> void:
+func add_item(new_item: Item, index: int) -> void:
 	if new_item == null: return
 	items[index] = new_item
-	if assign_parent:
-		if new_item.get_parent():
-			new_item.get_parent().remove_child(new_item)
-		if items_parent:
-			items_parent.add_child(new_item, true)
-		else:
-			add_child(new_item, true)
 	new_item.visible = false
 	new_item.set_is_dropped(false)
 	new_item.position = Vector2.ZERO
@@ -89,12 +111,10 @@ func add_item(new_item: Item, index: int, assign_parent: bool = true) -> void:
 	item_added.emit(new_item)
 	index_updated.emit(new_item, index)
 
-func remove_item(index: int, remove_parent: bool = true) -> void:
+func remove_item(index: int) -> void:
 	var item: Item = items[index]
 	if item == null: return
 	items[index] = null
-	if remove_parent and item.get_parent():
-		item.get_parent().remove_child(item)
 	print("Removed: " + item.item_name)
 	item_removed.emit(item)
 	# We set to null here so visuals know its now empty
@@ -112,7 +132,7 @@ func move_item(current_index: int, new_index: int) -> void:
 	var current_item: Item = get_item_at_index(current_index)
 	if not current_item: return
 	var item_at_new_slot: Item = get_item_at_index(new_index)
-	# Swaps items if there was one in the slot
+	# Swaps items if there was one in the slotd
 	items[current_index] = item_at_new_slot
 	index_updated.emit(item_at_new_slot, current_index)
 	items[new_index] = current_item
@@ -129,6 +149,10 @@ func get_free_index() -> int:
 	# No slots available
 	return -1
 
-func _on_player_connected(id: int):
+func _on_player_synced(id: int):
 	for item in items:
-		rpc_id(id, "create_and_add_item", item.item_name.to_snake_case())
+		var index: int = items.find(item)
+		if index == -1: continue
+		if item == null: continue
+		add_item_with_path.rpc_id(id, item.get_path(), index)
+		#rpc_id(id, "create_and_add_item", item.item_name.to_snake_case())

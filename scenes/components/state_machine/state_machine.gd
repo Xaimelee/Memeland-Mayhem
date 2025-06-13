@@ -35,8 +35,8 @@ func _ready() -> void:
 	for state: State in get_children():
 		states[state.name.to_lower()] = state
 
-	if is_multiplayer_authority() and sync_state_changes:
-		MultiplayerManager.player_connected.connect(_on_player_connected)
+	if MultiplayerManager.is_server() and sync_state_changes:
+		MultiplayerSync.player_synced.connect(_on_player_synced)
 
 func _process(delta: float) -> void:
 	if not current_state: return
@@ -56,14 +56,14 @@ func _set_starting_state(state: State) -> void:
 # states then we'd have pretty bloated state scripts checking different conditions.
 # it's much less code to just have the enemy script still decide when to change states.
 func change_state(new_state_name: String) -> void:
-	if not is_multiplayer_authority() and sync_state_changes: return
+	if not MultiplayerManager.is_server() and sync_state_changes: return
 	var new_state: State = states[new_state_name.to_lower()]
 	if not new_state: 
 		print(new_state_name + " is not a valid state name.")
 		return
 	if new_state == current_state: return
 	current_state = new_state
-	if is_multiplayer_authority() and sync_state_changes:
+	if MultiplayerManager.is_server() and sync_state_changes:
 		rpc("update_state", new_state_name.to_lower())
 
 @rpc("authority", "call_remote")
@@ -76,6 +76,6 @@ func is_state(state_name: String) -> bool:
 	return current_state.name.to_lower() == state_name.to_lower()
 
 # This is so we can sync server state with players who have joined later on
-func _on_player_connected(id: int):
+func _on_player_synced(id: int):
 	if not current_state: return
 	rpc_id(id, "update_state", current_state.name.to_lower())

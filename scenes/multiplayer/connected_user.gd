@@ -7,3 +7,4 @@ var user_id: String = ""
 var status: UserStatus = 0
 var user_data: UserData = null
 var user_name: String = "Player"
+var has_processed_snapshot: bool = false

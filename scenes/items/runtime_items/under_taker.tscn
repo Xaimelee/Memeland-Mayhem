@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://df7bvuymd1rae"]
+[gd_scene load_steps=9 format=3 uid="uid://df7bvuymd1rae"]
 
 [ext_resource type="Script" uid="uid://1kmr3fp72sdl" path="res://scenes/items/weapon.gd" id="1_fx6l6"]
 [ext_resource type="Texture2D" uid="uid://bwuvj5axcqu76" path="res://assets/sorrow.png" id="2_htu12"]
@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://cax1sng2060l6" path="res://assets/under-taker-icon.png" id="3_fydyp"]
 [ext_resource type="PackedScene" uid="uid://cx85rvdlejuhv" path="res://scenes/items/muzzle_flash.tscn" id="4_fydyp"]
 [ext_resource type="PackedScene" uid="uid://1svx5pr38l8o" path="res://scenes/items/pickup_area.tscn" id="5_htu12"]
+[ext_resource type="Script" uid="uid://f74ardnl26pd" path="res://scenes/multiplayer/sync_instance.gd" id="7_fydyp"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_htu12"]
 resource_local_to_scene = true
@@ -51,6 +52,10 @@ position = Vector2(16, -2)
 
 [node name="CollisionShape2D" parent="PickupArea" index="0"]
 shape = SubResource("RectangleShape2D_htu12")
+
+[node name="SyncInstance" type="Node" parent="."]
+script = ExtResource("7_fydyp")
+metadata/_custom_type_script = "uid://f74ardnl26pd"
 
 [connection signal="timeout" from="FireTimer" to="." method="_on_fire_timer_timeout"]
 

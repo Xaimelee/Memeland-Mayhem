@@ -16,18 +16,22 @@ var pickup_area: Area2D
 var is_dropped: bool = false
 
 func _ready() -> void:
-	if is_multiplayer_authority():
-		MultiplayerManager.player_connected.connect(_on_player_connected)
+	if MultiplayerManager.is_server():
+		MultiplayerSync.player_synced.connect(_on_player_synced)
 	pickup_area = get_node_or_null("PickupArea")
 
 @rpc("authority", "call_remote")
+func init_item(_is_dropped: bool, _global_position: Vector2) -> void:
+	set_is_dropped(_is_dropped)
+	global_position = _global_position
+
 func set_is_dropped(_is_dropped: bool) -> void:
 	is_dropped = _is_dropped
 	if pickup_area != null:
 		pickup_area.monitorable = is_dropped
 
-func _on_player_connected(id: int):
-	rpc_id(id, "set_is_dropped", is_dropped)
+func _on_player_synced(id: int):
+	init_item.rpc_id(id, is_dropped, global_position)
 
 @rpc("authority", "call_local")
 func despawn():

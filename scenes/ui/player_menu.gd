@@ -126,6 +126,11 @@ func _on_item_display_clicked(item_display: ItemDisplay) -> void:
 			selected_item.inventory.remove_item(selected_item.index)
 			clicked_inventory.add_item(selected_item.item, clicked_index)
 			selected_item.inventory.add_item(item_in_slot, selected_item.index)
+			# We reparent here now because the add/remove functions no longer do reparenting.
+			if selected_item.item != null:
+				selected_item.item.reparent(clicked_inventory)
+			if item_in_slot != null:
+				item_in_slot.reparent(selected_item.inventory)
 		selected_item = null
 	else:
 		var clicked_item: Item = clicked_inventory.get_item_at_index(clicked_index)
