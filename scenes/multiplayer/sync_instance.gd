@@ -1,8 +1,8 @@
 extends Node
 class_name SyncInstance
 
-#NOTE: might need a signal here to get fired to prompt updates to the client but not sure yet
-signal registered(data: Dictionary)
+# Useful if we need specific logic to run when we know the root is now synced across network and fully spawned in
+signal registered()
 
 var network_id: int = 0
 var network_parent: SyncInstance = null

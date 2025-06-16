@@ -1,9 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://di4r4cved5cic"]
+[gd_scene load_steps=7 format=3 uid="uid://di4r4cved5cic"]
 
 [ext_resource type="Script" uid="uid://cqxqyascy4knh" path="res://scenes/items/experience.gd" id="1_pkmxa"]
 [ext_resource type="PackedScene" uid="uid://1svx5pr38l8o" path="res://scenes/items/pickup_area.tscn" id="2_2se16"]
 [ext_resource type="Texture2D" uid="uid://csekmj6u0k2wt" path="res://assets/xp.png" id="2_irdsm"]
 [ext_resource type="Script" uid="uid://f74ardnl26pd" path="res://scenes/multiplayer/sync_instance.gd" id="4_mj0um"]
+[ext_resource type="Script" uid="uid://cil2r0ln8s14j" path="res://scenes/multiplayer/property_sync.gd" id="5_d511n"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_irdsm"]
 resource_local_to_scene = true
@@ -41,5 +42,9 @@ shape = SubResource("RectangleShape2D_irdsm")
 [node name="SyncInstance" type="Node" parent="."]
 script = ExtResource("4_mj0um")
 metadata/_custom_type_script = "uid://f74ardnl26pd"
+
+[node name="PropertySync" type="Node" parent="."]
+script = ExtResource("5_d511n")
+metadata/_custom_type_script = "uid://cil2r0ln8s14j"
 
 [editable path="PickupArea"]

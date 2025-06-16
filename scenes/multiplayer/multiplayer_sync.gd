@@ -73,7 +73,6 @@ func send_snapshot_batch(snapshot_batch: Array[Dictionary], is_last_batch: bool 
 		else:
 			try_clear_pending_queue()
 	if is_last_batch:
-		send_snapshot_processed.rpc_id(1, multiplayer.get_unique_id())
 		is_processing_snapshot = false
 		# I did it like this so if the server tries to rpc a new connecting user before they have synced their snapshot, it would rpc error and then they wouldn't spawn the node.
 		# Which would then require needing a solution to perioidcally check network ids to make sure client isnt missing any. We may still need to do that but this should hopefully...
@@ -87,6 +86,8 @@ func send_snapshot_batch(snapshot_batch: Array[Dictionary], is_last_batch: bool 
 			if sync_spawn != null:
 				setup_node(sync_spawn.network_id, sync_spawn.node, sync_spawn.parent, sync_spawn.network_parent)
 				continue
+		sync_queue.clear()
+		send_snapshot_processed.rpc_id(1, multiplayer.get_unique_id())
 
 @rpc("any_peer", "call_remote")
 func send_snapshot_processed(id: int) -> void:
@@ -100,6 +101,8 @@ func try_clear_pending_queue() -> void:
 			if try_create_instance_from_values(snapshot_queue[i]):
 				snapshot_queue.remove_at(i)
 				has_spawned = true
+			else:
+				has_spawned = false
 
 func try_create_instance_from_values(instance_values: Dictionary) -> bool:
 	var network_id: int = instance_values["network_id"]
@@ -107,7 +110,7 @@ func try_create_instance_from_values(instance_values: Dictionary) -> bool:
 	if network_parent_id != -1 and not id_to_sync_instances.has(network_parent_id): return false
 	var scene_path: String = instance_values["scene_path"]
 	var parent_path: String = instance_values["parent_path"]
-	spawn_node(network_id, scene_path, parent_path, network_parent_id)
+	spawn_node(network_id, scene_path, parent_path, network_parent_id, false)
 	return true
 
 #create node, will check child for synced node component
@@ -174,14 +177,14 @@ func unregister_sync_instance(sync_instance: SyncInstance) -> void:
 
 #spawn node for clients
 @rpc("authority", "call_remote")
-func spawn_node(network_id: int, scene_path: String, parent_path: String = "", parent_network_id: int = -1) -> void:
+func spawn_node(network_id: int, scene_path: String, parent_path: String = "", parent_network_id: int = -1, check_if_processing: bool = true) -> void:
 	# In future we should cache all possible load paths for client and server so we don't need to load
 	var node: Node = load(scene_path).instantiate()
 	var parent: Node = get_tree().root.get_node_or_null(parent_path)
 	var network_parent: SyncInstance = id_to_sync_instances.get(parent_network_id)
 	if network_parent == null and parent_network_id != -1:
 		printerr("Spawned: " + node.name + " and parent network id of: " + str(parent_network_id) + " could not be found on client.")
-	if is_processing_snapshot:
+	if is_processing_snapshot and check_if_processing:
 		sync_queue.append(SyncSpawn.new(network_id, node, parent, network_parent))
 		return
 	setup_node(network_id, node, parent, network_parent)

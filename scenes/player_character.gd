@@ -181,11 +181,8 @@ func die() -> void:
 		#inventory.drop_item(n)
 
 	if MultiplayerManager.is_server():
-		for n in inventory.slots:
-			inventory.synced_drop_item(n)
-		if current_additive_xp > 0:
-			inventory.synced_create_item("experience", { "global_position": global_position, "amount": current_additive_xp})
-			#drop_experience.rpc(current_additive_xp)
+		inventory.synced_drop_all()
+		drop_experience()
 		MultiplayerManager.player_died(self)
 
 	# Emit signal before freeing
@@ -194,11 +191,10 @@ func die() -> void:
 	# Start decay timer
 	#decay_timer.start()
 
-@rpc("authority", "call_local")
-func drop_experience(amount: int) -> void:
-	var experience: Experience = inventory.create_item("experience")
-	experience.global_position = global_position
-	experience.amount = amount
+func drop_experience() -> void:
+	if current_additive_xp <= 0: return
+	var experience: Experience = inventory.synced_create_item("experience")
+	experience.drop(current_additive_xp, global_position)
 
 @rpc("authority", "call_local")
 func extract() -> void:
@@ -295,7 +291,7 @@ func send_pickup_item(item_node_path: String) -> void:
 	if index == -1:
 		print("Tried to pickup item with no inventory space")
 		return
-	inventory.sync_item_pickup(item, index)
+	inventory.synced_item_pickup(item, index)
 	#inventory.rpc("add_item_with_path", item_node_path, index)
 
 @rpc("authority", "call_local")

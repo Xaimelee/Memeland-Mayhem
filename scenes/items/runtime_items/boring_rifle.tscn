@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://c8vj3yqnvys4p"]
+[gd_scene load_steps=10 format=3 uid="uid://c8vj3yqnvys4p"]
 
 [ext_resource type="Script" uid="uid://1kmr3fp72sdl" path="res://scenes/items/weapon.gd" id="1_llf0w"]
 [ext_resource type="Texture2D" uid="uid://c2rwlvyxutel5" path="res://assets/boring-rifle.png" id="2_mggiu"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://cx85rvdlejuhv" path="res://scenes/items/muzzle_flash.tscn" id="5_17utm"]
 [ext_resource type="PackedScene" uid="uid://1svx5pr38l8o" path="res://scenes/items/pickup_area.tscn" id="6_aycvm"]
 [ext_resource type="Script" uid="uid://f74ardnl26pd" path="res://scenes/multiplayer/sync_instance.gd" id="7_seij6"]
+[ext_resource type="Script" uid="uid://cil2r0ln8s14j" path="res://scenes/multiplayer/property_sync.gd" id="8_7nfwx"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_aycvm"]
 resource_local_to_scene = true
@@ -58,6 +59,10 @@ shape = SubResource("RectangleShape2D_aycvm")
 [node name="SyncInstance" type="Node" parent="."]
 script = ExtResource("7_seij6")
 metadata/_custom_type_script = "uid://f74ardnl26pd"
+
+[node name="PropertySync" type="Node" parent="."]
+script = ExtResource("8_7nfwx")
+metadata/_custom_type_script = "uid://cil2r0ln8s14j"
 
 [connection signal="timeout" from="FireTimer" to="." method="_on_fire_timer_timeout"]
 

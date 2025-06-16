@@ -163,6 +163,7 @@ func is_lined_up() -> bool:
 @rpc("authority", "call_local")
 func shoot() -> void:
 	if not target: return
+	if not weapon: return
 	var random_offset_x = randf_range(-32, 32)
 	var random_offset_y = randf_range(-32, 32)
 	arm_sprite.look_at(target.position + Vector2(random_offset_x, random_offset_y))
@@ -208,13 +209,18 @@ func die() -> void:
 	#... for each item. This also isn't authoritatively synced, which it might need to be in future?
 	weapon = null
 	if MultiplayerManager.is_server():
-		inventory.synced_drop_item(0)
-		inventory.synced_create_item("experience", { "global_position": global_position, "amount": xp_drop })
+		inventory.synced_drop_all()
+		drop_experience()
 	
 	#inventory.drop_item(0)
 	#drop_experience(xp_drop)
 	# Start decay timer
 	#decay_timer.start()
+
+func drop_experience() -> void:
+	if xp_drop <= 0: return
+	var experience: Experience = inventory.synced_create_item("experience")
+	experience.drop(xp_drop, global_position)
 
 # Used to sync current enemies to new players 
 @rpc("authority", "call_remote")
@@ -237,12 +243,6 @@ func update_target(new_target_node_path: String) -> void:
 		target = null
 		return
 	target = get_node_or_null(new_target_node_path)
-
-@rpc("authority", "call_local")
-func drop_experience(amount: int) -> void:
-	var experience: Experience = inventory.create_item("experience")
-	experience.global_position = global_position
-	experience.amount = amount
 
 #@rpc("authority", "call_local")
 #func update_state(new_state: State) -> void:

@@ -37,22 +37,22 @@ func create_item(item_name: String) -> Item:
 	new_parent.add_child(item, true)
 	return item
 
-func synced_create_item(item_name: String, data: Dictionary = {}) -> void:
+func synced_create_item(item_name: String) -> Item:
 	item_name = item_name.to_snake_case()  
-	if not Globals.item_scenes.has(item_name): return
-	var item: Item = Globals.item_scenes[item_name].instantiate() as Item
+	if not Globals.item_scenes.has(item_name): return null
 	var new_parent: Node2D = get_tree().root.get_node("Main/Dynamic")
-	MultiplayerSync.create_and_spawn_node(Globals.item_scenes[item_name], new_parent, data)
+	var item: Item = MultiplayerSync.create_and_spawn_node(Globals.item_scenes[item_name], new_parent)
+	return item
 
 # Should only be called by server
-func synced_create_and_add_item(item_name: String, index: int = -1, data: Dictionary = {}) -> void:
+func synced_create_and_add_item(item_name: String, index: int = -1) -> void:
 	if index == -1:
 		index = get_free_index()
 	if index == -1: return
 	item_name = item_name.to_snake_case()
 	if not Globals.item_scenes.has(item_name): return
 	var parent: Node = items_parent if items_parent != null else self
-	var item: Item = MultiplayerSync.create_and_spawn_node(Globals.item_scenes[item_name], parent, data)
+	var item: Item = MultiplayerSync.create_and_spawn_node(Globals.item_scenes[item_name], parent)
 	add_item_with_path.rpc(item.get_path(), index)
 
 # Used by Player Menu Inventory and local testing atm, should be deprecated at some point
@@ -74,7 +74,7 @@ func add_item_with_path(new_item_path: String, index: int) -> void:
 	var new_item: Item = get_tree().root.get_node_or_null(new_item_path)
 	add_item(new_item, index)
 
-func sync_item_pickup(item: Item, index: int) -> void:
+func synced_item_pickup(item: Item, index: int) -> void:
 	var parent: Node = items_parent if items_parent != null else self
 	MultiplayerSync.change_parent_and_sync(item, parent)
 	add_item_with_path.rpc(item.get_path(), index)
@@ -87,6 +87,10 @@ func synced_drop_item(index: int) -> void:
 	var position: Vector2 = get_parent().global_position + Vector2(randf_range(0.05, 0.25), randf_range(0.05, 0.25))
 	drop_item.rpc(index, position)
 
+func synced_drop_all() -> void:
+	for n in slots:
+		synced_drop_item(n)
+
 @rpc("authority", "call_local")
 func drop_item(index: int, position: Vector2) -> void:
 	var item: Item = items[index]
@@ -94,7 +98,7 @@ func drop_item(index: int, position: Vector2) -> void:
 	items[index] = null
 	print("Dropped: " + item.item_name)
 	item.visible = true
-	item.set_is_dropped(true)
+	item.is_dropped = true
 	item.global_position = position
 	item.rotation = 0
 	item_removed.emit(item)
@@ -105,7 +109,7 @@ func add_item(new_item: Item, index: int) -> void:
 	if new_item == null: return
 	items[index] = new_item
 	new_item.visible = false
-	new_item.set_is_dropped(false)
+	new_item.is_dropped = false
 	new_item.global_position = Vector2.ZERO
 	new_item.position = Vector2.ZERO
 	new_item.rotation = 0

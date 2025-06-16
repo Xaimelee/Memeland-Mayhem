@@ -7,31 +7,38 @@ class_name Item
 
 ## Names should probably be unique
 @export var item_name: String = "Name"
-# This will need to be synced
+# This will need to be synced later on when I add support for stacks in inventory
 @export var stack: int = 1
+	#set(value):
+		#stack = value
+		#property_sync.sync("stack", value)
 @export var icon: Texture2D
 @export var max_stack: int = 1
 
+@onready var property_sync: PropertySync = get_node("PropertySync")
+
 var pickup_area: Area2D
-var is_dropped: bool = false
+var is_dropped: bool = false:
+	set(value):
+		is_dropped = value
+		if pickup_area != null:
+			pickup_area.monitorable = is_dropped
+		# This isn't called to be synced for now because inventory functions of add item/drop item handle this.
+		#property_sync.sync("is_dropped", is_dropped)
 
 func _ready() -> void:
-	if MultiplayerManager.is_server():
-		MultiplayerSync.player_synced.connect(_on_player_synced)
+	property_sync.add_properties([
+		"stack",
+		"is_dropped",
+		"global_position"
+	])
 	pickup_area = get_node_or_null("PickupArea")
-
-@rpc("authority", "call_remote")
-func init_item(_is_dropped: bool, _global_position: Vector2) -> void:
-	set_is_dropped(_is_dropped)
-	global_position = _global_position
-
-func set_is_dropped(_is_dropped: bool) -> void:
-	is_dropped = _is_dropped
 	if pickup_area != null:
 		pickup_area.monitorable = is_dropped
 
-func _on_player_synced(id: int):
-	init_item.rpc_id(id, is_dropped, global_position)
+func override_global_position(new_global_position: Vector2) -> void:
+	global_position = new_global_position
+	property_sync.sync("global_position", global_position)
 
 @rpc("authority", "call_local")
 func despawn():
