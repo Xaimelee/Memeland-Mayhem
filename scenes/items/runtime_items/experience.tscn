@@ -14,6 +14,7 @@ script = ExtResource("1_pkmxa")
 metadata/_custom_type_script = "uid://cqxqyascy4knh"
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+z_index = 2
 texture = ExtResource("2_irdsm")
 
 [node name="Label" type="Label" parent="."]
@@ -40,7 +41,5 @@ shape = SubResource("RectangleShape2D_irdsm")
 [node name="SyncInstance" type="Node" parent="."]
 script = ExtResource("4_mj0um")
 metadata/_custom_type_script = "uid://f74ardnl26pd"
-
-[connection signal="registered" from="SyncInstance" to="." method="_on_sync_instance_registered"]
 
 [editable path="PickupArea"]

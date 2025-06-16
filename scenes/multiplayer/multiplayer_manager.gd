@@ -50,6 +50,9 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	for peer_id in players_to_spawn.duplicate():
+		if not connected_users.has(peer_id):
+			players_to_spawn.erase(peer_id)
+			continue
 		var connected_user: ConnectedUser = connected_users[peer_id]
 		if connected_user.user_data == null: continue
 		if not connected_user.has_processed_snapshot: continue
@@ -284,7 +287,8 @@ func _on_peer_disconnected(id: int) -> void:
 		# We will always delete for now until I add logic to deactivate stuff reliant on peer being connected
 		#if not was_killed:
 		if player != null:
-			MultiplayerSync.delete_and_despawn_node(player)
+			#MultiplayerSync.delete_and_despawn_node(player)
+			player.queue_free()
 		player_disconnected.emit(id)
 		players_to_spawn.erase(id)
 

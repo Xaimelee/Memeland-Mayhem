@@ -18,11 +18,15 @@ func _ready() -> void:
 	# If this is true, we assume the client has a sync instance not spawned via the server
 	elif not is_registered and not MultiplayerManager.is_server():
 		root = get_parent()
-		queue_free()
+		if root != null:
+			root.queue_free()
+		else:
+			queue_free()
 	#print("ready")
 	#root.name = root.name + str(network_id)
-	#test_stuff()
 
-func test_stuff() -> void:
-	print(root.get_path())
-	print(root.scene_file_path)
+func _notification(what: int) -> void:
+	if not what == NOTIFICATION_PREDELETE: return
+	if not MultiplayerManager.is_server(): return
+	if not is_registered: return
+	MultiplayerSync.despawn_node.rpc(network_id)

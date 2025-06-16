@@ -82,7 +82,6 @@ func sync_item_pickup(item: Item, index: int) -> void:
 func synced_drop_item(index: int) -> void:
 	var item: Item = items[index]
 	if item == null: return
-	items[index] = null
 	var new_parent: Node2D = get_tree().root.get_node("Main/Dynamic")
 	MultiplayerSync.change_parent_and_sync(item, new_parent)
 	var position: Vector2 = get_parent().global_position + Vector2(randf_range(0.05, 0.25), randf_range(0.05, 0.25))
@@ -97,6 +96,7 @@ func drop_item(index: int, position: Vector2) -> void:
 	item.visible = true
 	item.set_is_dropped(true)
 	item.global_position = position
+	item.rotation = 0
 	item_removed.emit(item)
 	index_updated.emit(null, index)
 
@@ -106,7 +106,9 @@ func add_item(new_item: Item, index: int) -> void:
 	items[index] = new_item
 	new_item.visible = false
 	new_item.set_is_dropped(false)
+	new_item.global_position = Vector2.ZERO
 	new_item.position = Vector2.ZERO
+	new_item.rotation = 0
 	print("Added: " + new_item.item_name)
 	item_added.emit(new_item)
 	index_updated.emit(new_item, index)

@@ -2,9 +2,12 @@ extends Node
 
 signal player_synced(id: int)
 
+const MAX_SNAPSHOT_BATCH_SIZE: int = 30
+
 # Only relevant for the server and these should always be unique
 # This is not related to peer (player) ids
 var next_network_id: int = 0 
+var reusable_network_ids: Array[int] = []
 
 # This is very important to remember, if any synced node needs to be deleted, we use the function...
 #... in this script to ensure both client and server keep their dictionaries in sync.
@@ -13,11 +16,10 @@ var root_to_sync_instances: Dictionary = {}
 
 # Spawn and despawn queues are for spawns and despawns sent by server while we are busy processing the snapshot. We will process these later.
 # NOTE: This isnt added yet gonna test without it first
-var spawn_queue: Array[Dictionary] = []
-var despawn_queue: Array[int] = []
+var sync_queue: Array[Variant] = []
 
 var snapshot_queue: Array[Dictionary] = []
-var is_processing_snapshot: bool = false
+var is_processing_snapshot: bool = true
 
 func _ready() -> void:
 	Globals.scene_changed.connect(_on_scene_changed)
@@ -26,8 +28,7 @@ func _ready() -> void:
 func _on_scene_changed(scene: String) -> void:
 	id_to_sync_instances.clear()
 	root_to_sync_instances.clear()
-	spawn_queue.clear()
-	despawn_queue.clear()
+	sync_queue.clear()
 	snapshot_queue.clear()
 	is_processing_snapshot = false
 
@@ -41,33 +42,51 @@ func _on_scene_changed(scene: String) -> void:
 	#id_to_sync_instances.erase(sync_instance.network_id)
 
 # These are new connections to the server
-func create_and_send_snapshot(id: int) -> void:
-	var snapshot: Array[Dictionary] = []
-	for sync_instance in root_to_sync_instances.values() as Array[SyncInstance]:
+func create_and_send_snapshot(peer_id: int) -> void:
+	var all_instances: Array = root_to_sync_instances.values()
+	var current_batch: Array[Dictionary] = []
+	for i in range(all_instances.size()):
+		var sync_instance: SyncInstance = all_instances[i]
 		var network_id: int = sync_instance.network_id
 		var network_parent_id: int = -1 if sync_instance.network_parent == null else sync_instance.network_parent.network_id
 		var scene_path: String = sync_instance.root.scene_file_path
 		var parent: Node = sync_instance.root.get_parent()
-		var parent_path = "" if parent == null else parent.get_path()
-		snapshot.append({ 
-			"network_id": network_id, 
+		var parent_path: String = "" if parent == null else parent.get_path()
+		current_batch.append({
+			"network_id": network_id,
 			"network_parent_id": network_parent_id,
-			"scene_path": scene_path, 
-			"parent_path": parent_path })
-	if snapshot.is_empty(): return
-	send_snapshot.rpc_id(id, snapshot)
+			"scene_path": scene_path,
+			"parent_path": parent_path
+		})
+		# If batch is full or it's the last instance, send it
+		var is_last_instance: bool = (i == all_instances.size() - 1)
+		if current_batch.size() >= MAX_SNAPSHOT_BATCH_SIZE or is_last_instance:
+			send_snapshot_batch.rpc_id(peer_id, current_batch.duplicate(), is_last_instance)
+			current_batch.clear()
 
 @rpc("authority", "call_remote")
-func send_snapshot(snapshot: Array[Dictionary]) -> void:
+func send_snapshot_batch(snapshot_batch: Array[Dictionary], is_last_batch: bool = false) -> void:
 	is_processing_snapshot = true
-	for instance_values in snapshot:
+	for instance_values in snapshot_batch:
 		if not try_create_instance_from_values(instance_values):
 			snapshot_queue.append(instance_values)
 		else:
-			# We have a new network instance which might be a needed network parent in the queue
 			try_clear_pending_queue()
-	is_processing_snapshot = false
-	send_snapshot_processed.rpc_id(1, multiplayer.get_unique_id())
+	if is_last_batch:
+		send_snapshot_processed.rpc_id(1, multiplayer.get_unique_id())
+		is_processing_snapshot = false
+		# I did it like this so if the server tries to rpc a new connecting user before they have synced their snapshot, it would rpc error and then they wouldn't spawn the node.
+		# Which would then require needing a solution to perioidcally check network ids to make sure client isnt missing any. We may still need to do that but this should hopefully...
+		#... avoid it happening because the user was still joining/syncing.
+		for queued_sync in sync_queue:
+			var sync_despawn: SyncDespawn = queued_sync as SyncDespawn
+			if sync_despawn != null:
+				despawn_node(sync_despawn.network_id)
+				continue
+			var sync_spawn: SyncSpawn = queued_sync as SyncSpawn
+			if sync_spawn != null:
+				setup_node(sync_spawn.network_id, sync_spawn.node, sync_spawn.parent, sync_spawn.network_parent)
+				continue
 
 @rpc("any_peer", "call_remote")
 func send_snapshot_processed(id: int) -> void:
@@ -77,8 +96,10 @@ func try_clear_pending_queue() -> void:
 	var has_spawned: bool = true
 	while has_spawned:
 		has_spawned = false
-		for i in snapshot_queue.size() - 1:
-			has_spawned = try_create_instance_from_values(snapshot_queue[i])
+		for i in range(snapshot_queue.size() - 1, -1, -1):
+			if try_create_instance_from_values(snapshot_queue[i]):
+				snapshot_queue.remove_at(i)
+				has_spawned = true
 
 func try_create_instance_from_values(instance_values: Dictionary) -> bool:
 	var network_id: int = instance_values["network_id"]
@@ -90,7 +111,7 @@ func try_create_instance_from_values(instance_values: Dictionary) -> bool:
 	return true
 
 #create node, will check child for synced node component
-func create_and_spawn_node(node_scene: PackedScene, parent: Node = null, data: Dictionary = {}) -> Node:
+func create_and_spawn_node(node_scene: PackedScene, parent: Node = null) -> Node:
 	var node: Node = node_scene.instantiate()
 	# Here we are checking for a node higher in the chain which is also synced.
 	# We need this info for later when sending snapshots to new players to ensure.
@@ -100,14 +121,14 @@ func create_and_spawn_node(node_scene: PackedScene, parent: Node = null, data: D
 		node.queue_free()
 		printerr("Tried to spawn a synced node but the found network parent does not exist in the dictionary. I could just add it but this is likely an issue with setup needing addressing")
 		return
-	setup_node(next_network_id, node, parent, network_parent, data)
+	var id: int = get_next_network_id()
+	setup_node(id, node, parent, network_parent)
 	var parent_path = "" if parent == null else parent.get_path()
 	var parent_network_id = -1 if network_parent == null else network_parent.network_id
-	spawn_node.rpc(next_network_id, node.scene_file_path, parent_path, parent_network_id, data)
-	next_network_id += 1
+	spawn_node.rpc(id, node.scene_file_path, parent_path, parent_network_id)
 	return node
 
-func setup_node(network_id: int, node: Node, parent: Node = null, network_parent: SyncInstance = null, data: Dictionary = {}) -> void:
+func setup_node(network_id: int, node: Node, parent: Node = null, network_parent: SyncInstance = null) -> void:
 	var sync_instance: SyncInstance = null
 	for child in node.get_children():
 		if child is SyncInstance:
@@ -133,30 +154,39 @@ func setup_node(network_id: int, node: Node, parent: Node = null, network_parent
 	#... and if clients are missing any sync instances compared to the server. If so, we could add a way to try and resync players. 
 	id_to_sync_instances[network_id] = sync_instance
 	root_to_sync_instances[node] = sync_instance
-	sync_instance.registered.emit(data)
+	sync_instance.registered.emit()
 	print("Spawned: " + node.name)
 
 func register_sync_instance(sync_instance: SyncInstance) -> void:
 	sync_instance.is_registered = true
-	sync_instance.network_id = next_network_id
-	sync_instance.root.name = sync_instance.root.name.rstrip("0123456789") + "_ID" + str(next_network_id)
-	next_network_id += 1
+	var id: int = get_next_network_id()
+	sync_instance.network_id = id
+	sync_instance.root.name = sync_instance.root.name.rstrip("0123456789") + "_ID" + str(id)
 	sync_instance.network_parent = find_parent_sync_instance(sync_instance.root.get_parent())
 	id_to_sync_instances[sync_instance.network_id] = sync_instance
 	root_to_sync_instances[sync_instance.root] = sync_instance
 	print("Registered: " + sync_instance.root.name)
 
+func unregister_sync_instance(sync_instance: SyncInstance) -> void:
+	id_to_sync_instances.erase(sync_instance.network_id)
+	root_to_sync_instances.erase(sync_instance.root)
+	reusable_network_ids.append(sync_instance.network_id)
+
 #spawn node for clients
 @rpc("authority", "call_remote")
-func spawn_node(network_id: int, scene_path: String, parent_path: String = "", parent_network_id: int = -1, data: Dictionary = {}) -> void:
+func spawn_node(network_id: int, scene_path: String, parent_path: String = "", parent_network_id: int = -1) -> void:
 	# In future we should cache all possible load paths for client and server so we don't need to load
 	var node: Node = load(scene_path).instantiate()
 	var parent: Node = get_tree().root.get_node_or_null(parent_path)
 	var network_parent: SyncInstance = id_to_sync_instances.get(parent_network_id)
 	if network_parent == null and parent_network_id != -1:
 		printerr("Spawned: " + node.name + " and parent network id of: " + str(parent_network_id) + " could not be found on client.")
-	setup_node(network_id, node, parent, network_parent, data)
+	if is_processing_snapshot:
+		sync_queue.append(SyncSpawn.new(network_id, node, parent, network_parent))
+		return
+	setup_node(network_id, node, parent, network_parent)
 
+# DEPRECATED
 func delete_and_despawn_node(node: Node) -> void:
 	var sync_instance: SyncInstance = root_to_sync_instances.get(node)
 	if sync_instance == null: 
@@ -170,9 +200,13 @@ func despawn_node(network_id: int) -> void:
 	if sync_instance == null: 
 		printerr("Tried to despawn using id: " + str(network_id) + "but dictionary doesn't have sync instance mapped to the id.")
 		return
-	root_to_sync_instances.erase(sync_instance.root)
-	id_to_sync_instances.erase(network_id)
-	sync_instance.root.queue_free()
+	if is_processing_snapshot:
+		sync_queue.append(SyncDespawn.new(network_id))
+		return
+	print("Despawned: " + sync_instance.root.name)
+	unregister_sync_instance(sync_instance)
+	if not MultiplayerManager.is_server():
+		sync_instance.root.queue_free()
 
 func change_parent_and_sync(root_node: Node, new_parent: Node) -> void:
 	var sync_instance: SyncInstance = root_to_sync_instances.get(root_node)
@@ -202,3 +236,10 @@ func find_parent_sync_instance(starting_node: Node) -> SyncInstance:
 				if child is SyncInstance:
 					return child
 	return null
+
+func get_next_network_id() -> int:
+	if not reusable_network_ids.is_empty():
+		return reusable_network_ids.pop_back()
+	var id: int = next_network_id
+	next_network_id += 1
+	return id

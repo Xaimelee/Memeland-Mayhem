@@ -78,8 +78,8 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		rpc("update_target_position", global_position)
 	
-	if not target:
-		return
+	if not target: return
+	if not weapon: return
 		
 	# Flip towards target
 	if target.position.x < position.x:

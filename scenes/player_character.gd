@@ -391,7 +391,8 @@ func _on_detect_area_2d_area_entered(area: Area2D) -> void:
 			current_additive_xp += item_as_experience.amount
 			# Incase anyone else tries to interact with it before it despawns
 			item_as_experience.amount = 0
-			MultiplayerSync.delete_and_despawn_node(item_as_experience)
+			item_as_experience.queue_free()
+			#MultiplayerSync.delete_and_despawn_node(item_as_experience)
 			#item_as_experience.rpc("despawn")
 			return
 	nearby_items.append(item)
