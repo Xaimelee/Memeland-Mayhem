@@ -4,8 +4,7 @@ class_name Experience
 var amount: int = 1:
 	set(value):
 		amount = value
-		# Not syncing for now because we don't actually need to. Only the server needs to track XP.
-		#property_sync.sync("amount", amount)
+		property_sync.sync("amount", amount)
 
 func _ready() -> void:
 	super._ready()
