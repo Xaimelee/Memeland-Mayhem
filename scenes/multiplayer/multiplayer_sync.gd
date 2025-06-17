@@ -19,7 +19,7 @@ var root_to_sync_instances: Dictionary = {}
 var sync_queue: Array[Variant] = []
 
 var snapshot_queue: Array[Dictionary] = []
-var is_processing_snapshot: bool = true
+var is_processing_snapshot: bool = false
 
 func _ready() -> void:
 	Globals.scene_changed.connect(_on_scene_changed)
@@ -30,7 +30,10 @@ func _on_scene_changed(scene: String) -> void:
 	root_to_sync_instances.clear()
 	sync_queue.clear()
 	snapshot_queue.clear()
+	reusable_network_ids.clear()
+	next_network_id = 0
 	is_processing_snapshot = false
+	print("Cleared Sync Data")
 
 # This fires when reparenting which is fucking stupid
 #func _on_node_removed(node: Node) -> void:
@@ -157,8 +160,8 @@ func setup_node(network_id: int, node: Node, parent: Node = null, network_parent
 	#... and if clients are missing any sync instances compared to the server. If so, we could add a way to try and resync players. 
 	id_to_sync_instances[network_id] = sync_instance
 	root_to_sync_instances[node] = sync_instance
-	sync_instance.registered.emit()
 	print("Spawned: " + node.name)
+	sync_instance.registered.emit()
 
 func register_sync_instance(sync_instance: SyncInstance) -> void:
 	sync_instance.is_registered = true

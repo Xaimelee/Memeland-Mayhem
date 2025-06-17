@@ -24,3 +24,4 @@ region_enabled = true
 region_rect = Rect2(768.036, 296.753, 63.6317, 40.5395)
 
 [connection signal="body_entered" from="Area2D" to="." method="_on_area_2d_body_entered"]
+[connection signal="body_exited" from="Area2D" to="." method="_on_area_2d_body_exited"]

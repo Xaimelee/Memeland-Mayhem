@@ -75,6 +75,7 @@ func handle_hit() -> void:
 	projectile.impact_particles_lifetime = impact_particles_lifetime
 	if collider and collider is CharacterBody2D:
 		projectile.target = collider
+	if get_tree() == null: return
 	get_tree().root.add_child(projectile)
 
 

@@ -3,18 +3,21 @@ extends Menu
 const ITEM_DISPLAY_SCENE: PackedScene = preload("uid://bs85sd7odwt6f")
 const MAX_INVENTORY = 6
 const MAX_STASH = 24
+const XP_PER_LEVEL = 100
 
 @onready var user_id_label: Label = %UserId
 @onready var name_label_edit: HBoxContainer = %NameLabelEdit
 @onready var name_label: Label = %Name
 @onready var name_input_save_cancel: HBoxContainer = %NameInputSaveCancel
 @onready var name_input_field: InputField = %NameInputField
-@onready var level_label: Label = %Level
+@onready var level_label: Label = %LevelLabel
 @onready var stash_container: GridContainer = %StashContainer
 @onready var inventory_container: HBoxContainer = %InventoryContainer
 @onready var inventory: Inventory = %Inventory
 @onready var stash: Inventory = %Stash
 @onready var selected_item_display: ItemDisplay = %SelectedItemDisplay
+@onready var xp_label: Label = %XPLabel
+@onready var xp_progress_bar: TextureProgressBar = %XPProgressBar
 
 var inventory_displays: Array[ItemDisplay] = []
 var stash_displays: Array[ItemDisplay] = []
@@ -58,13 +61,15 @@ func _input(event: InputEvent) -> void:
 
 # Overriding
 func enabled() -> void: 
-	if UserManager.user_name != "Player":
-		name_label.text = UserManager.user_name
 	if not UserManager.user_data: return
 	var user_data: UserData = UserManager.user_data
-	user_id_label.text = user_data.user_id
+	user_id_label.text = SolanaService.wallet.get_shorthand_address()
 	name_label.text = user_data.player_name
-	level_label.text = str(user_data.level)
+	#level_label.text = str(user_data.level)
+	level_label.text = str(get_level_from_xp(user_data.xp))
+	xp_progress_bar.value = get_xp_progress_percent(user_data.xp)
+	var next_milestone: int = (get_level_from_xp(user_data.xp) + 1) * XP_PER_LEVEL
+	xp_label.text = "%d / %d" % [user_data.xp, next_milestone]
 	# We clear these because we assume when enabling that we've fetched new data potentially.
 	# NOTE: Right now we don't fetch new data, we will need to actually do so in the future before we finish...
 	#... loading the player page.
@@ -142,18 +147,23 @@ func _on_item_display_clicked(item_display: ItemDisplay) -> void:
 		)
 		selected_item_display.set_icon_and_quantity(clicked_item.icon, clicked_item.stack)
 
-
 func _on_edit_name_button_pressed() -> void:
 	name_label_edit.hide()
 	name_input_save_cancel.show()
 
-
 func _on_save_name_button_pressed() -> void:
 	name_label_edit.show()
 	name_input_save_cancel.hide()
-	name_label.text = name_input_field.text
-	UserManager.user_name = name_label.text
+	if name_input_field.text != "":
+		name_label.text = name_input_field.text
+		UserManager.user_name = name_label.text
 
 func _on_cancel_name_button_pressed() -> void:
 	name_label_edit.show()
 	name_input_save_cancel.hide()
+
+func get_level_from_xp(xp: int) -> int:
+	return xp / XP_PER_LEVEL
+
+func get_xp_progress_percent(xp: int) -> float:
+	return float(xp % XP_PER_LEVEL) / XP_PER_LEVEL * 100.0

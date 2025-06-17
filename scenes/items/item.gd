@@ -15,7 +15,7 @@ class_name Item
 @export var icon: Texture2D
 @export var max_stack: int = 1
 
-@onready var property_sync: PropertySync = get_node("PropertySync")
+@onready var property_sync: PropertySync = $PropertySync
 
 var pickup_area: Area2D
 var is_dropped: bool = false:

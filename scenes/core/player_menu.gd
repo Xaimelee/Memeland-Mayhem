@@ -70,7 +70,8 @@ func _on_play_game_pressed() -> void:
 	var data = {
 		"walletAddress": UserManager.user_data.wallet_address,
 		"inventory": [],
-		"stash": []
+		"stash": [],
+		"playerName": UserManager.user_name
 	}
 	for n in inventory.items.size():
 		var item: Item = inventory.get_item_at_index(n)
@@ -99,11 +100,3 @@ func _on_play_offline_pressed() -> void:
 func _on_play_as_guest_pressed() -> void:
 	UserManager.user_data = MultiplayerManager.guest_data
 	Globals.start_online_game()
-
-
-func _on_edit_name_button_pressed() -> void:
-	pass # Replace with function body.
-
-
-func _on_cancel_name_button_pressed() -> void:
-	pass # Replace with function body.

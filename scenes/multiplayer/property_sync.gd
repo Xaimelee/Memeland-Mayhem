@@ -1,6 +1,8 @@
 extends Node
 class_name PropertySync
 
+signal property_changed(property_name: String)
+
 @onready var root: Node = get_parent()
 
 # FOR TESTING, I will add a global debug class for extra logging based on if running in debug mode or not
@@ -8,6 +10,9 @@ var extra_logs: bool = false
 # NOTE: This can only sync values which can be serialized over the network. Nodes, resources, anything derived from an object can't be.
 # This array is just for when new players have joined/synced and need current values from properties.
 var synced_properties: Array[String] = []
+# This array is for client side to ignore properties. For example: client sends inputs, server relays input to all clients, original client...
+#... want to ignore the relay since it could override a new input change.
+var ignore_properties: Array[String] = []
 
 func _ready() -> void:
 	if MultiplayerManager.is_server():
@@ -36,9 +41,14 @@ func sync_all() -> void:
 
 @rpc("authority", "call_remote")
 func sync_property(property_name: String, value: Variant) -> void:
+	if ignore_properties.has(property_name): 
+		if extra_logs:
+			print("Ignored: " + property_name + " with value of " + str(value))
+		return
 	if extra_logs:
 		print("Received: " + property_name + " with value of " + str(value))
 	root.set(property_name, value)
+	property_changed.emit(property_name)
 
 @rpc("authority", "call_remote")
 func sync_properties(properties: Dictionary) -> void:

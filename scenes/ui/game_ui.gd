@@ -4,7 +4,8 @@ class_name GameUI
 @onready var message: Control = %Message
 @onready var message_label: Label = %MessageLabel
 @onready var player_ui: Control = %PlayerUI
-@onready var inventory_container = %InventoryContainer
+@onready var inventory_container: HBoxContainer = %InventoryContainer
+@onready var xp_label: Label = %XPLabel
 
 var player: PlayerCharacter = null
 var item_displays: Array[ItemDisplay] = []
@@ -23,6 +24,8 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	player_ui.visible = player != null
+	if player != null:
+		xp_label.text = "XP: " + str(player.current_additive_xp)
 
 func show_message(text: String) -> void:
 	message.visible = true

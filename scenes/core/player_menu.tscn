@@ -226,7 +226,8 @@ theme_override_constants/margin_top = 15
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 15
 
-[node name="TextureProgressBar" type="TextureProgressBar" parent="Player/PlayerWindow/ParentContainer/LevelContainer/MarginContainer"]
+[node name="XPProgressBar" type="TextureProgressBar" parent="Player/PlayerWindow/ParentContainer/LevelContainer/MarginContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 value = 40.0
 nine_patch_stretch = true
@@ -237,7 +238,8 @@ stretch_margin_bottom = 7
 texture_under = ExtResource("8_rr0js")
 texture_progress = ExtResource("9_xoxmh")
 
-[node name="XP" type="Label" parent="Player/PlayerWindow/ParentContainer/LevelContainer/MarginContainer/TextureProgressBar"]
+[node name="XPLabel" type="Label" parent="Player/PlayerWindow/ParentContainer/LevelContainer/MarginContainer/XPProgressBar"]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -253,7 +255,7 @@ layout_mode = 2
 size_flags_horizontal = 0
 texture = ExtResource("10_xseq2")
 
-[node name="Level" type="Label" parent="Player/PlayerWindow/ParentContainer/LevelContainer/TextureRect"]
+[node name="LevelLabel" type="Label" parent="Player/PlayerWindow/ParentContainer/LevelContainer/TextureRect"]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15

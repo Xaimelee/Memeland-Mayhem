@@ -1,10 +1,10 @@
 extends Item
 class_name Experience
 
-var amount: int = 1:
-	set(value):
-		amount = value
-		property_sync.sync("amount", amount)
+var amount: int = 1
+	#set(value):
+		#amount = value
+		#property_sync.sync("amount", amount)
 
 func _ready() -> void:
 	super._ready()

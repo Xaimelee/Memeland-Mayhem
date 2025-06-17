@@ -78,7 +78,7 @@ func start_network() -> void:
 			print("Server created")
 	else:
 		# NOTE: We need a way to easily change what ip is used. For testing, I will still use EC2 since it's probably quicker and ip never changes.
-		var cloudflow_ip = "wss://connect.computeflow.cloud:8353"
+		var cloudflow_ip = "wss://connect.computeflow.cloud:5417"
 		var ip = "ws://" + server_ip + ":" + str(SERVER_PORT)
 		err = peer.create_client(ip)
 		if err == 0:
@@ -93,12 +93,12 @@ func request_user_id() -> void:
 	if SolanaService.wallet.is_logged_in() and UserManager.user_data:
 		# This isn't secure, we will also need to require some unique session token from them logging in...
 		#... to make sure that even if user ids are leaked, people can't just log in as other users.
-		rpc_id(1, "send_user_id", UserManager.user_data.user_id, UserManager.user_name)
+		rpc_id(1, "send_user_id", UserManager.user_data.user_id)
 	else:
 		rpc_id(1, "send_user_id")
 
 @rpc("any_peer", "call_remote")
-func send_user_id(user_id: String = "guest", user_name: String = "Player") -> void:
+func send_user_id(user_id: String = "guest") -> void:
 	# Safeguard
 	if not is_server(): return
 	var peer_id: int = multiplayer.get_remote_sender_id()
@@ -111,7 +111,6 @@ func send_user_id(user_id: String = "guest", user_name: String = "Player") -> vo
 	# This means we already have approved the user id of this user
 	if connected_user.status == 1: return
 	connected_user.user_id = user_id
-	connected_user.user_name = user_name
 	# Gonna try and send snapshot here:
 	MultiplayerSync.create_and_send_snapshot(peer_id)
 	if not user_id.contains("guest"):
@@ -142,7 +141,7 @@ func spawn_player(peer_id: int, connected_user: ConnectedUser) -> void:
 		#var item_node: Item = MultiplayerSync.create_and_spawn_node(Globals.item_scenes[item_name], player.inventory)
 		#player.inventory.rpc("add_item_with_path", item_node.get_path(), slot)
 		#player.inventory.rpc("create_and_add_item", item_name, slot)
-	player.rpc("init_player", peer_id, spawn_position + random_offset, connected_user.user_name)
+	player.rpc("init_player", peer_id, spawn_position + random_offset, connected_user.user_data.player_name)
 
 func disconnect_user(peer_id: int) -> void:
 	peer.disconnect_peer(peer_id)

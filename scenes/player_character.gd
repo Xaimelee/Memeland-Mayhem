@@ -13,22 +13,23 @@ enum EquipmentSlot {ONE, TWO, THREE, FOUR, FIVE, SIX}
 @export var id: int = 1
 @export var player_input: PlayerInput
 @export var not_owned_healthbar_style: StyleBoxFlat
-@export var synced_velocity: Vector2
-@export var synced_global_position: Vector2
 
 var prev_position: Vector2 = Vector2.ZERO
-var target_position: Vector2 = Vector2.ZERO
+var target_position: Vector2 = Vector2.ZERO:
+	set(value):
+		target_position = value
+		property_sync.sync("target_position", target_position)
 var current_arm_state: ArmState = ArmState.LEFT
 var current_state: PlayerState = PlayerState.ALIVE
 var current_equipment_slot: EquipmentSlot = EquipmentSlot.ONE
 var nearby_items: Array[Item] = []
-var current_additive_xp: int = 0
-#var equipment: Array[Weapon] = [null, null, null, null]
+var current_additive_xp: int = 0:
+	set(value):
+		current_additive_xp = value
+		property_sync.sync("current_additive_xp", current_additive_xp)
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var arm_sprite: Sprite2D = $AnimatedSprite2D/ArmSprite2D
-#@onready var primary_weapon: Node2D = $AnimatedSprite2D/ArmSprite2D/BoringRifle
-#@onready var secondary_weapon: Node2D = $AnimatedSprite2D/ArmSprite2D/CyberGlock
 @onready var weapon: Weapon = null
 @onready var damage_area: Area2D = $DamageArea2D
 @onready var camera: Camera2D = $Camera2D
@@ -39,13 +40,18 @@ var current_additive_xp: int = 0
 @onready var inventory: Inventory = $Inventory
 @onready var tick_interpolator: TickInterpolator = $TickInterpolator
 @onready var detect_area: Area2D = $DetectArea2D
+@onready var property_sync: PropertySync = $PropertySync
+@onready var extraction_timer: Timer = $ExtractionTimer
+@onready var extraction_label: Label = $ExtractionLabel
 
 func _ready() -> void:
-	#equipment[0] = primary_weapon
-	#equipment[1] = secondary_weapon
 	player_input.player_character = self
 	if MultiplayerManager.is_server():
 		MultiplayerSync.player_synced.connect(_on_player_synced)
+	property_sync.add_properties([
+		"current_additive_xp",
+		"target_position"
+	])
 	# Hack for having weapons spawned in when local testing. Will need a better way in future.
 	# NOTE: In future should just be running the init player function, which would load guest data for items
 	# We can also add support in future for loading items that are children of inventory node at runtime
@@ -55,10 +61,14 @@ func _ready() -> void:
 		inventory.synced_create_and_add_item("cyber_glock")
 
 func _process(delta: float) -> void:
+	extraction_label.visible = !extraction_timer.is_stopped()
+	if extraction_label.visible:
+		extraction_label.text = str(round(extraction_timer.time_left * 10) / 10.0)
 	if not MultiplayerManager.is_server() and not has_ownership():
 		global_position = global_position.lerp(target_position, 20.0 * delta)
 	if MultiplayerManager.is_server() and prev_position != global_position:
-		rpc("update_target_position", global_position)
+		target_position = global_position
+		#rpc("update_target_position", global_position)
 		prev_position = global_position
 
 # Using Netfox to implement CSP movement
@@ -179,7 +189,7 @@ func die() -> void:
 	# NOTE: In future should probably be on server rpcing but doing this for now
 	#for n in inventory.slots:
 		#inventory.drop_item(n)
-
+	toggle_extraction(false)
 	if MultiplayerManager.is_server():
 		inventory.synced_drop_all()
 		drop_experience()
@@ -198,11 +208,20 @@ func drop_experience() -> void:
 
 @rpc("authority", "call_local")
 func extract() -> void:
+	if current_state != PlayerState.ALIVE: return
 	if has_ownership():
 		Globals.player_extracted.emit(self)
 	change_state(PlayerState.EXTRACT)
 	if not MultiplayerManager.is_server(): return
 	MultiplayerManager.player_extracted(self)
+
+@rpc("authority", "call_local")
+func toggle_extraction(is_extracting: bool = true) -> void:
+	if current_state != PlayerState.ALIVE: return
+	if is_extracting:
+		extraction_timer.start()
+	else:
+		extraction_timer.stop()
 
 # TESTING REMOVE LATER
 @rpc("any_peer", "call_local")
@@ -314,12 +333,12 @@ func update_equipment_slot(new_equipment_slot: EquipmentSlot) -> void:
 	#if health <= 0:
 		#change_state(State.DEAD)
 
-@rpc("authority", "call_remote")
-func update_target_position(new_target_position: Vector2) -> void:
-	# We just update target position on clients
-	target_position = new_target_position
+#@rpc("authority", "call_remote")
+#func update_target_position(new_target_position: Vector2) -> void:
+	## We just update target position on clients
+	#target_position = new_target_position
 
-@rpc("authority", "call_local")
+@rpc("authority", "call_local", "reliable")
 func init_player(new_id: int, spawn_position: Vector2, user_name: String) -> void:
 	id = new_id
 	prev_position = spawn_position
@@ -339,6 +358,7 @@ func init_player(new_id: int, spawn_position: Vector2, user_name: String) -> voi
 		tick_interpolator.queue_free()
 	if not has_ownership() and healthbar:
 		healthbar.progress_bar.add_theme_stylebox_override("fill", not_owned_healthbar_style)
+	change_equipment_slot(0)
 
 func validate_user_rpc(error_message: String) -> bool:
 	# Incase someone tries to change from rpc_id to rpc, we make sure that if somehow this is ran...
@@ -397,3 +417,7 @@ func _on_detect_area_2d_area_exited(area: Area2D) -> void:
 	var item: Item = area.get_parent() as Item
 	if item == null: return
 	nearby_items.erase(item)
+
+func _on_extraction_timer_timeout() -> void:
+	if MultiplayerManager.is_server():
+		extract.rpc()

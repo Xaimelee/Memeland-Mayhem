@@ -2,6 +2,7 @@ class_name EnemyCharacter extends CharacterBody2D
 
 signal enemy_died
 signal reached_next_position(enemy: EnemyCharacter)
+signal enemy_respawned(enemy: EnemyCharacter)
 
 enum State {IDLE, CHASE, ATTACK, DEAD}
 
@@ -26,11 +27,12 @@ var weapon: Weapon
 @onready var health: Health = $Health
 @onready var enemy_states: StateMachine = $EnemyStates
 @onready var inventory: Inventory = $Inventory
+@onready var respawn_timer: Timer = $RespawnTimer
 
 func _ready() -> void:
 	if MultiplayerManager.is_server():
 		MultiplayerSync.player_synced.connect(_on_player_synced)
-		inventory.synced_create_and_add_item("under_taker")
+		#inventory.synced_create_and_add_item("under_taker")
 	# NOTE: This is for TESTING and will need a proper system in future to determine both weapon...
 	#... and loot for AI.
 	#inventory.create_and_add_item("under_taker")
@@ -189,6 +191,12 @@ func shoot() -> void:
 	#if health <= 0:
 		#die()
 
+func respawn(spawn_position: Vector2) -> void:
+	inventory.synced_create_and_add_item("under_taker")
+	health.change_health(health.max_health, true)
+	enemy_states.change_state("enemyidle")
+	teleport_position.rpc(spawn_position)
+
 func die() -> void:
 	# Disable collision
 	damage_area.collision_layer = 0
@@ -211,6 +219,7 @@ func die() -> void:
 	if MultiplayerManager.is_server():
 		inventory.synced_drop_all()
 		drop_experience()
+		respawn_timer.start()
 	
 	#inventory.drop_item(0)
 	#drop_experience(xp_drop)
@@ -227,11 +236,18 @@ func drop_experience() -> void:
 func init_enemy(new_position: Vector2, new_target_node_path: String) -> void:
 	global_position = new_position
 	target_position = new_position
+	next_position = new_position
 	update_target(new_target_node_path)
 	if inventory.items[0] != null:
 		weapon = inventory.items[0]
 		weapon.visible = true
 	#update_state(new_state)
+
+@rpc("authority", "call_local")
+func teleport_position(new_global_position: Vector2) -> void:
+	global_position = new_global_position
+	target_position = new_global_position
+	next_position = new_global_position
 
 @rpc("authority", "call_remote")
 func update_target_position(new_target_position: Vector2) -> void:
@@ -270,3 +286,12 @@ func _on_attack_timer_timeout() -> void:
 # This is so we can sync server state with players who have joined later on
 func _on_player_synced(id: int):
 	rpc_id(id, "init_enemy", global_position, get_target_path())
+
+
+func _on_respawn_timer_timeout() -> void:
+	enemy_respawned.emit(self)
+
+# This acts as essentially a ready function when we need to spawn more 'synced' instances as a networked child of this instance.
+func _on_sync_instance_registered() -> void:
+	if not MultiplayerManager.is_server(): return
+	inventory.synced_create_and_add_item("under_taker")

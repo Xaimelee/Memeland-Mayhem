@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3 uid="uid://dxk1jvimm72ti"]
+[gd_scene load_steps=37 format=3 uid="uid://dxk1jvimm72ti"]
 
 [ext_resource type="Script" uid="uid://ceedsgkf30k30" path="res://scenes/player_character.gd" id="1_6r27q"]
 [ext_resource type="Texture2D" uid="uid://cpgffeu6no6yu" path="res://assets/brett-arm.png" id="3_4h0vy"]
@@ -10,6 +10,7 @@
 [ext_resource type="Script" uid="uid://cbnhopyj7n0lf" path="res://scenes/components/damage.gd" id="10_herhr"]
 [ext_resource type="Script" uid="uid://f74ardnl26pd" path="res://scenes/multiplayer/sync_instance.gd" id="11_s7f3b"]
 [ext_resource type="PackedScene" uid="uid://dt8k73d284knj" path="res://scenes/hud/healthbar.tscn" id="11_xb3ya"]
+[ext_resource type="Script" uid="uid://cil2r0ln8s14j" path="res://scenes/multiplayer/property_sync.gd" id="12_c4hvp"]
 [ext_resource type="Script" uid="uid://dmgbe3sqm4g8a" path="res://scenes/components/inventory.gd" id="12_s7f3b"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xb3ya"]
@@ -238,6 +239,23 @@ size_flags_vertical = 8
 text = "Player"
 horizontal_alignment = 1
 
+[node name="ExtractionLabel" type="Label" parent="."]
+z_index = 2
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -24.5
+offset_top = -81.0
+offset_right = 24.5
+offset_bottom = -58.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_vertical = 8
+text = "0.0"
+horizontal_alignment = 1
+
 [node name="PlayerInput" type="Node" parent="."]
 script = ExtResource("7_pxja8")
 
@@ -275,8 +293,17 @@ metadata/_custom_type_script = "uid://dmgbe3sqm4g8a"
 script = ExtResource("11_s7f3b")
 metadata/_custom_type_script = "uid://f74ardnl26pd"
 
+[node name="PropertySync" type="Node" parent="."]
+script = ExtResource("12_c4hvp")
+metadata/_custom_type_script = "uid://cil2r0ln8s14j"
+
+[node name="ExtractionTimer" type="Timer" parent="."]
+wait_time = 15.0
+one_shot = true
+
 [connection signal="area_entered" from="DetectArea2D" to="." method="_on_detect_area_2d_area_entered"]
 [connection signal="area_exited" from="DetectArea2D" to="." method="_on_detect_area_2d_area_exited"]
 [connection signal="health_changed" from="Health" to="." method="_on_health_health_changed"]
 [connection signal="item_added" from="Inventory" to="." method="_on_inventory_item_added"]
 [connection signal="item_removed" from="Inventory" to="." method="_on_inventory_item_removed"]
+[connection signal="timeout" from="ExtractionTimer" to="." method="_on_extraction_timer_timeout"]

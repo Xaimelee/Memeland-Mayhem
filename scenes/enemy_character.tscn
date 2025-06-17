@@ -167,7 +167,7 @@ radius = 8.0
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1r54h"]
 bg_color = Color(1, 1, 0, 1)
 
-[node name="EnemyCharacter" type="CharacterBody2D"]
+[node name="EnemyCharacter" type="CharacterBody2D" groups=["enemies"]]
 z_index = 1
 z_as_relative = false
 y_sort_enabled = true
@@ -198,6 +198,10 @@ shape = SubResource("CircleShape2D_d557m")
 
 [node name="AttackTimer" type="Timer" parent="."]
 wait_time = 1.5
+one_shot = true
+
+[node name="RespawnTimer" type="Timer" parent="."]
+wait_time = 30.0
 one_shot = true
 
 [node name="DamageArea2D" type="Area2D" parent="."]
@@ -255,5 +259,7 @@ script = ExtResource("13_rjfk7")
 metadata/_custom_type_script = "uid://f74ardnl26pd"
 
 [connection signal="timeout" from="AttackTimer" to="." method="_on_attack_timer_timeout"]
+[connection signal="timeout" from="RespawnTimer" to="." method="_on_respawn_timer_timeout"]
+[connection signal="registered" from="SyncInstance" to="." method="_on_sync_instance_registered"]
 
 [editable path="Healthbar"]

@@ -10,4 +10,11 @@ func _on_area_2d_body_entered(body: Node2D) -> void:
 	if not MultiplayerManager.is_server(): return
 	var player: PlayerCharacter = body as PlayerCharacter
 	if player == null: return
-	player.rpc("extract")
+	#player.rpc("extract")
+	player.toggle_extraction.rpc()
+
+func _on_area_2d_body_exited(body: Node2D) -> void:
+	if not MultiplayerManager.is_server(): return
+	var player: PlayerCharacter = body as PlayerCharacter
+	if player == null: return
+	player.toggle_extraction.rpc(false)

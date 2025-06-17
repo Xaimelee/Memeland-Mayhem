@@ -41,6 +41,11 @@ window/stretch/aspect="expand"
 
 enabled=PackedStringArray("res://addons/SolanaSDK/plugin.cfg", "res://addons/netfox.internals/plugin.cfg", "res://addons/netfox/plugin.cfg")
 
+[global_group]
+
+enemy_spawns=""
+enemies=""
+
 [input]
 
 move_down={
