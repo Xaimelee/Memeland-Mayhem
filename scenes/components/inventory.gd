@@ -22,6 +22,8 @@ signal index_updated(item: Item, index: int)
 
 var items: Array[Item] = []
 
+@onready var drop_positions: DropPositions = get_parent().get_node_or_null("DropPositions")
+
 func _ready() -> void:
 	if MultiplayerManager.is_server():
 		MultiplayerSync.player_synced.connect(_on_player_synced)
@@ -84,7 +86,10 @@ func synced_drop_item(index: int) -> void:
 	if item == null: return
 	var new_parent: Node2D = get_tree().root.get_node("Main/Dynamic")
 	MultiplayerSync.change_parent_and_sync(item, new_parent)
-	var position: Vector2 = get_parent().global_position + Vector2(randf_range(0.05, 0.25), randf_range(0.05, 0.25))
+	var position: Vector2 = (
+		drop_positions.get_item_drop_position() 
+		if drop_positions != null 
+		else get_parent().global_position + Vector2(randf_range(0.05, 0.25), randf_range(0.05, 0.25)))
 	drop_item.rpc(index, position)
 
 func synced_drop_all() -> void:

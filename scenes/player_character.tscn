@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3 uid="uid://dxk1jvimm72ti"]
+[gd_scene load_steps=38 format=3 uid="uid://dxk1jvimm72ti"]
 
 [ext_resource type="Script" uid="uid://ceedsgkf30k30" path="res://scenes/player_character.gd" id="1_6r27q"]
 [ext_resource type="Texture2D" uid="uid://cpgffeu6no6yu" path="res://assets/brett-arm.png" id="3_4h0vy"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://dt8k73d284knj" path="res://scenes/hud/healthbar.tscn" id="11_xb3ya"]
 [ext_resource type="Script" uid="uid://cil2r0ln8s14j" path="res://scenes/multiplayer/property_sync.gd" id="12_c4hvp"]
 [ext_resource type="Script" uid="uid://dmgbe3sqm4g8a" path="res://scenes/components/inventory.gd" id="12_s7f3b"]
+[ext_resource type="PackedScene" uid="uid://decthxh7bgydw" path="res://scenes/components/drop_positions.tscn" id="13_c4hvp"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xb3ya"]
 bg_color = Color(1, 1, 0, 1)
@@ -300,6 +301,8 @@ metadata/_custom_type_script = "uid://cil2r0ln8s14j"
 [node name="ExtractionTimer" type="Timer" parent="."]
 wait_time = 15.0
 one_shot = true
+
+[node name="DropPositions" parent="." instance=ExtResource("13_c4hvp")]
 
 [connection signal="area_entered" from="DetectArea2D" to="." method="_on_detect_area_2d_area_entered"]
 [connection signal="area_exited" from="DetectArea2D" to="." method="_on_detect_area_2d_area_exited"]

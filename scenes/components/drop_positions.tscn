@@ -1,0 +1,48 @@
+[gd_scene load_steps=2 format=3 uid="uid://decthxh7bgydw"]
+
+[ext_resource type="Script" uid="uid://bbsowmru7vws1" path="res://scenes/components/drop_positions.gd" id="1_7iinj"]
+
+[node name="DropPositions" type="Node2D"]
+script = ExtResource("1_7iinj")
+metadata/_custom_type_script = "uid://bbsowmru7vws1"
+
+[node name="RayCast2D" type="RayCast2D" parent="."]
+position = Vector2(0, -9)
+target_position = Vector2(0, 16)
+collision_mask = 9
+collide_with_areas = true
+
+[node name="RayCast2D2" type="RayCast2D" parent="."]
+position = Vector2(0, -9)
+rotation = 3.14159
+target_position = Vector2(0, 16)
+collision_mask = 9
+collide_with_areas = true
+
+[node name="RayCast2D3" type="RayCast2D" parent="."]
+position = Vector2(0, -9)
+rotation = 4.18879
+target_position = Vector2(0, 16)
+collision_mask = 9
+collide_with_areas = true
+
+[node name="RayCast2D4" type="RayCast2D" parent="."]
+position = Vector2(0, -9)
+rotation = 5.23599
+target_position = Vector2(0, 16)
+collision_mask = 9
+collide_with_areas = true
+
+[node name="RayCast2D5" type="RayCast2D" parent="."]
+position = Vector2(0, -9)
+rotation = 1.0472
+target_position = Vector2(0, 16)
+collision_mask = 9
+collide_with_areas = true
+
+[node name="RayCast2D6" type="RayCast2D" parent="."]
+position = Vector2(0, -9)
+rotation = 2.0944
+target_position = Vector2(0, 16)
+collision_mask = 9
+collide_with_areas = true

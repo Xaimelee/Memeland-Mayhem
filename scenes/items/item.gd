@@ -16,11 +16,12 @@ class_name Item
 @export var max_stack: int = 1
 
 var pickup_area: Area2D = null
+var pickup_collision_layer: int = 0
+var pickup_collision_mask: int = 0
 var is_dropped: bool = false:
 	set(value):
 		is_dropped = value
-		if pickup_area != null:
-			pickup_area.monitorable = is_dropped
+		set_monitorable(is_dropped)
 		# This isn't called to be synced when changed for now because inventory functions of add item/drop item handle this.
 		#property_sync.sync("is_dropped", is_dropped)
 var despawn_time_passed: float = 0.0
@@ -36,7 +37,9 @@ func _ready() -> void:
 	])
 	pickup_area = get_node_or_null("PickupArea")
 	if pickup_area != null:
-		pickup_area.monitorable = is_dropped
+		pickup_collision_layer = pickup_area.collision_layer
+		pickup_collision_mask = pickup_area.collision_mask
+		set_monitorable(is_dropped)
 
 func _process(delta: float) -> void:
 	update_despawn_timer(delta)
@@ -47,6 +50,16 @@ func update_despawn_timer(delta: float) -> void:
 		despawn_time_passed += delta
 		if despawn_time_passed > despawn_timer_duration:
 			queue_free()
+
+func set_monitorable(is_monitorable: bool) -> void:
+	if pickup_area == null: return
+	pickup_area.monitorable = is_monitorable
+	if is_monitorable:
+		pickup_area.collision_layer = pickup_collision_layer
+		pickup_area.collision_mask = pickup_collision_mask
+	else:
+		pickup_area.collision_layer = 0
+		pickup_area.collision_mask = 0
 
 func override_global_position(new_global_position: Vector2) -> void:
 	global_position = new_global_position
