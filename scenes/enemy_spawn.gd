@@ -11,6 +11,8 @@ var spawn_positions: Array[Vector2] = []
 var main: Main
 var enemies: Array[EnemyCharacter]
 
+# NOTE: There may be times when we wont actually have the max spawns we want, so in future may want to experiement...
+#... with a while loop. Also we should figure out a solution for having enemies spawn at same points.
 # Should only be called on server, client doesn't need to care about this
 func setup(_main: Main) -> void:
 	main = _main
@@ -24,7 +26,11 @@ func setup(_main: Main) -> void:
 		if spawn_positions.has(spawn_position): continue
 		spawn_positions.append(spawn_position)
 	var available_spawns: Array[Vector2] = spawn_positions.duplicate()
+	if available_spawns.is_empty():
+		print(name + " did not get any valid spawns")
+		return
 	for n in max_enemies:
+		if available_spawns.is_empty(): break
 		var enemy: EnemyCharacter = MultiplayerSync.create_and_spawn_node(enemy_scene, main.get_node("Characters"))
 		var spawn_position: Vector2 = available_spawns.pick_random()
 		available_spawns.erase(spawn_position)

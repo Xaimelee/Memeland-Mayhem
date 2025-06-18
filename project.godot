@@ -45,6 +45,7 @@ enabled=PackedStringArray("res://addons/SolanaSDK/plugin.cfg", "res://addons/net
 
 enemy_spawns=""
 enemies=""
+player_spawns=""
 
 [input]
 

@@ -174,7 +174,6 @@ y_sort_enabled = true
 collision_layer = 2
 script = ExtResource("1_p2vio")
 speed = 100.0
-detection_range = 3000.0
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 z_index = 1
@@ -237,6 +236,7 @@ metadata/_custom_type_script = "uid://bssusjsj4spig"
 
 [node name="Health" type="Node" parent="."]
 script = ExtResource("10_mbkdu")
+max_health = 50.0
 metadata/_custom_type_script = "uid://bc87ii71ke3rg"
 
 [node name="Damage" type="Node" parent="."]

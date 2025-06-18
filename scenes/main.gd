@@ -5,6 +5,7 @@ var walkable_positions: Array[Vector2i] = []
 var mission_area: Rect2i = Rect2i(200, 0, 100, 100)
 
 @onready var wall_layer: TileMapLayer = $Map/Walls
+@onready var floor2_later: TileMapLayer = $Map/Floor2
 
 func _ready() -> void:
 	MultiplayerManager.start_network()
@@ -24,6 +25,8 @@ func _ready() -> void:
 			_on_enemy_spawned(enemy)
 
 func init_astar() -> void:
+	# for testing
+	mission_area = floor2_later.get_used_rect()
 	for x in range(mission_area.size.x):
 		for y in range(mission_area.size.y):
 			var map_position = Vector2i(x + mission_area.position.x, y + mission_area.position.y)

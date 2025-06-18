@@ -18,8 +18,17 @@ script = ExtResource("1_o5qli")
 
 [node name="Map" parent="." instance=ExtResource("3_sugp2")]
 
-[node name="PlayerSpawnPoint" type="Node2D" parent="."]
+[node name="PlayerSpawnPoint" type="Node2D" parent="." groups=["player_spawns"]]
 position = Vector2(3411.7, 789.6)
+
+[node name="PlayerSpawnPoint2" type="Node2D" parent="." groups=["player_spawns"]]
+position = Vector2(1820, 2398)
+
+[node name="PlayerSpawnPoint3" type="Node2D" parent="." groups=["player_spawns"]]
+position = Vector2(2392, 1099)
+
+[node name="PlayerSpawnPoint4" type="Node2D" parent="." groups=["player_spawns"]]
+position = Vector2(2989, 2402)
 
 [node name="Characters" type="Node2D" parent="."]
 z_as_relative = false
@@ -50,3 +59,12 @@ position = Vector2(3200, 3072)
 
 [node name="EnemySpawn" parent="." instance=ExtResource("7_o6xl0")]
 position = Vector2(4003, 800)
+
+[node name="EnemySpawn2" parent="." instance=ExtResource("7_o6xl0")]
+position = Vector2(2386, 796)
+
+[node name="EnemySpawn3" parent="." instance=ExtResource("7_o6xl0")]
+position = Vector2(2403, 2459)
+
+[node name="EnemySpawn4" parent="." instance=ExtResource("7_o6xl0")]
+position = Vector2(519, 2091)

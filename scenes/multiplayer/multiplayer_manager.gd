@@ -17,6 +17,7 @@ var server_ip: String = "52.63.141.232"
 var override_is_local: bool = false
 var characters: Node2D
 var player_spawn: Node2D
+var player_spawns: Array[Node2D] = []
 var connected_users: Dictionary = {}
 var players_to_spawn: Array[int]
 var guest_data: UserData = UserData.new(
@@ -69,6 +70,9 @@ func start_network() -> void:
 	# Atm we assume start_network is always called by main after its loaded
 	characters = get_node("/root/Main/Characters")
 	player_spawn = get_node("/root/Main/PlayerSpawnPoint")
+	var nodes: Array[Node] = get_tree().get_nodes_in_group("player_spawns")
+	for node in nodes:
+		player_spawns.append(node as Node2D)
 	var err: Error
 	#multiplayer.peer_connected.connect(_on_peer_connected)
 	#multiplayer.peer_disconnected.connect(_on_peer_disconnected)
@@ -139,7 +143,7 @@ func spawn_player(peer_id: int, connected_user: ConnectedUser) -> void:
 	var player: PlayerCharacter = MultiplayerSync.create_and_spawn_node(PLAYER_SCENE, characters) as PlayerCharacter
 	#var player: PlayerCharacter = PLAYER_SCENE.instantiate()
 	#characters.add_child(player, true)
-	var spawn_position: Vector2 = player_spawn.global_position
+	var spawn_position: Vector2 = player_spawns.pick_random().global_position
 	var random_offset: Vector2 = Vector2(randf_range(-5, 5), randf_range(-5, 5))
 	player.set_multiplayer_authority(1)
 	player.player_input.set_multiplayer_authority(peer_id)
