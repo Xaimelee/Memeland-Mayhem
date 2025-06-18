@@ -91,6 +91,13 @@ func synced_drop_all() -> void:
 	for n in slots:
 		synced_drop_item(n)
 
+func synced_wipe_inventory() -> void:
+	for n in slots:
+		var item: Item = items[n]
+		if item == null: continue
+		remove_item.rpc(n)
+		item.queue_free()
+
 @rpc("authority", "call_local")
 func drop_item(index: int, position: Vector2) -> void:
 	var item: Item = items[index]
@@ -117,6 +124,7 @@ func add_item(new_item: Item, index: int) -> void:
 	item_added.emit(new_item)
 	index_updated.emit(new_item, index)
 
+@rpc("authority", "call_local")
 func remove_item(index: int) -> void:
 	var item: Item = items[index]
 	if item == null: return

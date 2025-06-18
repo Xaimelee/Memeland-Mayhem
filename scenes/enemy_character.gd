@@ -217,7 +217,10 @@ func die() -> void:
 	#... for each item. This also isn't authoritatively synced, which it might need to be in future?
 	weapon = null
 	if MultiplayerManager.is_server():
-		inventory.synced_drop_all()
+		if randf() < 0.25:
+			inventory.synced_drop_all()
+		else:
+			inventory.synced_wipe_inventory()
 		drop_experience()
 		respawn_timer.start()
 	
