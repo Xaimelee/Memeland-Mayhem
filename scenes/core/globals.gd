@@ -42,13 +42,15 @@ func load_item_scenes():
 
 func start_online_game():
 	MultiplayerManager.override_is_local = false
-	MultiplayerManager.server_ip = "52.63.141.232"
+	MultiplayerManager.use_localhost = false
+	#MultiplayerManager.server_ip = "52.63.141.232"
 	get_tree().change_scene_to_packed(MAIN_SCENE)
 	scene_changed.emit("Main")
 
 func start_local_game():
 	MultiplayerManager.override_is_local = false
-	MultiplayerManager.server_ip = "localhost"
+	MultiplayerManager.use_localhost = true
+	#MultiplayerManager.server_ip = "localhost"
 	get_tree().change_scene_to_packed(MAIN_SCENE)
 	scene_changed.emit("Main")
 

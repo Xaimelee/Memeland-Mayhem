@@ -28,6 +28,16 @@ func _on_request_completed(result: int, response_code: int, headers: PackedStrin
 		)
 		print(user_data)
 		successful_response.emit(user_data)
+	elif request_id == 4:
+		var data: Dictionary = get_http_data(body)["servers"][0]
+		print(data)
+		var playflow_server_data: PlayflowServerData = PlayflowServerData.new(
+			data["network_ports"][0]["host"],
+			data["network_ports"][0]["external_port"]
+		)
+		print(playflow_server_data.host)
+		print(playflow_server_data.port)
+		successful_response.emit(playflow_server_data)
 	elif result == HTTPRequest.RESULT_SUCCESS:
 		var response_type: ResponseType = ResponseType.new()
 		# We can do generic successes here which don't require any response types

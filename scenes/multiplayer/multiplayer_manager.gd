@@ -12,6 +12,7 @@ const PLAYER_SCENE: PackedScene = preload("uid://dxk1jvimm72ti")
 # So we can set this via a menu button
 #localhost
 #52.63.141.232
+var use_localhost: bool = false
 var server_ip: String = "52.63.141.232"
 var override_is_local: bool = false
 var characters: Node2D
@@ -77,9 +78,17 @@ func start_network() -> void:
 			multiplayer.multiplayer_peer = peer
 			print("Server created")
 	else:
+		# NOTE: Trying to patch this in here, might not work well idk
+		var ip: String = ""
+		if use_localhost:
+			ip = "ws://" + "localhost" + ":" + str(SERVER_PORT)
+		else:
+			var server_data: PlayflowServerData = await Api.get_request(4, Callable(), "", ["api-key: pfclientGL2QcUUgHY7d3Qc1hUf5kLhDclqAd3ffvKuUrFdHHx4="]).successful_response
+			ip = "wss://" + server_data.host + ":" + str(server_data.port)
 		# NOTE: We need a way to easily change what ip is used. For testing, I will still use EC2 since it's probably quicker and ip never changes.
-		var cloudflow_ip = "wss://connect.computeflow.cloud:5417"
-		var ip = "ws://" + server_ip + ":" + str(SERVER_PORT)
+		#var cloudflow_ip = "wss://connect.computeflow.cloud:5417"
+		#var protocol: String = "ws://" if server_ip.contains("localhost") else "wss://"
+		#var ip = protocol + server_ip + ":" + str(SERVER_PORT)
 		err = peer.create_client(ip)
 		if err == 0:
 			#multiplayer.connected_to_server.connect(_on_connected_to_server)
