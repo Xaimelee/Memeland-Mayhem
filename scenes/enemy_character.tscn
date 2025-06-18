@@ -196,7 +196,7 @@ position = Vector2(0, -4)
 shape = SubResource("CircleShape2D_d557m")
 
 [node name="AttackTimer" type="Timer" parent="."]
-wait_time = 1.5
+wait_time = 2.0
 one_shot = true
 
 [node name="RespawnTimer" type="Timer" parent="."]

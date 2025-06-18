@@ -9,6 +9,8 @@ size = Vector2(512, 512)
 
 [node name="EnemySpawn" type="Area2D" groups=["enemy_spawns"]]
 top_level = true
+monitoring = false
+monitorable = false
 script = ExtResource("1_k74x0")
 enemy_scene = ExtResource("2_csy2x")
 

@@ -46,7 +46,7 @@ func _process(delta: float) -> void:
 	# We only want to calculate physic interactions on the server so we need to lerp the player movement on clients...
 	# so it still feels smooth. This will need testing with latency.
 	if not MultiplayerManager.is_server():
-		global_position = global_position.lerp(target_position, 30.0 * delta)
+		global_position = global_position.lerp(target_position, speed * delta)
 
 func _physics_process(delta: float) -> void:
 	if MultiplayerManager.is_server():

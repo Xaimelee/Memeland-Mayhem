@@ -18,6 +18,7 @@ var current_health: float = max_health:
 func _ready() -> void:
 	if MultiplayerManager.is_server():
 		MultiplayerSync.player_synced.connect(_on_player_synced)
+	current_health = max_health
 
 func change_health(new_health: float, should_replace: bool = false) -> void:
 	# This might be better than checking if is server? since authority id will always be 1

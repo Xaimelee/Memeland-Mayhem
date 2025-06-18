@@ -49,6 +49,7 @@ func handle_hit() -> void:
 	if raycast.is_colliding():
 		collision_point = raycast.get_collision_point() - fire_height
 		collider = raycast.get_collider().get_parent()
+		#print("hit " + str(collider))
 		if not collider: return
 		# Apply damage if hit an enemy
 		var _damage: Damage = collider.get_node_or_null("Damage")
