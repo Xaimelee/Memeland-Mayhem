@@ -192,7 +192,7 @@ func spawn_node(network_id: int, scene_path: String, parent_path: String = "", p
 		return
 	setup_node(network_id, node, parent, network_parent)
 
-# DEPRECATED
+# DEPRECATED because I added support to just queue free instances on the server which will get them correctly unregistered over the network
 func delete_and_despawn_node(node: Node) -> void:
 	var sync_instance: SyncInstance = root_to_sync_instances.get(node)
 	if sync_instance == null: 
